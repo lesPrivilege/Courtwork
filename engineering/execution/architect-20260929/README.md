@@ -669,3 +669,34 @@ Final source relevance was checked directly: the Work adapter/service and bounda
 The user-directed separation now has an implementation, import regression guards and synchronized architecture, Runtime/Work, ES-01 and frontend contracts. The private Work adapter has scoped Host readers, no Core mutation client and no new plugin authority. The two registered residuals remain bounded: built-in binding/HTTP routing is explicit Host composition, and Pi-shaped helpers remain runtime-adaptation coupling. Revisit them when their binding/domain or runtime contract changes; do not copy either into new generic loop or frontend code. Python and computed-import enforcement, Linux, real providers and comprehensive UI matrices remain unverified.
 
 Main remains `87e2207`, with the same three untracked local entries as intake. No push, deployment, user Host restart or credential access occurred. The synthetic browser fixture and tab were closed. Next capability work is the already-defined single real-harness witness after the user supplies the chosen model connection through an isolated WebUI; the completed source review is not evidence that this real task ran.
+
+### Merge into main · merge author, 2026-10-01
+
+The user asked for the candidate to be merged ("同意合并，审慎 review 后都清理"). `claude/merge-20260930` (`2056fb8`) was merged into `main`'s line at `a61ee19` — `main` had moved 21 commits since the base `87e2207`: the interaction-topology slices S1–S6 and the fixes from the [review of `7e8e253`](../../reviews/declaration-to-implementation-2026-10-01/README.md). Merge commit `91a3191` on branch `claude/merge-main-20261001`, then the review dispositions below. Merge author: Claude (Opus). This is integration, not acceptance: the parent's disposition above (bounded macOS dogfood continuation) is unchanged in scope.
+
+**Conflicts (ten files) and rulings.**
+
+| File | Ruling |
+|---|---|
+| `app/runtime/check-tools.mjs`, `app/docs/check-recipes.md`, `app/tests/check-recipes.test.mjs` | Both sides kept. `createCheckTools` takes the sandbox options and the runner stand-in in one signature. The merged runner reaps the process group on every exit path, so `groupLingered` (review F5) is stated for any status, a check that exited by itself included; the test gains that case. |
+| `app/web/app.mjs` (four hunks) | `main`'s shared approval basis (`web/approval-basis.mjs`) stays the one card body for the Chat card and the Attention assistant; R30-2's live-versus-recorded sentence (`checkAuthoredFilesSentence`) moves into it: only an open request states this Host's sandbox. The candidate's model card is not restored: S2's model chooser replaced it. |
+| `app/web/model-picker.mjs`, `app/tests/model-picker-dom.test.mjs` | Stay deleted (S2). The candidate's one change there, that a 409 `active_run` is not a version conflict, already held in the chooser; the chooser now also re-reads only on `config_conflict` and shows the Host's message for any other refusal. |
+| `app/tests/model-effort.test.mjs` | `main`'s assertions on the chooser; the candidate's assertions named the removed card. |
+| `app/web/materials-view.mjs` | `main`'s single reading of a materials answer (`materialOutcome`), narrowed as the candidate ruled: only `source_revision_conflict` is a conflict; any other 409 shows the Host's message. |
+| `app/tests/models-save-flow.test.mjs` | `main`'s S6 assertions. The S6 test that moved the in-force connection to a new endpoint met the candidate's rule that a saved key is never sent to a changed endpoint (`400 credential_required`): the test now shows the refusal with the Host's words and nothing moved, then succeeds with the key entered again. |
+| `engineering/current.md` | One status page for the merged line. |
+
+**Non-author review (Sonnet, read-only, wrote none of it)** of the merge commit, including code git merged without conflict. It traced each of the candidate's `app.mjs` changes to its place in the merged tree: all present or moved, none lost except the removed model card. Findings and dispositions:
+
+| Finding | Disposition |
+|---|---|
+| Two tests named code the merge replaced: the candidate's effort-save test read `saveEffortFromCard` from `app.mjs`; an S3 test expected any 409 to be a materials conflict | **Adopt.** The refusal rule is tested on the chooser (`model-effort.test.mjs`); the materials tests carry the Host's code and assert that another 409 is `failed`. |
+| The chooser applied a save receipt without checking it against the snapshot in hand | **Adopt.** A receipt older than the snapshot does not replace it. |
+| Two concurrent cancels (a shutdown beside the person's Stop): the first's failed `stopping` write withdrew the intent the second had set | **Adopt.** A failed cancel withdraws only its own claim; a test with one refused and one accepted write fails with the plain reset. |
+| A stale `created` status in `shell-signals.mjs`, two unused imports, one comment | **Adopt.** |
+
+It found sound: the F4 invariant in the merged `cancelRun`, completion and `close()`; `groupLingered` against the new runner and its failure codes; the static whitelist against `app/web`; the import-boundary guards against `main`'s new web modules; no partial write after `credential_required` in the Settings save path; the dependency files (only the candidate changed them: `@anthropic-ai/sandbox-runtime` 0.0.77). Not checked by it: CSS and `index.html` as rendered; whether a catalogue provider's saved key follows a changed endpoint through `PUT /provider-config` (the rule covers the compatible-connection route, unchanged by the merge).
+
+**Checks.** `npm --prefix app run check:product` on the merge commit `91a3191`: 2060/2064. Three failures were the tests named in the review table; the fourth was the `ws_grep` directory-swap test at its two-second tool deadline under the concurrent suite, as on the candidate before (5/5 alone, three runs). After the dispositions, at `e8ce24d` with `app/` clean (these records uncommitted): exit 0, bounded suite 2065/2065, local deterministic runtime smoke, documentation links. `check-historical-fixtures` passes. Fail-before proofs: the two-cancel test fails with the plain reset. Focused files run alone during the resolution: `check-recipes` 26/26, `approval-basis` 6/6, `check-approval-authored-files` 7/7, `models-save-flow` 10/10, `model-effort` 17/17, `run-terminal-arbitration` 10/10, `manual-compaction` 6/6, `architecture-maintenance` 3/3.
+
+**Not run.** A browser on the merged tree: the approval card and the model chooser were captured before the merge on `main` only, and the candidate's browser review predates S1–S6. Linux. A real model. The sandbox on any macOS other than this machine's.

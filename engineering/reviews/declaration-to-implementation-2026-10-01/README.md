@@ -10,6 +10,8 @@ Who: Claude (Opus) session at the user's request (2026-10-01: "同意，可以�
 
 Three of its findings (F1, F3, F6) were already found, fixed and tested on the unmerged merge candidate `claude/merge-20260930` (record head `2056fb8`, product head `0435d4a`), which the reviewer could not see from `main`. `main`'s [current status](../../current.md) did not name that candidate after the S1–S6 work replaced the page's baseline, so a reader of `main` had no route to it. That gap is closed in the status page with this intake. Those three findings are not implemented a second time on `main`: a second implementation of Host close, human-action ordering and the Work context would have to be reconciled with the first when the candidate merges.
 
+The candidate was merged into `main`'s line later the same day at the user's request ([merge record](../../execution/architect-20260929/README.md#merge-into-main--merge-author-2026-10-01)), so F1, F3 and F6 are on `main` with it. The rows below keep what was ruled at intake.
+
 ## Dispositions
 
 Verification: `TRUE` means the code at `7e8e253` allows what the finding describes; none of the paths was reproduced by running it before the fix unless the row says so.
