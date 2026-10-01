@@ -213,15 +213,24 @@ through the store, independent of Pi's own tool-result path:
   Recorded only while the Run is still open; refuses to start a new process
   for a Run that is already closing.
 - `check.settled` — `{callId, status, exitCode, signal, durationMs, stdout, stderr, truncated, startedAt, endedAt, failure}`,
+  plus `groupLingered: true` only when it applies (below),
   where `status` is one of `completed` (the process exited by itself, at any
   exit code), `cancelled`, `timed_out`, `failed` (the process itself could
-  not be spawned), or `unknown` (below). Recorded unconditionally once a
-  process has actually settled or the Host has confirmed its process group
-  has exited — even after the Run's admission has already closed, so a
+  not be spawned), or `unknown` (below). Recorded unconditionally once the
+  runner has settled: the process exited by itself, or a stopped check's
+  bounded group reap has finished, whether or not it could confirm the group
+  gone — even after the Run's admission has already closed, so a
   cancelled check's partial output is never lost. For `cancelled`, Host
   `exitCode` and `signal` are both null to provide one stable outcome; the
   child runner's raw close tuple is deliberately excluded. `completed` and
   `timed_out` retain observed process exit facts.
+
+**Unconfirmed group exit.** `groupLingered: true` records that a stopped
+check's process group could not be confirmed gone within the bounded reap; the
+key is absent in every other case, and the same field is in the tool result the
+model receives. It is a separate fact from `status`: it does not change the
+status and does not block later checks (the Host has no way to resolve it), and
+it is shown with the check's result.
 
 **Unknown after restart.** If the Host stops between `check.started` and its
 matching `check.settled` (same Run id + call id), the outcome is genuinely

@@ -37,7 +37,7 @@ function assertFixedTargets(recipe, candidatePath) {
   }
 }
 
-export function createCheckTools({ candidate, resolveCandidate, runId: _runId, recordStarted, recordSettled, isOpen } = {}) {
+export function createCheckTools({ candidate, resolveCandidate, runId: _runId, recordStarted, recordSettled, isOpen, runRecipe = runCheckRecipe } = {}) {
   if (!candidate || candidate.status !== "active") return [];
   const candidateId = candidate.id;
   function currentCandidate() {
@@ -91,7 +91,7 @@ export function createCheckTools({ candidate, resolveCandidate, runId: _runId, r
 
       let result;
       try {
-        result = await runCheckRecipe({ recipe, cwd: current.candidatePath, signal,
+        result = await runRecipe({ recipe, cwd: current.candidatePath, signal,
           // Store persistence and temporary HOME creation both yield. Recheck
           // after those awaits, at the actual synchronous spawn boundary.
           beforeSpawn: () => {
@@ -116,14 +116,18 @@ export function createCheckTools({ candidate, resolveCandidate, runId: _runId, r
       // not a different check settlement. Keep one stable Host/tool result.
       const exitCode = status === "cancelled" ? null : result.exitCode;
       const closeSignal = status === "cancelled" ? null : result.signal;
+      // How the check stopped and whether its process group was confirmed gone
+      // are two facts: an unconfirmed exit is carried beside the status, in the
+      // durable record and in the tool result, and never changes the status.
+      const lingered = result.groupLingered === true ? { groupLingered: true } : {};
       await recordSettled({
         callId, status, exitCode, signal: closeSignal, durationMs: result.durationMs,
         stdout: result.stdout, stderr: result.stderr, truncated: result.truncated,
-        startedAt: result.startedAt, endedAt: result.endedAt,
+        startedAt: result.startedAt, endedAt: result.endedAt, ...lingered,
       });
 
       const summary = {
-        recipeId: recipe.id, status, exitCode, signal: closeSignal,
+        recipeId: recipe.id, status, exitCode, signal: closeSignal, ...lingered,
         durationMs: result.durationMs, truncated: result.truncated, stdout: result.stdout, stderr: result.stderr,
       };
       const { stdout: _stdout, stderr: _stderr, ...details } = summary;

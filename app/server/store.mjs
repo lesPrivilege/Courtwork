@@ -1431,7 +1431,9 @@ export class RuntimeStore {
    * must persist the process outcome itself. recordCheckStarted refuses to
    * start a new process for a Run that is already closing; recordCheckSettled
    * has no such gate; it must succeed even after admission has closed, so the
-   * settlement for an in-flight process is never lost.
+   * settlement for an in-flight process is never lost. `groupLingered: true`
+   * is the only optional field: the stopped check's process group could not
+   * be confirmed gone. It is absent otherwise and does not change the status.
    */
   async recordCheckStarted(runId, { callId, recipeId, recipeVersion, candidateId, candidateWriteRevision, startedAt }) {
     return this._mutate(state => {
@@ -1464,7 +1466,7 @@ export class RuntimeStore {
     });
   }
 
-  async recordCheckSettled(runId, { callId, status, exitCode, signal, durationMs, stdout, stderr, truncated, startedAt, endedAt, failure = null }) {
+  async recordCheckSettled(runId, { callId, status, exitCode, signal, durationMs, stdout, stderr, truncated, startedAt, endedAt, failure = null, groupLingered }) {
     return this._mutate(state => {
       const run = state.runs.find(item => item.id === runId);
       if (!run) throw new Error("run not found");
@@ -1480,9 +1482,11 @@ export class RuntimeStore {
       timestamp(startedAt, "check.settled startedAt");
       timestamp(endedAt, "check.settled endedAt");
       if (failure !== null) { exactKeys(failure, new Set(["code"]), "check.settled failure"); id(failure.code, "check.settled failure.code"); }
+      assert(groupLingered === undefined || groupLingered === true, "check.settled groupLingered is invalid");
       return appendEventToState(state, { runId, sessionId: run.sessionId, type: "check.settled", data: {
         callId, status, exitCode, signal, durationMs, stdout, stderr,
         truncated: { stdout: truncated.stdout, stderr: truncated.stderr }, startedAt, endedAt, failure,
+        ...(groupLingered ? { groupLingered: true } : {}),
       } });
     });
   }

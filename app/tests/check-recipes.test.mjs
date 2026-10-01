@@ -658,6 +658,77 @@ test("an unresolved check.started is fenced to check.settled status unknown on r
   }
 });
 
+// ---------------------------------------------------------------------------
+// an unconfirmed process-group exit is a second fact beside the status
+// ---------------------------------------------------------------------------
+
+for (const [outcome, status] of [["cancelled", "cancelled"], ["timedOut", "timed_out"]]) {
+  test(`a ${status} check whose group exit is unconfirmed carries groupLingered to the settled record and the tool result`, async () => {
+    const candidate = { id: "candidate-one", status: "active", revision: 1, writeRevision: 0,
+      sourceBindingId: "binding-one", sourceBindingRevision: 1, candidatePath: "/unused-check-candidate" };
+    const at = new Date().toISOString();
+    // Stand-in runner results: no real process has to outlive its leader.
+    const stopped = { exitCode: null, signal: "SIGKILL", durationMs: 5, stdout: "partial", stderr: "",
+      truncated: { stdout: false, stderr: false }, startedAt: at, endedAt: at, timedOut: false, cancelled: false, [outcome]: true };
+    for (const [runnerResult, expected] of [[{ groupLingered: true, ...stopped }, true], [stopped, false]]) {
+      const settled = [];
+      const [tool] = createCheckTools({ candidate, resolveCandidate: () => candidate,
+        recordStarted: async () => {}, recordSettled: async detail => settled.push(detail),
+        isOpen: () => true, runRecipe: async () => runnerResult });
+      const params = { recipeId: "node-test" };
+      const result = await tool.execute("call-linger", params, undefined, undefined, tool.permissionContext(params));
+      assert.equal(settled.length, 1);
+      assert.equal(settled[0].status, status, "the unconfirmed exit does not change the status");
+      const summary = JSON.parse(result.content[0].text);
+      assert.equal(summary.status, status);
+      for (const carrier of [settled[0], summary, result.details]) {
+        if (expected) assert.equal(carrier.groupLingered, true);
+        else assert.equal(Object.hasOwn(carrier, "groupLingered"), false, "absent unless the group exit is unconfirmed");
+      }
+    }
+  });
+}
+
+test("check.settled persists groupLingered only as true and refuses any other value", async () => {
+  const dataDir = await scratch("cw-check-linger-");
+  let store;
+  try {
+    store = await new RuntimeStore({ dataDir }).open();
+    const project = await store.createProject("check linger fixture");
+    const session = await store.createSession({ projectId: project.id, title: "check linger", workspaceDir: path.join(dataDir, "managed") });
+    const created = await store.createRun({
+      sessionId: session.id, input: "check linger fixture", adapterId: "fixture",
+      provider: { provider: "fake-openai-loopback", model: "fake-model", api: "openai-completions", realProvider: false },
+      commandId: "linger-run", credentialGeneration: 0,
+    });
+    const runId = created.run.id;
+    const at = new Date().toISOString();
+    const settle = (callId, extra = {}) => store.recordCheckSettled(runId, {
+      callId, status: "cancelled", exitCode: null, signal: null, durationMs: 5, stdout: "partial", stderr: "",
+      truncated: { stdout: false, stderr: false }, startedAt: at, endedAt: at, ...extra,
+    });
+    await settle("lingered-call", { groupLingered: true });
+    await settle("normal-call");
+    for (const value of [false, "true", 1, null]) {
+      await assert.rejects(settle("refused-call", { groupLingered: value }), /groupLingered/);
+    }
+    const read = () => store.listEvents({ sessionId: session.id, runId }).filter(e => e.type === "check.settled").map(e => e.data);
+    const before = read();
+    assert.deepEqual(before.map(data => data.callId), ["lingered-call", "normal-call"], "a refused value records nothing");
+    assert.equal(before[0].groupLingered, true);
+    assert.equal(before[0].status, "cancelled");
+    assert.equal(Object.hasOwn(before[1], "groupLingered"), false, "a normal settle has no such key");
+
+    await store.close();
+    store = null;
+    store = await new RuntimeStore({ dataDir }).open();
+    assert.deepEqual(read(), before, "the record survives a Store reopen unchanged");
+  } finally {
+    await store?.close().catch(() => {});
+    await rm(dataDir, { recursive: true, force: true });
+  }
+});
+
 test("same Run write then check approves and persists the current candidate revision", async () => {
   const h = await boot();
   let closed = false;
