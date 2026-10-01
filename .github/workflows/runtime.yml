@@ -44,7 +44,10 @@ jobs:
         run: node app/scripts/check-historical-fixtures.mjs
       - name: Run bounded synthetic tests
         run: npm --prefix app test
+      # The later checks answer different questions; a failing test must not hide them.
       - name: Run deterministic runtime smoke
+        if: ${{ !cancelled() }}
         run: npm --prefix app run smoke
       - name: Check repository documentation links
+        if: ${{ !cancelled() }}
         run: node tools/check-doc-links.mjs

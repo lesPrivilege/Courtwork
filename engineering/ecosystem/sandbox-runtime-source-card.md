@@ -47,6 +47,27 @@ Follows the source-card fields in [this directory's README](README.md#来源卡�
   `apply-seccomp` blocking `socket(AF_UNIX)` and io_uring (not `socketpair`).
   `checkDependencies()` requires `bwrap`, `socat` and `rg` and probes uid-0
   capability. Ubuntu 24.04+ needs `kernel.apparmor_restrict_unprivileged_userns=0`.
+- Linux helper path (read): the wrapped command is `bwrap … -- /bin/sh -c
+  '<apply-seccomp> /bin/sh -c <command>'`. The helper path comes from
+  `getApplySeccompBinaryPath` (`generate-seccomp-filter.js`,
+  `<package>/vendor/seccomp/<arch>/apply-seccomp`) and nothing binds it into
+  the sandbox; each `denyRead` directory becomes a `--tmpfs` and only
+  `allowRead` entries are restored with `--ro-bind`. A helper under a denied
+  directory is therefore not visible. `seccompConfig.applyPath` is read only
+  from an initialised config, which Courtwork never creates.
+- Observed on GitHub `ubuntu-latest` (Runtime workflow on `6692b91`,
+  2026-10-01, log only): with the repository under `/home/runner`, a check
+  whose working directory is outside the repository fails its preflight with
+  exit 127, `apply-seccomp: not found`; a check whose working directory
+  encloses `node_modules` starts. `check-sandbox.mjs` re-allows the helper's
+  directory on Linux through a deep import of that lookup
+  (`dist/sandbox/generate-seccomp-filter.js`; the package entry does not
+  export it, and the package declares no `exports` map). That change has not
+  run on Linux ([review of `6692b91`](../reviews/first-principles-6692b91-2026-10-01/README.md#linux-ci-clusters)).
+- Linux exit status (observed in the same log, mechanism not established): a
+  recipe killed by a signal surfaces to the Host's guard as an exit code, and
+  a recipe that signals its own process group ends with 129. The guard's
+  direct child is the wrapper chain, not the recipe.
 - Observed on macOS 27 / Node 25.9 with synthetic stand-ins (spike, 2026-09-29):
   data-directory, home and other-Session reads denied (`EPERM`) directly and via
   `cat`; writes outside the per-check directory denied; TCP (public and
@@ -66,8 +87,10 @@ Follows the source-card fields in [this directory's README](README.md#来源卡�
 
 ## Unverified
 
-- Everything on Linux: bubblewrap behaviour, `/tmp/claude` deny on Linux, the
-  AppArmor step on `ubuntu-latest`, `node --test` under `apply-seccomp`.
+- Linux beyond the log observations above: bubblewrap behaviour, the
+  `/tmp/claude` deny, `node --test` under `apply-seccomp`, how `bwrap` and
+  `apply-seccomp` propagate a child's signal, and whether the Host's group
+  signal reaches a recipe behind `--new-session`.
 - Whether the tarball was built from tag `v0.0.77`.
 - Behaviour on macOS versions other than 27.
 
@@ -75,7 +98,7 @@ Follows the source-card fields in [this directory's README](README.md#来源卡�
 
 A new `@anthropic-ai/sandbox-runtime` release considered for adoption; any
 change to `wrapWithSandbox`'s signature, the default write paths, the macOS
-base profile, `allowAppleEvents` defaults, or a requirement to call
-`initialize()`; a macOS release that deprecates or removes `sandbox-exec`;
+base profile, `allowAppleEvents` defaults, the location or export of
+`getApplySeccompBinaryPath`, or a requirement to call `initialize()`; a macOS release that deprecates or removes `sandbox-exec`;
 an Ubuntu runner image change around unprivileged user namespaces; a security
 advisory against the package or its dependencies.
