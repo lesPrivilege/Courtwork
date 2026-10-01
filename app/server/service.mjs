@@ -210,7 +210,7 @@ function trustRepoListSummary(entry, repositoryTools, tools) {
 export class RuntimeService {
   constructor({ store, fakeProvider, extensionRegistry, workCore, dataDir, modelRuntime, configuredExecutors, budget = {}, compaction = {}, asyncTaskAdapters = [], localPiWorker = false, logger = () => {} }) {
     this.store = store;
-    this.coordination = new Coordination(store);
+    this.coordination = new Coordination(store, () => this.closing);
     this.subagents = new Subagents(this);
     this.fakeProvider = fakeProvider;
     if (typeof localPiWorker !== "boolean") throw new TypeError("localPiWorker must be an explicit boolean");
@@ -1164,6 +1164,7 @@ export class RuntimeService {
   }
 
   actOnAsyncTask(id, operation, input) {
+    if (this.closing) throw new ServiceError(503, "runtime_closing", "runtime is stopping");
     const value = requireObject(input, 'body'); assertKeys(value, new Set(['projectId','expectedRevision']));
     const projectId = text(value.projectId, 'projectId', { max: 200 });
     if (!Number.isSafeInteger(value.expectedRevision) || value.expectedRevision < 1) throw new ServiceError(400, 'invalid_input', 'expectedRevision is required');
@@ -1175,6 +1176,7 @@ export class RuntimeService {
    * lost receipt is answered by the same record (query-back), never by a
    * second project with the same name. */
   async createProject(input) {
+    if (this.closing) throw new ServiceError(503, "runtime_closing", "runtime is stopping");
     const value = requireObject(input, "body");
     assertKeys(value, new Set(["name", "projectId"]));
     const name = text(value.name, "name", { max: 200 });
@@ -1251,6 +1253,7 @@ export class RuntimeService {
   }
 
   async createAttentionConversation(input) {
+    if (this.closing) throw new ServiceError(503, "runtime_closing", "runtime is stopping");
     const value = requireObject(input, 'body');
     assertKeys(value, new Set(['conversationId']));
     const sessionId = text(value.conversationId, 'conversationId', { max: 36 });
@@ -1266,6 +1269,7 @@ export class RuntimeService {
   }
 
   async createSession(input) {
+    if (this.closing) throw new ServiceError(503, "runtime_closing", "runtime is stopping");
     const value = requireObject(input, "body");
     assertKeys(value, new Set(["projectId", "title", "permissionMode", "sessionId"]));
     const permissionMode = value.permissionMode === undefined ? "draft" : text(value.permissionMode, "permissionMode", { max: 20 });
@@ -1610,6 +1614,7 @@ export class RuntimeService {
   }
 
   async updateDraft(id, input) {
+    if (this.closing) throw new ServiceError(503, "runtime_closing", "runtime is stopping");
     const value = requireObject(input, "body");
     assertKeys(value, new Set(["text"]));
     return { saved: true, session: await this.store.setDraft(id, text(value.text, "text", { max: 100000, allowEmpty: true })) };

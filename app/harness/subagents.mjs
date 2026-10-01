@@ -13,6 +13,9 @@ const id=Type.String({minLength:1,maxLength:200});
 export class Subagents {
   constructor(service) { this.service=service;this.store=service.store;this.pumping=null;this.library=new SubagentLibrary(this); }
   mutate(fn) { return this.store._mutate(state=>{const result=fn(state);validateSubagents(state.subagents,state);return result;}); }
+  // A person's command is refused once the Host is stopping. A Run's own
+  // tool call and an attempt's settlement are not: they end with their Run.
+  admit() {check(!this.service.closing,'runtime is stopping','runtime_closing',503);}
   find(state,id) {const a=state.subagents.assignments.find(a=>a.id===id);check(a,'Assignment unavailable','spark_unavailable',404);return a;}
   authorized(state,a) {
     const parent=state.sessions.find(s=>s.id===a.parentSessionId);
@@ -44,6 +47,7 @@ export class Subagents {
     return {schemaVersion:1,authority:'source-reference-index',ownerSessionId:sessionId,coverage:complete?'retained-catalog':'partial-retained-catalog',excludes:'Unretained workspace files and versions over 64 KiB',total:entries.length,offset,nextOffset:offset+limit<entries.length?offset+limit:null,entries:entries.slice(offset,offset+limit)};
   }
   async create(input,origin={actor:'human',runId:null,callId:null}) {
+    if(origin.actor==='human')this.admit();
     keys(input,['id','parentSessionId','brief','sources']);str(input.id);str(input.parentSessionId);str(input.brief,16000);
     check(Array.isArray(input.sources)&&input.sources.length<=16,'Source limit');input.sources.forEach(validateSource);
     const provider=this.service.getProviderConfig().config;
@@ -251,6 +255,7 @@ export class Subagents {
     });
   }
   async action(id,input) {
+    this.admit();
     keys(input,['action','expectedRevision','commandId','reason','expandedSources']);str(input.commandId);revision(input.expectedRevision);str(input.reason,2000);check(Array.isArray(input.expandedSources),'Invalid expanded refs');
     const before=this.find(this.store.snapshot(),id);
     const prior=before.commands.find(c=>c.commandId===input.commandId);if(prior){check(same(prior,input),'Command conflict','spark_conflict');return before;}
@@ -274,6 +279,7 @@ export class Subagents {
     if(input.action==='retry')void this.pump().catch(error=>this.service.logger?.(`Spark queue: ${error.code??'unknown'}`));return result;
   }
   async configure(input) {
+    this.admit();
     keys(input,['status']);check(['active','disabled'].includes(input.status),'Invalid Agent status');
     const agent=await this.mutate(state=>{const agent=state.subagents.agents[0];agent.status=input.status;
       if(input.status==='disabled')for(const a of state.subagents.assignments)if(['queued','active'].includes(a.status)){a.cancelRequested=true;a.revision++;if(a.status==='queued'){a.status='cancelled';a.reason='agent_disabled';}}

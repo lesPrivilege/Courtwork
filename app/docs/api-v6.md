@@ -27,6 +27,10 @@ document's revision of the contract, not a new route namespace.
   typed 413; the connection is not reset (past 256 MiB it is abandoned).
 - Unknown body fields are rejected (`400 unknown_field`); this is deliberate, so a
   client typo fails loudly instead of being ignored.
+- While the Host shuts down every request is `503 runtime_closing`, including one
+  whose body had not fully arrived when shutdown began; that request was not
+  applied and its connection is closed. Retry after the Host is back, with the
+  fresh work token.
 - Errors are `{ "error": { "code", "message" } }`. Messages never contain an API key.
   A few errors add recovery data alongside those two fields — currently
   `cursor_ahead`, which carries `nextSeq`.
@@ -530,7 +534,7 @@ HTTP-level: `unauthorized` (401), `origin_denied` (403), `not_found` (404),
 `nothing_to_compact` · `compaction_unavailable` · `credential_missing` ·
 `binding_exists` · `binding_mismatch` · `extension_unloaded` ·
 `generation_mismatch` · `extension_lifecycle_failed` (409),
-`body_too_large` (413), `configuration_incomplete` · `provider_unsupported` ·
+`body_too_large` (413), `runtime_closing` · `configuration_incomplete` · `provider_unsupported` ·
 `effort_unsupported` · `candidate_revoked_cancellation_pending` ·
 `repository_revoked_cancellation_pending` (503), Core codes with an unknown
 outcome (503, see [Transport](#transport)), `internal_error` (500).

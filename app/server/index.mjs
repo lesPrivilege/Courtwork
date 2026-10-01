@@ -8,6 +8,7 @@ import { createRuntime } from "./runtime.mjs";
 import { AsyncTaskError } from './async-task-state.mjs';
 import { catalog } from "../extensions/catalog.mjs";
 import { ServiceError, MAX_MATERIAL_BYTES } from "./service.mjs";
+import { StoreClosingError } from "./store.mjs";
 
 const MAX_BODY = 1024 * 1024;
 // A material's limit is on its UTF-8 bytes; its JSON request is larger. The
@@ -82,14 +83,32 @@ function decodePart(value) {
 // client, still uploading, can read the typed 413 instead of a reset socket.
 // Past MAX_DISCARD the upload is abandoned and the socket is destroyed.
 const MAX_DISCARD = 256 * 1024 * 1024;
+// The Host's close gate, set on each admitted request. A handler that has not
+// finished reading its body when close begins is refused here, before it
+// reaches the service, and without waiting for the rest of the body.
+const CLOSE_GATE = Symbol("closeGate");
+const refusedForClosing = () => new ServiceError(503, "runtime_closing", "runtime is stopping");
 async function body(req, limit = MAX_BODY) {
+  const gate = req[CLOSE_GATE];
   let size = 0;
   const chunks = [];
-  for await (const chunk of req) {
-    size += chunk.length;
-    if (size > MAX_DISCARD) { req.destroy(); break; }
-    if (size <= limit) chunks.push(chunk);
-  }
+  let refuse;
+  const refused = new Promise((_, reject) => { refuse = () => reject(refusedForClosing()); });
+  refused.catch(() => {});
+  if (gate.closing) refuse(); else gate.waiting.add(refuse);
+  try {
+    const reader = req[Symbol.asyncIterator]();
+    for (;;) {
+      // An abandoned read settles when the connection goes; nobody awaits it.
+      const next = reader.next(); next.catch(() => {});
+      const { done, value: chunk } = await Promise.race([refused, next]);
+      if (done) break;
+      size += chunk.length;
+      if (size > MAX_DISCARD) { req.destroy(); break; }
+      if (size <= limit) chunks.push(chunk);
+    }
+  } finally { gate.waiting.delete(refuse); }
+  if (gate.closing) throw refusedForClosing();
   if (size > limit) throw new ServiceError(413, "body_too_large", "request body is too large");
   if (!chunks.length) return {};
   const contentType = String(req.headers["content-type"] ?? "").split(";")[0].trim().toLowerCase();
@@ -112,6 +131,7 @@ function errorResponse(error) {
   if (error?.name === 'CoordinationError') return { status: error.status, code: error.code, message: error.message };
   if (error instanceof ServiceError) return { status: error.status, code: error.code, message: error.message, details: error.details };
   if (error instanceof AsyncTaskError) return { status: error.status, code: error.code, message: error.message };
+  if (error instanceof StoreClosingError) return { status: 503, code: "runtime_closing", message: "runtime is stopping" };
   if (error?.message === "project not found" || error?.message === "session not found" || error?.message === "run not found" || error?.message === "question not found") return { status: 404, code: "not_found", message: "resource not found" };
   if (error?.message === "active run exists") return { status: 409, code: "active_run", message: "only one active run is allowed" };
   // A Core transport failure or deadline on a sent request cannot say whether it committed: not a refusal.
@@ -281,13 +301,15 @@ export async function startServer({ dataDir, host = "127.0.0.1", port = 0, exten
   const runtime = await createRuntime({ dataDir, extensionCatalog, fakeResponder, responder, budget, compaction, asyncTaskAdapters, runtimePort, managedRuntimePort, localPiWorker, logger });
   const { service } = runtime;
   let server;
-  let closing = false;
+  // closing: no new request is admitted. waiting: the refusals of handlers
+  // still reading a body. inflight: every admitted handler until it has answered.
+  const gate = { closing: false, waiting: new Set() };
+  const inflight = new Set();
   let closePromise;
   try {
     const token = randomUUID();
-    server = http.createServer(async (req, res) => {
+    const handle = async (req, res) => {
       try {
-        if (closing) { fail(res, 503, "runtime_closing", "runtime is stopping"); return; }
         const address = server.address();
         const actualPort = typeof address === "object" && address ? address.port : port;
         if (!safeOrigin(req, host, actualPort)) { fail(res, 403, "origin_denied", "request origin is not allowed"); return; }
@@ -318,9 +340,18 @@ export async function startServer({ dataDir, host = "127.0.0.1", port = 0, exten
       } catch (error) {
         if (!res.headersSent) {
           const info = errorResponse(error);
+          // A refused request may still owe its body: its connection is not kept.
+          if (info.code === "runtime_closing") res.setHeader("connection", "close");
           fail(res, info.status, info.code, info.message, info.details);
         } else res.destroy();
       }
+    };
+    server = http.createServer((req, res) => {
+      if (gate.closing) { res.setHeader("connection", "close"); fail(res, 503, "runtime_closing", "runtime is stopping"); return; }
+      req[CLOSE_GATE] = gate;
+      const handled = handle(req, res);
+      inflight.add(handled);
+      handled.finally(() => inflight.delete(handled));
     });
     await new Promise((resolve, reject) => {
       server.once("error", reject);
@@ -332,11 +363,14 @@ export async function startServer({ dataDir, host = "127.0.0.1", port = 0, exten
       url: "http://" + host + ":" + actualPort,
       close() {
         closePromise ??= (async () => {
-          closing = true;
-          // Stop accepting HTTP first; cancel live Runs while existing
-          // handlers are still able to finish their receipts.
+          // Stop accepting HTTP first and refuse every handler still waiting
+          // for its body. Handlers already inside the service finish their
+          // receipts while it settles; the runtime awaits them (drain) before
+          // any other owner closes, so none can write once the lock is given up.
+          gate.closing = true;
+          for (const refuse of gate.waiting) refuse();
           const stopped = new Promise((resolve) => server.close(resolve));
-          try { await runtime.close(); }
+          try { await runtime.close({ drain: () => Promise.allSettled([...inflight]) }); }
           finally { server.closeIdleConnections(); await stopped; }
         })();
         return closePromise;

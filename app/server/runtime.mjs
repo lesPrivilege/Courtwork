@@ -90,9 +90,15 @@ export async function createRuntime({ dataDir, extensionCatalog = [], fakeRespon
     let closePromise;
     return {
       service, store, registry, fakeProvider, modelRuntime, dataDir, removedEnvVars,
-      close() {
+      // One close order. The service settles (admission closed, operations
+      // aborted and awaited, Runs cancelled and settled); the entry owner
+      // drains the handlers it admitted (`drain`, the HTTP server's); the
+      // extensions, providers and Core close; the Store persists everything it
+      // admitted and only then gives up the data-directory lock. The first
+      // call decides: a later call returns the same close.
+      close({ drain } = {}) {
         closePromise ??= (async () => {
-          try { await service.close(); }
+          try { try { await service.close(); } finally { await drain?.(); } }
           finally {
             try { await registry.dispose(); }
             finally {

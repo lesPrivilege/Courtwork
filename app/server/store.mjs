@@ -805,11 +805,18 @@ function assertSupersedable(state, sessionId, supersedes) {
   if (target.error?.code === "mcp_effect_unknown") throw lineageError("EFFECT_UNRECONCILED", "superseded run left unreconciled external effects");
 }
 
+/** A mutation issued once close() began, or after it. The HTTP layer answers
+ * it `503 runtime_closing`: the Host is stopping, the command was not applied. */
+export class StoreClosingError extends Error {
+  constructor() { super("runtime store is closing"); this.name = "StoreClosingError"; this.code = "runtime_closing"; this.status = 503; }
+}
+
 export class RuntimeStore {
   constructor({ dataDir, fileName = "runtime-state.json", logger = () => {} }) {
     if (!dataDir) throw new TypeError("dataDir is required");
     this.dataDir = dataDir; this.filePath = path.join(dataDir, fileName); this.logger = logger;
     this.state = emptyState(); this._queue = Promise.resolve(); this.lockHandle = null; this.lockUnsubscribe = null; this.lockLost = false; this.opened = false;
+    this.closing = false; this._released = null;
   }
 
   /**
@@ -840,7 +847,7 @@ export class RuntimeStore {
     await mkdir(this.dataDir, { recursive: true });
     try {
       this.lockLost = false;
-      this.lockHandle = await acquireRuntimeLock(this.dataDir);
+      this.lockHandle = await acquireRuntimeLock(this.dataDir); this.closing = false;
       this.lockUnsubscribe = this.lockHandle.onLost((error) => { this.lockLost = true; this.opened = false; this.lockError = error; });
       await this.#sweepStaleTempFiles();
       const rawState = await readFile(this.filePath).catch((error) => { if (error?.code === "ENOENT") return null; throw error; });
@@ -961,12 +968,19 @@ export class RuntimeStore {
     } catch (error) { await this.#releaseLock(); throw error; }
   }
 
-  async close() { await this._queue; await this.#releaseLock(); }
+  /** The single-writer handoff. Admission closes in the caller's own
+   * synchronous step, so a mutation issued after this call is refused and no
+   * later one can join the queue; everything admitted before it is persisted;
+   * only then is the lock given up (#releaseLock). */
+  async close() { this.closing = true; await this._queue; await this.#releaseLock(); }
 
+  // The handle leaves _persist's reach BEFORE the release is sent: the holder
+  // unlocks before its receipt arrives, and another Host may publish in between.
   async #releaseLock() {
     this.lockUnsubscribe?.(); this.lockUnsubscribe = null;
-    if (this.lockHandle) { await this.lockHandle.release().catch(() => {}); this.lockHandle = null; }
-    this.opened = false;
+    const handle = this.lockHandle; this.lockHandle = null; this.opened = false;
+    if (handle) this._released = handle.release().catch(() => {});
+    await this._released;
   }
 
   async _persist(state) {
@@ -977,10 +991,14 @@ export class RuntimeStore {
     // qualifier names a situation the test can aim at without counting
     // persists ("with-run" = a run already exists in the state being written).
     maybeCrash("store_write", state.runs.length > 0 ? "with-run" : "empty");
+    // The lock may have gone while the tmp was written. Without it this Host
+    // publishes nothing: the tmp is discarded, never renamed.
+    if (!this.lockHandle || this.lockLost) { await unlink(tempPath).catch(() => {}); throw this.lockError ?? new Error("runtime store lock is unavailable"); }
     await rename(tempPath, this.filePath);
   }
 
   async _mutate(mutator) {
+    if (this.closing) throw new StoreClosingError();
     if (this.lockLost) throw this.lockError ?? new Error("runtime store lock is unavailable");
     const operation = this._queue.then(async () => {
       if (this.lockLost) throw this.lockError ?? new Error("runtime store lock is unavailable");

@@ -17,7 +17,10 @@ const inputFields = ['messageId','sourceThreadId','targetThreadId','sourceSessio
 // A single RuntimeStore transaction publishes outbox/inbox delivery records.
 // No second file writer, model callback, Matter mutation or implicit latest target.
 export class Coordination {
-  constructor(store) { this.store = store; }
+  constructor(store, closing = () => false) { this.store = store; this.closing = closing; }
+  // A person's command is refused once the Host is stopping. A Run's own
+  // message is not: the Run is settled before the Store closes.
+  admit() { check(!this.closing(), 'runtime is stopping', 'runtime_closing', 503); }
   mutate(fn) { return this.store._mutate(state => { const result = fn(state); validateCoordination(state.coordination); return result; }); }
   list(sessionId = null) {
     const state = this.store.snapshot();
@@ -33,7 +36,7 @@ export class Coordination {
       offset,total:selected.length,nextOffset:offset+limit < selected.length ? offset+limit : null};
   }
   create(input) {
-    keys(input,['threadId','sessionId','title']); str(input.threadId); str(input.sessionId); str(input.title);
+    this.admit(); keys(input,['threadId','sessionId','title']); str(input.threadId); str(input.sessionId); str(input.title);
     return this.mutate(state => {
       const existing = state.coordination.threads.find(t=>t.id === input.threadId);
       if (existing) { check(same(existing.creation,{sessionId:input.sessionId,title:input.title}), 'Thread identity reused', 'coordination_conflict'); return existing; }
@@ -45,7 +48,7 @@ export class Coordination {
     });
   }
   attach(id,input) {
-    keys(input,['sessionId','expectedRevision']); str(input.sessionId); revision(input.expectedRevision);
+    this.admit(); keys(input,['sessionId','expectedRevision']); str(input.sessionId); revision(input.expectedRevision);
     return this.mutate(state => {
       const t = thread(state,id), s = session(state,input.sessionId);
       check(t.status === 'open' && same(t.scope,sessionScope(s)), 'Thread scope is unavailable', 'coordination_binding');
@@ -58,10 +61,11 @@ export class Coordination {
     });
   }
   close(id,input) {
-    keys(input,['expectedRevision']);
+    this.admit(); keys(input,['expectedRevision']);
     return this.mutate(state => { const t=thread(state,id); cas(t,input.expectedRevision); check(t.status === 'open','Thread already closed','coordination_conflict'); t.status='closed'; t.revision++; return t; });
   }
   enqueue(input, runtimeOrigin = null) {
+    if (!runtimeOrigin) this.admit();
     keys(input,inputFields); for (const k of ['messageId','sourceThreadId','targetThreadId','sourceSessionId']) str(input[k]);
     str(input.text,16000); revision(input.expectedTargetRevision);
     check(['request','signal','reply','result'].includes(input.kind),'Unsupported message kind');

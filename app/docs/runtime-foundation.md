@@ -12,11 +12,27 @@ execution and lifecycle adapters.
 ## Ownership and extension seams
 
 `server/runtime.mjs` exports `createRuntime({dataDir, extensionCatalog?, budget?, compaction?})`.
-It opens the data lock, store, provider catalog and execution service; `close()`
-stops admission, aborts running manual compactions (settled `cancelled`) and waits
-for them, cancels active Runs, waits for every Run's full settlement (including a
-Spark attempt's), then closes extensions/providers and releases the lock. It does not open a product HTTP server. The loopback test provider is
-local and uses the same Pi provider/SDK lane as ordinary execution.
+It opens the data lock, store, provider catalog and execution service. It does not
+open a product HTTP server. The loopback test provider is local and uses the same
+Pi provider/SDK lane as ordinary execution.
+
+`close()` hands the data directory to the next Host in one order:
+
+1. The service settles: it stops admission, aborts running manual compactions
+   (settled `cancelled`) and waits for them, cancels active Runs and waits for
+   every Run's full settlement (including a Spark attempt's).
+2. The entry owner drains the handlers it admitted. `close({ drain })` awaits
+   the caller's `drain` here; the HTTP server passes one, an in-process caller
+   needs none.
+3. Extensions, providers and the Work Core close.
+4. The Store persists every mutation it admitted, then releases the lock.
+
+The Store enforces the handoff itself. Its admission closes in the same step its
+close begins; a mutation issued from then on is refused with
+`StoreClosingError` (`503 runtime_closing`), and the lock is out of the
+writer's reach before the release is sent, so this Host renames nothing while or
+after the lock holder unlocks. `close()` is idempotent: the first call decides,
+later calls return the same close.
 
 The default extension catalog is empty. `server/index.mjs` is the Web application
 composition root and explicitly passes its installed domain extension catalog.
@@ -111,7 +127,7 @@ queries; they do not call a provider or verify a key.
   The additive `executionRuntimes` value is `{schemaVersion:1, defaultAdapterId, items}`. Each item reports `adapterId`, `configured`, `configurationOwner:"host"`, configured descriptor `revision` and non-secret `configurationRef` (or null), cloned R1 operation `capabilities` (or null), `availability:{status,reasonCode,reason}`, and `liveStatus:"not_checked"`. The default is first; configured entries and the existing Pi/managed candidates appear once. `not_configured`, `descriptor_changed`, `descriptor_unavailable`, and `provider_unsupported` are bounded unavailable reason codes. The boolean `configured` records Host configuration; `availability.status:"configured"` means its local port supplied a valid synchronous description under the current Provider route. This read performs no connection, credential, health or execution check; it does not change Session choice or Run admission.
 
 `GET /api/v5/provider-models` also returns `providerDefinitions`: the installed provider registrations (`id`, `title`, `kind`, `credential`, `version`, `source`, `defaultApi`, and `protocols[{id,endpoint,reasoningFormat}]`). These declare installed encoders and endpoint requirements, not remote-model or tool compatibility. Public connection records carry a derived `definitionId`; compatible connections retain their own provider and credential identity and explicitly use the generic definition. The definition does not grant tool exposure, execution permission, or a harness switch. See [Models registration delivery](../../engineering/research/models-provider-registration-2026-09-14/implementation.md).
-- During graceful shutdown, new Run admission is `503 runtime_closing`. The HTTP listener closes; clients reconnect after startup and obtain a fresh work token.
+- During graceful shutdown the HTTP listener closes and every request is answered `503 runtime_closing`: a new request on an open connection, and a request that was still waiting for its body when shutdown began (it is refused without the body and its connection is closed). A handler already inside the service finishes and is answered before the other owners close. In-process, the commands that create or change Host records refuse the same way once close has begun: Run, compaction and material admission, every configuration command, Project, Session, Attention conversation and draft writes, a person's Spark and Coordination commands, and async-task cancel/reconcile. Cancelling a Run and answering a question stay available while Runs settle. Clients reconnect after startup and obtain a fresh work token.
 
 A newly admitted receipt may have `hostSession:null` while its native session is
 being prepared. Query the Run for its final locator and state. Never interpret a
