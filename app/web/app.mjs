@@ -1,6 +1,7 @@
 import { createSubagentView } from './subagent-view.mjs';
 let subagentView;
 import { createLocalExtensionView } from "./local-extension-view.mjs";
+import { createBindingDraft } from "./binding-draft.mjs";
 import { createChatSources, quoteRecordedFile } from "./chat-sources.mjs";
 import { createWorkReviewSummary } from "./work-review-summary.mjs";
 import { captureChatReading, restoreChatReading } from "./chat-reading.mjs";
@@ -383,6 +384,14 @@ function writeUiState() {
     // Storage is a convenience for UI markers. A blocked or malformed store must not block startup.
   }
 }
+
+/* N5 · what was typed into "Continue in Matter", per Session and extension. It
+ * is the person's until the Host's Session shows the binding or the Session is
+ * deleted; no read, re-render, close or failed bind takes it. */
+const bindingDraft = createBindingDraft({
+  storage: () => window.sessionStorage,
+  prefix: `${UI_STORAGE_KEY}.binding-draft`,
+});
 
 let homeAttachments = null;
 function storeHomeDraft() {
@@ -1948,6 +1957,7 @@ async function submitDelete(event) {
     state.recentSessions = state.recentSessions.filter((item) => item.id !== target.id);
     for (const [projectId, list] of state.sessionsByProject) state.sessionsByProject.set(projectId, list.filter((item) => item.id !== target.id));
     state.history.forget(target.id);
+    bindingDraft.forgetSession(target.id);
     closeDialog("delete-dialog");
     if (state.chatOpen) {
       /* On the Chat page the reader stays on the page: the deleted row leaves
@@ -2694,13 +2704,25 @@ function continueExistingSegment(entries, submitExisting) {
   return segment;
 }
 
+/* N5 · this panel is rebuilt by reads and pushes the person did not start (the
+ * project-work read, a Session refresh, a provider push, an extension reload).
+ * The rebuild takes neither the text nor the keyboard: field values come from
+ * the draft owner, and the focused control is found again by its key. */
 function renderBindingPanel() {
   const panel = $("binding-panel");
+  bindingDraft.keepFocus(panel, () => drawBindingPanel(panel));
+}
+
+function drawBindingPanel(panel) {
   clear(panel);
   const extension = state.extensions.find(
     (item) => item.id === state.bindingExtensionId,
   );
   const session = currentSession();
+  /* The Host's Session shows the binding: that, and nothing the form inferred,
+   * is what ends the draft for this Session and extension. */
+  if (session?.extensionBinding)
+    bindingDraft.clear(session.id, session.extensionBinding.extensionId);
   if (!extension || !session || session.scope !== "project" || session.extensionBinding) {
     panel.hidden = true;
     return;
@@ -2726,6 +2748,7 @@ function renderBindingPanel() {
           body: { extensionId: extension.id, input: { existingMatterId: matterId } },
         },
       );
+      bindingDraft.clear(session.id, extension.id);
       if (state.activeSessionId !== session.id) return;
       state.session = result.session || state.session;
       state.sessionsByProject.set(
@@ -2747,45 +2770,15 @@ function renderBindingPanel() {
   const created = element("section", { className: "binding-segment" });
   created.append(element("h4", { text: "New work" }));
   const form = element("form", { className: "binding-form" });
-  const fields = Array.isArray(extension.bindingFields)
-    ? extension.bindingFields
-    : [];
-  const fieldsWrap = element("div", { className: "binding-fields" });
-  const controls = [];
-  for (const field of fields) {
-    if (!field?.name) continue;
-    const label = element("label", {
-      className: "binding-field",
-      text: field.label || field.name,
-    });
-    const control = field.multiline
-      ? element("textarea", { attrs: { name: field.name, rows: 5 } })
-      : element("input", { attrs: { name: field.name, type: "text" } });
-    if (field.required) control.required = true;
-    if (Number.isFinite(field.maxLength) && field.maxLength > 0)
-      control.maxLength = field.maxLength;
-    label.append(control);
-    if (field.maxLength)
-      label.append(
-        element("small", { text: `Maximum ${field.maxLength} characters.` }),
-      );
-    fieldsWrap.append(label);
-    controls.push({ field, control });
-  }
-  if (!controls.length)
-    fieldsWrap.append(
-      element("p", {
-        className: "section-note",
-        text: "This extension declares no input fields.",
-      }),
-    );
+  const { node: fieldsWrap, controls } = bindingDraft.fields(session.id, extension);
   form.append(fieldsWrap);
   const actions = element("div", { className: "binding-actions" });
   const cancel = element("button", {
     className: "quiet-button",
-    attrs: { type: "button" },
+    attrs: { type: "button", "data-binding-field": "cancel" },
     text: "Cancel",
   });
+  // Cancel closes the form; like any closed panel it keeps the draft.
   cancel.addEventListener("click", () => {
     state.bindingExtensionId = null;
     renderBindingPanel();
@@ -2794,7 +2787,7 @@ function renderBindingPanel() {
   actions.append(cancel);
   const submit = element("button", {
     className: "primary-button",
-    attrs: { type: "submit" },
+    attrs: { type: "submit", "data-binding-field": "submit" },
     text: "Continue in Matter",
   });
   actions.append(submit);
@@ -2813,6 +2806,8 @@ function renderBindingPanel() {
           body: { extensionId: extension.id, input },
         },
       );
+      // The Host confirmed this bind; only now is the typed input spent.
+      bindingDraft.clear(session.id, extension.id);
       if (state.activeSessionId !== session.id) return;
       state.session = result.session || state.session;
       state.sessionsByProject.set(
