@@ -90,6 +90,10 @@ The user reassigned D1–D5 from Astra to this Claude (Opus) session on 2026-09-
 
 Four existing tests fabricated states by rewriting terminal Runs (for example `completed → running` before an orphan cancel); their fixtures now write that shape directly, with the invariant each asserts unchanged. D6, D7, D9 and D10 remain with Astra.
 
+### Residuals found by the review of `7e8e253` (2026-10-01)
+
+Three of these fixes left a gap that the later [review of `7e8e253`](../declaration-to-implementation-2026-10-01/README.md#dispositions) found, and that are fixed there: D1/D2 — a cancel arriving while the completion waited in its bookkeeping could still end `completed`, because the cancel intent was set after the awaited `stopping` write (F4); D4 — the approval named the model-written files in the Chat card only, not in the Attention assistant (F2); D5 — `groupLingered` reached the runner result but not the settled record or the person (F5).
+
 ## Not verified
 
 Real-model capability; Safari, physical touch and assistive technology; the web UI against its interface contract beyond the walkthrough; `remote-action-state.mjs` (no contract in scope); CI on the remote. The walkthrough used one browser at one viewport.

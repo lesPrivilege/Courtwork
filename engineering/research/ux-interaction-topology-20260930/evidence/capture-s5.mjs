@@ -8,7 +8,6 @@
 //
 // `before` captures 1440 light only, for comparison; `after` captures 1440 and
 // 390, light and dark. Harness: harness.mjs. Author evidence, not acceptance.
-import { writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { openHarness, sleep } from "./harness.mjs";
@@ -137,6 +136,6 @@ report.occupancy = await evaluate(`(async () => {
     domain: Object.fromEntries([...domain].map((name) => [name, report.occupancy[name]])) };
 }
 
-await writeFile(path.join(OUT_DIR, "report.json"), `${JSON.stringify(report, null, 2)}\n`);
+await h.writeReport(report);
 console.log(JSON.stringify({ scenes: report.scenes.map(({ name, glyphs, mismatched }) => ({ name, glyphs, mismatched })), errors: report.errors }, null, 2));
 await h.close();

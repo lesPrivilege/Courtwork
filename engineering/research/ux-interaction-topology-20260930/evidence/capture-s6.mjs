@@ -7,7 +7,6 @@
 //
 // Harness: harness.mjs. A synthetic key on the disposable Host only; the local
 // fake provider answers; no model call leaves the machine. Author evidence.
-import { writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { openHarness, sleep } from "./harness.mjs";
@@ -89,6 +88,6 @@ for (const [width, height] of [[1440, 900], [390, 844]]) {
     }
   }
 }
-await writeFile(path.join(OUT_DIR, "report.json"), `${JSON.stringify(report, null, 2)}\n`);
+await h.writeReport(report);
 console.log(JSON.stringify({ scenes: report.scenes.length, errors: report.errors }, null, 2));
 await h.close();

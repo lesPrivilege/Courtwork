@@ -1,0 +1,5505 @@
+{
+  "source": {
+    "commit": "46f6cff1c87fa05e9c89ccd0792f5732e669e0e4",
+    "productTree": "549c97159e1f76f06805a05d5d03b95b8cf60a88",
+    "uncommittedProductPaths": []
+  },
+  "capturedAt": "2026-10-01T05:14:54.308Z",
+  "origin": "disposable Host",
+  "reachability": {
+    "conversation": {
+      "endpoint": "POST /api/v5/attention/conversations",
+      "status": 200,
+      "scope": "global",
+      "permissionMode": "ask",
+      "error": null
+    },
+    "binding": {
+      "endpoint": "PUT /api/v5/sessions/<global session>/repository-binding",
+      "status": 200,
+      "error": null,
+      "bindingRevision": 1
+    },
+    "candidate": {
+      "endpoint": "PUT /api/v5/sessions/<global session>/repository-candidate",
+      "status": 200,
+      "error": null,
+      "candidateStatus": "active"
+    },
+    "checkRun": {
+      "tool": "check_run",
+      "recipeId": "node-test",
+      "argv": [
+        "--test"
+      ],
+      "candidateId": "e23e4567-e89b-42d3-a456-426614174000",
+      "candidateWriteRevision": 2,
+      "confirmedWrites": [
+        "src/parcel.mjs",
+        "test/partial-last-page-boundary-regression.test.mjs"
+      ],
+      "failedWrites": [],
+      "runStatus": "waiting_user"
+    },
+    "answer": "yes: the Host bound a repository, created a private candidate and asked a check_run approval on a global (Attention) Session"
+  },
+  "request": {
+    "sessionId": "52b67fe6-474e-452c-9482-8aa6b5bf730b",
+    "runId": "0334dfc4-d7f9-4b71-87d7-027103c3f741",
+    "questionId": "4c7e064a-80ff-4be7-a1b2-935a3b656b21",
+    "prompt": null,
+    "preview": "{\"recipeId\":\"node-test\"}",
+    "decidedBy": "popover button: Approve this check",
+    "runStatus": "completed",
+    "checkSettled": [
+      {
+        "status": "completed",
+        "exitCode": 0
+      }
+    ]
+  },
+  "scenes": [
+    {
+      "name": "popover-pending-1440-light",
+      "scroll": "as opened",
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "popover": {
+        "x": 780,
+        "y": 60,
+        "w": 640,
+        "h": 780,
+        "right": 1420,
+        "bottom": 840
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 781,
+          "y": 236.6,
+          "w": 638,
+          "h": 479.1,
+          "right": 1419,
+          "bottom": 715.8
+        },
+        "scrollWidth": 638,
+        "clientWidth": 638,
+        "scrollHeight": 1126,
+        "clientHeight": 479,
+        "scrollTop": 647,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 805,
+          "y": 279.4,
+          "w": 590,
+          "h": 350.2,
+          "right": 1395,
+          "bottom": 629.6
+        },
+        "scrollWidth": 588,
+        "clientWidth": 588,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": true,
+        "tallerThanScrollContainer": false
+      },
+      "basis": {
+        "box": {
+          "x": 818,
+          "y": 292.4,
+          "w": 564,
+          "h": 282.2,
+          "right": 1382,
+          "bottom": 574.6
+        },
+        "scrollWidth": 564,
+        "clientWidth": 564,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approve this check?",
+        "Check details"
+      ],
+      "text": "Approve this check?\n\nnode-test v1\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\n\n24 B · Approval for this exact check only\n\n{\"recipeId\":\"node-test\"}\nCheck details\nDeny this check\nApprove this check",
+      "buttons": [
+        {
+          "label": "Copy proposed arguments hash",
+          "ariaLabel": "Copy proposed arguments hash",
+          "box": {
+            "x": 818,
+            "y": 703.8,
+            "w": 28,
+            "h": 28,
+            "right": 846,
+            "bottom": 731.8
+          },
+          "disabled": false,
+          "className": "quiet-button icon-only",
+          "borderWidth": "1px",
+          "background": "rgba(0, 0, 0, 0)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": false
+        },
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1129.1,
+            "y": 586.6,
+            "w": 112.1,
+            "h": 30,
+            "right": 1241.2,
+            "bottom": 616.6
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1249.2,
+            "y": 586.6,
+            "w": 132.8,
+            "h": 30,
+            "right": 1382,
+            "bottom": 616.6
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(42, 44, 44)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        }
+      ],
+      "approvalButtons": [
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1129.1,
+            "y": 586.6,
+            "w": 112.1,
+            "h": 30,
+            "right": 1241.2,
+            "bottom": 616.6
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1249.2,
+            "y": 586.6,
+            "w": 132.8,
+            "h": 30,
+            "right": 1382,
+            "bottom": 616.6
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(42, 44, 44)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        }
+      ]
+    },
+    {
+      "name": "popover-pending-details-1440-light",
+      "scroll": "as opened",
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "popover": {
+        "x": 780,
+        "y": 60,
+        "w": 640,
+        "h": 780,
+        "right": 1420,
+        "bottom": 840
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 781,
+          "y": 236.6,
+          "w": 638,
+          "h": 479.1,
+          "right": 1419,
+          "bottom": 715.8
+        },
+        "scrollWidth": 638,
+        "clientWidth": 638,
+        "scrollHeight": 1284,
+        "clientHeight": 479,
+        "scrollTop": 647,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 805,
+          "y": 279.4,
+          "w": 590,
+          "h": 507.4,
+          "right": 1395,
+          "bottom": 786.8
+        },
+        "scrollWidth": 588,
+        "clientWidth": 588,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": false,
+        "tallerThanScrollContainer": true
+      },
+      "basis": {
+        "box": {
+          "x": 818,
+          "y": 292.4,
+          "w": 564,
+          "h": 439.4,
+          "right": 1382,
+          "bottom": 731.8
+        },
+        "scrollWidth": 564,
+        "clientWidth": 564,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approve this check?",
+        "Check details"
+      ],
+      "text": "Approve this check?\n\nnode-test v1\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\n\n24 B · Approval for this exact check only\n\n{\"recipeId\":\"node-test\"}\nCheck details\nPrivate candidate\ne23e4567-e89b-42d3-a456-426614174000\nWrite revision\n2\n\nAs recorded when this approval was requested.\n\nebdb0697ea80166c77f48b94b0a003a254a89530ef25b4e8a1e4d727c0bd605f\nCopy proposed arguments hash\nDeny this check\nApprove this check",
+      "buttons": [
+        {
+          "label": "Copy proposed arguments hash",
+          "ariaLabel": "Copy proposed arguments hash",
+          "box": {
+            "x": 818,
+            "y": 703.8,
+            "w": 28,
+            "h": 28,
+            "right": 846,
+            "bottom": 731.8
+          },
+          "disabled": false,
+          "className": "quiet-button icon-only",
+          "borderWidth": "1px",
+          "background": "rgba(0, 0, 0, 0)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        },
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1129.1,
+            "y": 743.8,
+            "w": 112.1,
+            "h": 30,
+            "right": 1241.2,
+            "bottom": 773.8
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1249.2,
+            "y": 743.8,
+            "w": 132.8,
+            "h": 30,
+            "right": 1382,
+            "bottom": 773.8
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(42, 44, 44)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        }
+      ],
+      "approvalButtons": [
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1129.1,
+            "y": 743.8,
+            "w": 112.1,
+            "h": 30,
+            "right": 1241.2,
+            "bottom": 773.8
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1249.2,
+            "y": 743.8,
+            "w": 132.8,
+            "h": 30,
+            "right": 1382,
+            "bottom": 773.8
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(42, 44, 44)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        }
+      ]
+    },
+    {
+      "name": "popover-pending-details-top-1440-light",
+      "scroll": "card top",
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "popover": {
+        "x": 780,
+        "y": 60,
+        "w": 640,
+        "h": 780,
+        "right": 1420,
+        "bottom": 840
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 781,
+          "y": 236.6,
+          "w": 638,
+          "h": 479.1,
+          "right": 1419,
+          "bottom": 715.8
+        },
+        "scrollWidth": 638,
+        "clientWidth": 638,
+        "scrollHeight": 1284,
+        "clientHeight": 479,
+        "scrollTop": 690,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 805,
+          "y": 236.4,
+          "w": 590,
+          "h": 507.4,
+          "right": 1395,
+          "bottom": 743.8
+        },
+        "scrollWidth": 588,
+        "clientWidth": 588,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": false,
+        "tallerThanScrollContainer": true
+      },
+      "basis": {
+        "box": {
+          "x": 818,
+          "y": 249.4,
+          "w": 564,
+          "h": 439.4,
+          "right": 1382,
+          "bottom": 688.8
+        },
+        "scrollWidth": 564,
+        "clientWidth": 564,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approve this check?",
+        "Check details"
+      ],
+      "text": "Approve this check?\n\nnode-test v1\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\n\n24 B · Approval for this exact check only\n\n{\"recipeId\":\"node-test\"}\nCheck details\nPrivate candidate\ne23e4567-e89b-42d3-a456-426614174000\nWrite revision\n2\n\nAs recorded when this approval was requested.\n\nebdb0697ea80166c77f48b94b0a003a254a89530ef25b4e8a1e4d727c0bd605f\nCopy proposed arguments hash\nDeny this check\nApprove this check",
+      "buttons": [
+        {
+          "label": "Copy proposed arguments hash",
+          "ariaLabel": "Copy proposed arguments hash",
+          "box": {
+            "x": 818,
+            "y": 660.8,
+            "w": 28,
+            "h": 28,
+            "right": 846,
+            "bottom": 688.8
+          },
+          "disabled": false,
+          "className": "quiet-button icon-only",
+          "borderWidth": "1px",
+          "background": "rgba(0, 0, 0, 0)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        },
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1129.1,
+            "y": 700.8,
+            "w": 112.1,
+            "h": 30,
+            "right": 1241.2,
+            "bottom": 730.8
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1249.2,
+            "y": 700.8,
+            "w": 132.8,
+            "h": 30,
+            "right": 1382,
+            "bottom": 730.8
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(42, 44, 44)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        }
+      ],
+      "approvalButtons": [
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1129.1,
+            "y": 700.8,
+            "w": 112.1,
+            "h": 30,
+            "right": 1241.2,
+            "bottom": 730.8
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1249.2,
+            "y": 700.8,
+            "w": 132.8,
+            "h": 30,
+            "right": 1382,
+            "bottom": 730.8
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(42, 44, 44)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        }
+      ]
+    },
+    {
+      "name": "popover-pending-details-end-1440-light",
+      "scroll": "card end",
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "popover": {
+        "x": 780,
+        "y": 60,
+        "w": 640,
+        "h": 780,
+        "right": 1420,
+        "bottom": 840
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 781,
+          "y": 236.6,
+          "w": 638,
+          "h": 479.1,
+          "right": 1419,
+          "bottom": 715.8
+        },
+        "scrollWidth": 638,
+        "clientWidth": 638,
+        "scrollHeight": 1284,
+        "clientHeight": 479,
+        "scrollTop": 718,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 805,
+          "y": 208.4,
+          "w": 590,
+          "h": 507.4,
+          "right": 1395,
+          "bottom": 715.8
+        },
+        "scrollWidth": 588,
+        "clientWidth": 588,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": false,
+        "tallerThanScrollContainer": true
+      },
+      "basis": {
+        "box": {
+          "x": 818,
+          "y": 221.4,
+          "w": 564,
+          "h": 439.4,
+          "right": 1382,
+          "bottom": 660.8
+        },
+        "scrollWidth": 564,
+        "clientWidth": 564,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approve this check?",
+        "Check details"
+      ],
+      "text": "Approve this check?\n\nnode-test v1\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\n\n24 B · Approval for this exact check only\n\n{\"recipeId\":\"node-test\"}\nCheck details\nPrivate candidate\ne23e4567-e89b-42d3-a456-426614174000\nWrite revision\n2\n\nAs recorded when this approval was requested.\n\nebdb0697ea80166c77f48b94b0a003a254a89530ef25b4e8a1e4d727c0bd605f\nCopy proposed arguments hash\nDeny this check\nApprove this check",
+      "buttons": [
+        {
+          "label": "Copy proposed arguments hash",
+          "ariaLabel": "Copy proposed arguments hash",
+          "box": {
+            "x": 818,
+            "y": 632.8,
+            "w": 28,
+            "h": 28,
+            "right": 846,
+            "bottom": 660.8
+          },
+          "disabled": false,
+          "className": "quiet-button icon-only",
+          "borderWidth": "1px",
+          "background": "rgba(0, 0, 0, 0)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        },
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1129.1,
+            "y": 672.8,
+            "w": 112.1,
+            "h": 30,
+            "right": 1241.2,
+            "bottom": 702.8
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1249.2,
+            "y": 672.8,
+            "w": 132.8,
+            "h": 30,
+            "right": 1382,
+            "bottom": 702.8
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(42, 44, 44)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        }
+      ],
+      "approvalButtons": [
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1129.1,
+            "y": 672.8,
+            "w": 112.1,
+            "h": 30,
+            "right": 1241.2,
+            "bottom": 702.8
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1249.2,
+            "y": 672.8,
+            "w": 132.8,
+            "h": 30,
+            "right": 1382,
+            "bottom": 702.8
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(42, 44, 44)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        }
+      ]
+    },
+    {
+      "name": "chat-pending-1440-light",
+      "scroll": "as opened",
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "popover": null,
+      "scrollContainer": {
+        "node": "section.message-stream",
+        "box": {
+          "x": 256,
+          "y": 48,
+          "w": 1184,
+          "h": 707.8,
+          "right": 1440,
+          "bottom": 755.8
+        },
+        "scrollWidth": 1184,
+        "clientWidth": 1184,
+        "scrollHeight": 1093,
+        "clientHeight": 708,
+        "scrollTop": 385,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "article.question-card.permission-card",
+        "box": {
+          "x": 478,
+          "y": 266.8,
+          "w": 740,
+          "h": 425,
+          "right": 1218,
+          "bottom": 691.8
+        },
+        "scrollWidth": 738,
+        "clientWidth": 738,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": true,
+        "tallerThanScrollContainer": false
+      },
+      "basis": null,
+      "basisLineGaps": null,
+      "basisDisplay": null,
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approve this check?",
+        "node-test v1",
+        "node --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment",
+        "This check executes 2 files the model wrote, with your access to this computer:",
+        "24 B · Approval for this exact check only",
+        "Check details"
+      ],
+      "text": "Approve this check?\n\nnode-test v1\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\n\n24 B · Approval for this exact check only\n\n{\"recipeId\":\"node-test\"}\nCheck details\nDeny this check\nApprove this check",
+      "buttons": [
+        {
+          "label": "Copy proposed arguments hash",
+          "ariaLabel": "Copy proposed arguments hash",
+          "box": {
+            "x": 499,
+            "y": 740.1,
+            "w": 28,
+            "h": 28,
+            "right": 527,
+            "bottom": 768.1
+          },
+          "disabled": false,
+          "className": "quiet-button icon-only",
+          "borderWidth": "1px",
+          "background": "rgba(0, 0, 0, 0)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": false
+        },
+        {
+          "label": "Deny this check",
+          "ariaLabel": "Deny this check",
+          "box": {
+            "x": 944.1,
+            "y": 640.8,
+            "w": 112.1,
+            "h": 30,
+            "right": 1056.2,
+            "bottom": 670.8
+          },
+          "disabled": false,
+          "className": "secondary-button request-width",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": "Approve this check",
+          "box": {
+            "x": 1064.2,
+            "y": 640.8,
+            "w": 132.8,
+            "h": 30,
+            "right": 1197,
+            "bottom": 670.8
+          },
+          "disabled": false,
+          "className": "primary-button request-width",
+          "borderWidth": "1px",
+          "background": "rgb(42, 44, 44)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        }
+      ],
+      "approvalButtons": [
+        {
+          "label": "Deny this check",
+          "ariaLabel": "Deny this check",
+          "box": {
+            "x": 944.1,
+            "y": 640.8,
+            "w": 112.1,
+            "h": 30,
+            "right": 1056.2,
+            "bottom": 670.8
+          },
+          "disabled": false,
+          "className": "secondary-button request-width",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": "Approve this check",
+          "box": {
+            "x": 1064.2,
+            "y": 640.8,
+            "w": 132.8,
+            "h": 30,
+            "right": 1197,
+            "bottom": 670.8
+          },
+          "disabled": false,
+          "className": "primary-button request-width",
+          "borderWidth": "1px",
+          "background": "rgb(42, 44, 44)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        }
+      ]
+    },
+    {
+      "name": "popover-pending-1440-dark",
+      "scroll": "as opened",
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "popover": {
+        "x": 780,
+        "y": 60,
+        "w": 640,
+        "h": 780,
+        "right": 1420,
+        "bottom": 840
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 781,
+          "y": 236.6,
+          "w": 638,
+          "h": 479.1,
+          "right": 1419,
+          "bottom": 715.8
+        },
+        "scrollWidth": 638,
+        "clientWidth": 638,
+        "scrollHeight": 1126,
+        "clientHeight": 479,
+        "scrollTop": 647,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 805,
+          "y": 279.4,
+          "w": 590,
+          "h": 350.2,
+          "right": 1395,
+          "bottom": 629.6
+        },
+        "scrollWidth": 588,
+        "clientWidth": 588,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": true,
+        "tallerThanScrollContainer": false
+      },
+      "basis": {
+        "box": {
+          "x": 818,
+          "y": 292.4,
+          "w": 564,
+          "h": 282.2,
+          "right": 1382,
+          "bottom": 574.6
+        },
+        "scrollWidth": 564,
+        "clientWidth": 564,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approve this check?",
+        "Check details"
+      ],
+      "text": "Approve this check?\n\nnode-test v1\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\n\n24 B · Approval for this exact check only\n\n{\"recipeId\":\"node-test\"}\nCheck details\nDeny this check\nApprove this check",
+      "buttons": [
+        {
+          "label": "Copy proposed arguments hash",
+          "ariaLabel": "Copy proposed arguments hash",
+          "box": {
+            "x": 818,
+            "y": 703.8,
+            "w": 28,
+            "h": 28,
+            "right": 846,
+            "bottom": 731.8
+          },
+          "disabled": false,
+          "className": "quiet-button icon-only",
+          "borderWidth": "1px",
+          "background": "rgba(0, 0, 0, 0)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": false
+        },
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1129.1,
+            "y": 586.6,
+            "w": 112.1,
+            "h": 30,
+            "right": 1241.2,
+            "bottom": 616.6
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(34, 38, 39)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1249.2,
+            "y": 586.6,
+            "w": 132.8,
+            "h": 30,
+            "right": 1382,
+            "bottom": 616.6
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        }
+      ],
+      "approvalButtons": [
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1129.1,
+            "y": 586.6,
+            "w": 112.1,
+            "h": 30,
+            "right": 1241.2,
+            "bottom": 616.6
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(34, 38, 39)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1249.2,
+            "y": 586.6,
+            "w": 132.8,
+            "h": 30,
+            "right": 1382,
+            "bottom": 616.6
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        }
+      ]
+    },
+    {
+      "name": "popover-pending-details-1440-dark",
+      "scroll": "as opened",
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "popover": {
+        "x": 780,
+        "y": 60,
+        "w": 640,
+        "h": 780,
+        "right": 1420,
+        "bottom": 840
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 781,
+          "y": 236.6,
+          "w": 638,
+          "h": 479.1,
+          "right": 1419,
+          "bottom": 715.8
+        },
+        "scrollWidth": 638,
+        "clientWidth": 638,
+        "scrollHeight": 1284,
+        "clientHeight": 479,
+        "scrollTop": 647,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 805,
+          "y": 279.4,
+          "w": 590,
+          "h": 507.4,
+          "right": 1395,
+          "bottom": 786.8
+        },
+        "scrollWidth": 588,
+        "clientWidth": 588,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": false,
+        "tallerThanScrollContainer": true
+      },
+      "basis": {
+        "box": {
+          "x": 818,
+          "y": 292.4,
+          "w": 564,
+          "h": 439.4,
+          "right": 1382,
+          "bottom": 731.8
+        },
+        "scrollWidth": 564,
+        "clientWidth": 564,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approve this check?",
+        "Check details"
+      ],
+      "text": "Approve this check?\n\nnode-test v1\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\n\n24 B · Approval for this exact check only\n\n{\"recipeId\":\"node-test\"}\nCheck details\nPrivate candidate\ne23e4567-e89b-42d3-a456-426614174000\nWrite revision\n2\n\nAs recorded when this approval was requested.\n\nebdb0697ea80166c77f48b94b0a003a254a89530ef25b4e8a1e4d727c0bd605f\nCopy proposed arguments hash\nDeny this check\nApprove this check",
+      "buttons": [
+        {
+          "label": "Copy proposed arguments hash",
+          "ariaLabel": "Copy proposed arguments hash",
+          "box": {
+            "x": 818,
+            "y": 703.8,
+            "w": 28,
+            "h": 28,
+            "right": 846,
+            "bottom": 731.8
+          },
+          "disabled": false,
+          "className": "quiet-button icon-only",
+          "borderWidth": "1px",
+          "background": "rgba(0, 0, 0, 0)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        },
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1129.1,
+            "y": 743.8,
+            "w": 112.1,
+            "h": 30,
+            "right": 1241.2,
+            "bottom": 773.8
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(34, 38, 39)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1249.2,
+            "y": 743.8,
+            "w": 132.8,
+            "h": 30,
+            "right": 1382,
+            "bottom": 773.8
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        }
+      ],
+      "approvalButtons": [
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1129.1,
+            "y": 743.8,
+            "w": 112.1,
+            "h": 30,
+            "right": 1241.2,
+            "bottom": 773.8
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(34, 38, 39)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1249.2,
+            "y": 743.8,
+            "w": 132.8,
+            "h": 30,
+            "right": 1382,
+            "bottom": 773.8
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        }
+      ]
+    },
+    {
+      "name": "popover-pending-details-top-1440-dark",
+      "scroll": "card top",
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "popover": {
+        "x": 780,
+        "y": 60,
+        "w": 640,
+        "h": 780,
+        "right": 1420,
+        "bottom": 840
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 781,
+          "y": 236.6,
+          "w": 638,
+          "h": 479.1,
+          "right": 1419,
+          "bottom": 715.8
+        },
+        "scrollWidth": 638,
+        "clientWidth": 638,
+        "scrollHeight": 1284,
+        "clientHeight": 479,
+        "scrollTop": 690,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 805,
+          "y": 236.4,
+          "w": 590,
+          "h": 507.4,
+          "right": 1395,
+          "bottom": 743.8
+        },
+        "scrollWidth": 588,
+        "clientWidth": 588,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": false,
+        "tallerThanScrollContainer": true
+      },
+      "basis": {
+        "box": {
+          "x": 818,
+          "y": 249.4,
+          "w": 564,
+          "h": 439.4,
+          "right": 1382,
+          "bottom": 688.8
+        },
+        "scrollWidth": 564,
+        "clientWidth": 564,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approve this check?",
+        "Check details"
+      ],
+      "text": "Approve this check?\n\nnode-test v1\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\n\n24 B · Approval for this exact check only\n\n{\"recipeId\":\"node-test\"}\nCheck details\nPrivate candidate\ne23e4567-e89b-42d3-a456-426614174000\nWrite revision\n2\n\nAs recorded when this approval was requested.\n\nebdb0697ea80166c77f48b94b0a003a254a89530ef25b4e8a1e4d727c0bd605f\nCopy proposed arguments hash\nDeny this check\nApprove this check",
+      "buttons": [
+        {
+          "label": "Copy proposed arguments hash",
+          "ariaLabel": "Copy proposed arguments hash",
+          "box": {
+            "x": 818,
+            "y": 660.8,
+            "w": 28,
+            "h": 28,
+            "right": 846,
+            "bottom": 688.8
+          },
+          "disabled": false,
+          "className": "quiet-button icon-only",
+          "borderWidth": "1px",
+          "background": "rgba(0, 0, 0, 0)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        },
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1129.1,
+            "y": 700.8,
+            "w": 112.1,
+            "h": 30,
+            "right": 1241.2,
+            "bottom": 730.8
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(34, 38, 39)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1249.2,
+            "y": 700.8,
+            "w": 132.8,
+            "h": 30,
+            "right": 1382,
+            "bottom": 730.8
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        }
+      ],
+      "approvalButtons": [
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1129.1,
+            "y": 700.8,
+            "w": 112.1,
+            "h": 30,
+            "right": 1241.2,
+            "bottom": 730.8
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(34, 38, 39)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1249.2,
+            "y": 700.8,
+            "w": 132.8,
+            "h": 30,
+            "right": 1382,
+            "bottom": 730.8
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        }
+      ]
+    },
+    {
+      "name": "popover-pending-details-end-1440-dark",
+      "scroll": "card end",
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "popover": {
+        "x": 780,
+        "y": 60,
+        "w": 640,
+        "h": 780,
+        "right": 1420,
+        "bottom": 840
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 781,
+          "y": 236.6,
+          "w": 638,
+          "h": 479.1,
+          "right": 1419,
+          "bottom": 715.8
+        },
+        "scrollWidth": 638,
+        "clientWidth": 638,
+        "scrollHeight": 1284,
+        "clientHeight": 479,
+        "scrollTop": 718,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 805,
+          "y": 208.4,
+          "w": 590,
+          "h": 507.4,
+          "right": 1395,
+          "bottom": 715.8
+        },
+        "scrollWidth": 588,
+        "clientWidth": 588,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": false,
+        "tallerThanScrollContainer": true
+      },
+      "basis": {
+        "box": {
+          "x": 818,
+          "y": 221.4,
+          "w": 564,
+          "h": 439.4,
+          "right": 1382,
+          "bottom": 660.8
+        },
+        "scrollWidth": 564,
+        "clientWidth": 564,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approve this check?",
+        "Check details"
+      ],
+      "text": "Approve this check?\n\nnode-test v1\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\n\n24 B · Approval for this exact check only\n\n{\"recipeId\":\"node-test\"}\nCheck details\nPrivate candidate\ne23e4567-e89b-42d3-a456-426614174000\nWrite revision\n2\n\nAs recorded when this approval was requested.\n\nebdb0697ea80166c77f48b94b0a003a254a89530ef25b4e8a1e4d727c0bd605f\nCopy proposed arguments hash\nDeny this check\nApprove this check",
+      "buttons": [
+        {
+          "label": "Copy proposed arguments hash",
+          "ariaLabel": "Copy proposed arguments hash",
+          "box": {
+            "x": 818,
+            "y": 632.8,
+            "w": 28,
+            "h": 28,
+            "right": 846,
+            "bottom": 660.8
+          },
+          "disabled": false,
+          "className": "quiet-button icon-only",
+          "borderWidth": "1px",
+          "background": "rgba(0, 0, 0, 0)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        },
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1129.1,
+            "y": 672.8,
+            "w": 112.1,
+            "h": 30,
+            "right": 1241.2,
+            "bottom": 702.8
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(34, 38, 39)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1249.2,
+            "y": 672.8,
+            "w": 132.8,
+            "h": 30,
+            "right": 1382,
+            "bottom": 702.8
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        }
+      ],
+      "approvalButtons": [
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1129.1,
+            "y": 672.8,
+            "w": 112.1,
+            "h": 30,
+            "right": 1241.2,
+            "bottom": 702.8
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(34, 38, 39)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 1249.2,
+            "y": 672.8,
+            "w": 132.8,
+            "h": 30,
+            "right": 1382,
+            "bottom": 702.8
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        }
+      ]
+    },
+    {
+      "name": "chat-pending-1440-dark",
+      "scroll": "as opened",
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "popover": null,
+      "scrollContainer": {
+        "node": "section.message-stream",
+        "box": {
+          "x": 256,
+          "y": 48,
+          "w": 1184,
+          "h": 707.8,
+          "right": 1440,
+          "bottom": 755.8
+        },
+        "scrollWidth": 1184,
+        "clientWidth": 1184,
+        "scrollHeight": 1093,
+        "clientHeight": 708,
+        "scrollTop": 385,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "article.question-card.permission-card",
+        "box": {
+          "x": 478,
+          "y": 266.8,
+          "w": 740,
+          "h": 425,
+          "right": 1218,
+          "bottom": 691.8
+        },
+        "scrollWidth": 738,
+        "clientWidth": 738,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": true,
+        "tallerThanScrollContainer": false
+      },
+      "basis": null,
+      "basisLineGaps": null,
+      "basisDisplay": null,
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approve this check?",
+        "node-test v1",
+        "node --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment",
+        "This check executes 2 files the model wrote, with your access to this computer:",
+        "24 B · Approval for this exact check only",
+        "Check details"
+      ],
+      "text": "Approve this check?\n\nnode-test v1\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\n\n24 B · Approval for this exact check only\n\n{\"recipeId\":\"node-test\"}\nCheck details\nDeny this check\nApprove this check",
+      "buttons": [
+        {
+          "label": "Copy proposed arguments hash",
+          "ariaLabel": "Copy proposed arguments hash",
+          "box": {
+            "x": 499,
+            "y": 740.1,
+            "w": 28,
+            "h": 28,
+            "right": 527,
+            "bottom": 768.1
+          },
+          "disabled": false,
+          "className": "quiet-button icon-only",
+          "borderWidth": "1px",
+          "background": "rgba(0, 0, 0, 0)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": false
+        },
+        {
+          "label": "Deny this check",
+          "ariaLabel": "Deny this check",
+          "box": {
+            "x": 944.1,
+            "y": 640.8,
+            "w": 112.1,
+            "h": 30,
+            "right": 1056.2,
+            "bottom": 670.8
+          },
+          "disabled": false,
+          "className": "secondary-button request-width",
+          "borderWidth": "1px",
+          "background": "rgb(34, 38, 39)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": "Approve this check",
+          "box": {
+            "x": 1064.2,
+            "y": 640.8,
+            "w": 132.8,
+            "h": 30,
+            "right": 1197,
+            "bottom": 670.8
+          },
+          "disabled": false,
+          "className": "primary-button request-width",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        }
+      ],
+      "approvalButtons": [
+        {
+          "label": "Deny this check",
+          "ariaLabel": "Deny this check",
+          "box": {
+            "x": 944.1,
+            "y": 640.8,
+            "w": 112.1,
+            "h": 30,
+            "right": 1056.2,
+            "bottom": 670.8
+          },
+          "disabled": false,
+          "className": "secondary-button request-width",
+          "borderWidth": "1px",
+          "background": "rgb(34, 38, 39)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": "Approve this check",
+          "box": {
+            "x": 1064.2,
+            "y": 640.8,
+            "w": 132.8,
+            "h": 30,
+            "right": 1197,
+            "bottom": 670.8
+          },
+          "disabled": false,
+          "className": "primary-button request-width",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        }
+      ]
+    },
+    {
+      "name": "popover-pending-390-light",
+      "scroll": "as opened",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "popover": {
+        "x": 8,
+        "y": 8,
+        "w": 374,
+        "h": 828,
+        "right": 382,
+        "bottom": 836
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 9,
+          "y": 254.4,
+          "w": 372,
+          "h": 426.6,
+          "right": 381,
+          "bottom": 681
+        },
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "scrollHeight": 1714,
+        "clientHeight": 427,
+        "scrollTop": 1184,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 25,
+          "y": 253.9,
+          "w": 340,
+          "h": 448.2,
+          "right": 365,
+          "bottom": 702
+        },
+        "scrollWidth": 338,
+        "clientWidth": 338,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": false,
+        "tallerThanScrollContainer": true
+      },
+      "basis": {
+        "box": {
+          "x": 38,
+          "y": 266.9,
+          "w": 314,
+          "h": 366.2,
+          "right": 352,
+          "bottom": 633
+        },
+        "scrollWidth": 314,
+        "clientWidth": 314,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approve this check?",
+        "Check details"
+      ],
+      "text": "Approve this check?\n\nnode-test v1\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\n\n24 B · Approval for this exact check only\n\n{\"recipeId\":\"node-test\"}\nCheck details\nDeny this check\nApprove this check",
+      "buttons": [
+        {
+          "label": "Copy proposed arguments hash",
+          "ariaLabel": "Copy proposed arguments hash",
+          "box": {
+            "x": 38,
+            "y": 797.9,
+            "w": 44,
+            "h": 44,
+            "right": 82,
+            "bottom": 841.9
+          },
+          "disabled": false,
+          "className": "quiet-button icon-only",
+          "borderWidth": "1px",
+          "background": "rgba(0, 0, 0, 0)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": false
+        },
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 38,
+            "y": 645,
+            "w": 153,
+            "h": 44,
+            "right": 191,
+            "bottom": 689
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 199,
+            "y": 645,
+            "w": 153,
+            "h": 44,
+            "right": 352,
+            "bottom": 689
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(42, 44, 44)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        }
+      ],
+      "approvalButtons": [
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 38,
+            "y": 645,
+            "w": 153,
+            "h": 44,
+            "right": 191,
+            "bottom": 689
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 199,
+            "y": 645,
+            "w": 153,
+            "h": 44,
+            "right": 352,
+            "bottom": 689
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(42, 44, 44)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        }
+      ]
+    },
+    {
+      "name": "popover-pending-top-390-light",
+      "scroll": "card top",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "popover": {
+        "x": 8,
+        "y": 8,
+        "w": 374,
+        "h": 828,
+        "right": 382,
+        "bottom": 836
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 9,
+          "y": 254.4,
+          "w": 372,
+          "h": 426.6,
+          "right": 381,
+          "bottom": 681
+        },
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "scrollHeight": 1714,
+        "clientHeight": 427,
+        "scrollTop": 1184,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 25,
+          "y": 253.9,
+          "w": 340,
+          "h": 448.2,
+          "right": 365,
+          "bottom": 702
+        },
+        "scrollWidth": 338,
+        "clientWidth": 338,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": false,
+        "tallerThanScrollContainer": true
+      },
+      "basis": {
+        "box": {
+          "x": 38,
+          "y": 266.9,
+          "w": 314,
+          "h": 366.2,
+          "right": 352,
+          "bottom": 633
+        },
+        "scrollWidth": 314,
+        "clientWidth": 314,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approve this check?",
+        "Check details"
+      ],
+      "text": "Approve this check?\n\nnode-test v1\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\n\n24 B · Approval for this exact check only\n\n{\"recipeId\":\"node-test\"}\nCheck details\nDeny this check\nApprove this check",
+      "buttons": [
+        {
+          "label": "Copy proposed arguments hash",
+          "ariaLabel": "Copy proposed arguments hash",
+          "box": {
+            "x": 38,
+            "y": 797.9,
+            "w": 44,
+            "h": 44,
+            "right": 82,
+            "bottom": 841.9
+          },
+          "disabled": false,
+          "className": "quiet-button icon-only",
+          "borderWidth": "1px",
+          "background": "rgba(0, 0, 0, 0)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": false
+        },
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 38,
+            "y": 645,
+            "w": 153,
+            "h": 44,
+            "right": 191,
+            "bottom": 689
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 199,
+            "y": 645,
+            "w": 153,
+            "h": 44,
+            "right": 352,
+            "bottom": 689
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(42, 44, 44)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        }
+      ],
+      "approvalButtons": [
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 38,
+            "y": 645,
+            "w": 153,
+            "h": 44,
+            "right": 191,
+            "bottom": 689
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 199,
+            "y": 645,
+            "w": 153,
+            "h": 44,
+            "right": 352,
+            "bottom": 689
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(42, 44, 44)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        }
+      ]
+    },
+    {
+      "name": "popover-pending-end-390-light",
+      "scroll": "card end",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "popover": {
+        "x": 8,
+        "y": 8,
+        "w": 374,
+        "h": 828,
+        "right": 382,
+        "bottom": 836
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 9,
+          "y": 254.4,
+          "w": 372,
+          "h": 426.6,
+          "right": 381,
+          "bottom": 681
+        },
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "scrollHeight": 1714,
+        "clientHeight": 427,
+        "scrollTop": 1205,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 25,
+          "y": 232.9,
+          "w": 340,
+          "h": 448.2,
+          "right": 365,
+          "bottom": 681
+        },
+        "scrollWidth": 338,
+        "clientWidth": 338,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": false,
+        "tallerThanScrollContainer": true
+      },
+      "basis": {
+        "box": {
+          "x": 38,
+          "y": 245.9,
+          "w": 314,
+          "h": 366.2,
+          "right": 352,
+          "bottom": 612
+        },
+        "scrollWidth": 314,
+        "clientWidth": 314,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approve this check?",
+        "Check details"
+      ],
+      "text": "Approve this check?\n\nnode-test v1\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\n\n24 B · Approval for this exact check only\n\n{\"recipeId\":\"node-test\"}\nCheck details\nDeny this check\nApprove this check",
+      "buttons": [
+        {
+          "label": "Copy proposed arguments hash",
+          "ariaLabel": "Copy proposed arguments hash",
+          "box": {
+            "x": 38,
+            "y": 776.9,
+            "w": 44,
+            "h": 44,
+            "right": 82,
+            "bottom": 820.9
+          },
+          "disabled": false,
+          "className": "quiet-button icon-only",
+          "borderWidth": "1px",
+          "background": "rgba(0, 0, 0, 0)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": false
+        },
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 38,
+            "y": 624,
+            "w": 153,
+            "h": 44,
+            "right": 191,
+            "bottom": 668
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 199,
+            "y": 624,
+            "w": 153,
+            "h": 44,
+            "right": 352,
+            "bottom": 668
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(42, 44, 44)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        }
+      ],
+      "approvalButtons": [
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 38,
+            "y": 624,
+            "w": 153,
+            "h": 44,
+            "right": 191,
+            "bottom": 668
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 199,
+            "y": 624,
+            "w": 153,
+            "h": 44,
+            "right": 352,
+            "bottom": 668
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(42, 44, 44)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        }
+      ]
+    },
+    {
+      "name": "popover-pending-details-390-light",
+      "scroll": "as opened",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "popover": {
+        "x": 8,
+        "y": 8,
+        "w": 374,
+        "h": 828,
+        "right": 382,
+        "bottom": 836
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 9,
+          "y": 254.4,
+          "w": 372,
+          "h": 426.6,
+          "right": 381,
+          "bottom": 681
+        },
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "scrollHeight": 1923,
+        "clientHeight": 427,
+        "scrollTop": 1205,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 25,
+          "y": 232.9,
+          "w": 340,
+          "h": 657,
+          "right": 365,
+          "bottom": 889.9
+        },
+        "scrollWidth": 338,
+        "clientWidth": 338,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": false,
+        "tallerThanScrollContainer": true
+      },
+      "basis": {
+        "box": {
+          "x": 38,
+          "y": 245.9,
+          "w": 314,
+          "h": 575,
+          "right": 352,
+          "bottom": 820.9
+        },
+        "scrollWidth": 314,
+        "clientWidth": 314,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approve this check?",
+        "Check details"
+      ],
+      "text": "Approve this check?\n\nnode-test v1\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\n\n24 B · Approval for this exact check only\n\n{\"recipeId\":\"node-test\"}\nCheck details\nPrivate candidate\ne23e4567-e89b-42d3-a456-426614174000\nWrite revision\n2\n\nAs recorded when this approval was requested.\n\nebdb0697ea80166c77f48b94b0a003a254a89530ef25b4e8a1e4d727c0bd605f\nCopy proposed arguments hash\nDeny this check\nApprove this check",
+      "buttons": [
+        {
+          "label": "Copy proposed arguments hash",
+          "ariaLabel": "Copy proposed arguments hash",
+          "box": {
+            "x": 38,
+            "y": 776.9,
+            "w": 44,
+            "h": 44,
+            "right": 82,
+            "bottom": 820.9
+          },
+          "disabled": false,
+          "className": "quiet-button icon-only",
+          "borderWidth": "1px",
+          "background": "rgba(0, 0, 0, 0)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        },
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 38,
+            "y": 832.9,
+            "w": 153,
+            "h": 44,
+            "right": 191,
+            "bottom": 876.9
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": false,
+          "insideScrollContainer": false,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 199,
+            "y": 832.9,
+            "w": 153,
+            "h": 44,
+            "right": 352,
+            "bottom": 876.9
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(42, 44, 44)",
+          "insideViewport": false,
+          "insideScrollContainer": false,
+          "insideCard": true
+        }
+      ],
+      "approvalButtons": [
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 38,
+            "y": 832.9,
+            "w": 153,
+            "h": 44,
+            "right": 191,
+            "bottom": 876.9
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": false,
+          "insideScrollContainer": false,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 199,
+            "y": 832.9,
+            "w": 153,
+            "h": 44,
+            "right": 352,
+            "bottom": 876.9
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(42, 44, 44)",
+          "insideViewport": false,
+          "insideScrollContainer": false,
+          "insideCard": true
+        }
+      ]
+    },
+    {
+      "name": "popover-pending-details-top-390-light",
+      "scroll": "card top",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "popover": {
+        "x": 8,
+        "y": 8,
+        "w": 374,
+        "h": 828,
+        "right": 382,
+        "bottom": 836
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 9,
+          "y": 254.4,
+          "w": 372,
+          "h": 426.6,
+          "right": 381,
+          "bottom": 681
+        },
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "scrollHeight": 1923,
+        "clientHeight": 427,
+        "scrollTop": 1184,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 25,
+          "y": 253.9,
+          "w": 340,
+          "h": 657,
+          "right": 365,
+          "bottom": 910.9
+        },
+        "scrollWidth": 338,
+        "clientWidth": 338,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": false,
+        "tallerThanScrollContainer": true
+      },
+      "basis": {
+        "box": {
+          "x": 38,
+          "y": 266.9,
+          "w": 314,
+          "h": 575,
+          "right": 352,
+          "bottom": 841.9
+        },
+        "scrollWidth": 314,
+        "clientWidth": 314,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approve this check?",
+        "Check details"
+      ],
+      "text": "Approve this check?\n\nnode-test v1\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\n\n24 B · Approval for this exact check only\n\n{\"recipeId\":\"node-test\"}\nCheck details\nPrivate candidate\ne23e4567-e89b-42d3-a456-426614174000\nWrite revision\n2\n\nAs recorded when this approval was requested.\n\nebdb0697ea80166c77f48b94b0a003a254a89530ef25b4e8a1e4d727c0bd605f\nCopy proposed arguments hash\nDeny this check\nApprove this check",
+      "buttons": [
+        {
+          "label": "Copy proposed arguments hash",
+          "ariaLabel": "Copy proposed arguments hash",
+          "box": {
+            "x": 38,
+            "y": 797.9,
+            "w": 44,
+            "h": 44,
+            "right": 82,
+            "bottom": 841.9
+          },
+          "disabled": false,
+          "className": "quiet-button icon-only",
+          "borderWidth": "1px",
+          "background": "rgba(0, 0, 0, 0)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        },
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 38,
+            "y": 853.9,
+            "w": 153,
+            "h": 44,
+            "right": 191,
+            "bottom": 897.9
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": false,
+          "insideScrollContainer": false,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 199,
+            "y": 853.9,
+            "w": 153,
+            "h": 44,
+            "right": 352,
+            "bottom": 897.9
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(42, 44, 44)",
+          "insideViewport": false,
+          "insideScrollContainer": false,
+          "insideCard": true
+        }
+      ],
+      "approvalButtons": [
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 38,
+            "y": 853.9,
+            "w": 153,
+            "h": 44,
+            "right": 191,
+            "bottom": 897.9
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": false,
+          "insideScrollContainer": false,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 199,
+            "y": 853.9,
+            "w": 153,
+            "h": 44,
+            "right": 352,
+            "bottom": 897.9
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(42, 44, 44)",
+          "insideViewport": false,
+          "insideScrollContainer": false,
+          "insideCard": true
+        }
+      ]
+    },
+    {
+      "name": "popover-pending-details-end-390-light",
+      "scroll": "card end",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "popover": {
+        "x": 8,
+        "y": 8,
+        "w": 374,
+        "h": 828,
+        "right": 382,
+        "bottom": 836
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 9,
+          "y": 254.4,
+          "w": 372,
+          "h": 426.6,
+          "right": 381,
+          "bottom": 681
+        },
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "scrollHeight": 1923,
+        "clientHeight": 427,
+        "scrollTop": 1414,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 25,
+          "y": 23.9,
+          "w": 340,
+          "h": 657,
+          "right": 365,
+          "bottom": 680.9
+        },
+        "scrollWidth": 338,
+        "clientWidth": 338,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": false,
+        "tallerThanScrollContainer": true
+      },
+      "basis": {
+        "box": {
+          "x": 38,
+          "y": 36.9,
+          "w": 314,
+          "h": 575,
+          "right": 352,
+          "bottom": 611.9
+        },
+        "scrollWidth": 314,
+        "clientWidth": 314,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approve this check?",
+        "Check details"
+      ],
+      "text": "Approve this check?\n\nnode-test v1\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\n\n24 B · Approval for this exact check only\n\n{\"recipeId\":\"node-test\"}\nCheck details\nPrivate candidate\ne23e4567-e89b-42d3-a456-426614174000\nWrite revision\n2\n\nAs recorded when this approval was requested.\n\nebdb0697ea80166c77f48b94b0a003a254a89530ef25b4e8a1e4d727c0bd605f\nCopy proposed arguments hash\nDeny this check\nApprove this check",
+      "buttons": [
+        {
+          "label": "Copy proposed arguments hash",
+          "ariaLabel": "Copy proposed arguments hash",
+          "box": {
+            "x": 38,
+            "y": 567.9,
+            "w": 44,
+            "h": 44,
+            "right": 82,
+            "bottom": 611.9
+          },
+          "disabled": false,
+          "className": "quiet-button icon-only",
+          "borderWidth": "1px",
+          "background": "rgba(0, 0, 0, 0)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        },
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 38,
+            "y": 623.9,
+            "w": 153,
+            "h": 44,
+            "right": 191,
+            "bottom": 667.9
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 199,
+            "y": 623.9,
+            "w": 153,
+            "h": 44,
+            "right": 352,
+            "bottom": 667.9
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(42, 44, 44)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        }
+      ],
+      "approvalButtons": [
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 38,
+            "y": 623.9,
+            "w": 153,
+            "h": 44,
+            "right": 191,
+            "bottom": 667.9
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 199,
+            "y": 623.9,
+            "w": 153,
+            "h": 44,
+            "right": 352,
+            "bottom": 667.9
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(42, 44, 44)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        }
+      ]
+    },
+    {
+      "name": "chat-pending-390-light",
+      "scroll": "as opened",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "popover": null,
+      "scrollContainer": {
+        "node": "section.message-stream",
+        "box": {
+          "x": 0,
+          "y": 48,
+          "w": 390,
+          "h": 607.8,
+          "right": 390,
+          "bottom": 655.8
+        },
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 1624,
+        "clientHeight": 608,
+        "scrollTop": 1016,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "article.question-card.permission-card",
+        "box": {
+          "x": 16,
+          "y": 71.8,
+          "w": 358,
+          "h": 508.6,
+          "right": 374,
+          "bottom": 580.3
+        },
+        "scrollWidth": 356,
+        "clientWidth": 356,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": true,
+        "tallerThanScrollContainer": false
+      },
+      "basis": null,
+      "basisLineGaps": null,
+      "basisDisplay": null,
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approve this check?",
+        "node-test v1",
+        "node --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment",
+        "This check executes 2 files the model wrote, with your access to this computer:",
+        "24 B · Approval for this exact check only",
+        "Check details"
+      ],
+      "text": "Approve this check?\n\nnode-test v1\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\n\n24 B · Approval for this exact check only\n\n{\"recipeId\":\"node-test\"}\nCheck details\nDeny this check\nApprove this check",
+      "buttons": [
+        {
+          "label": "Copy proposed arguments hash",
+          "ariaLabel": "Copy proposed arguments hash",
+          "box": {
+            "x": 33,
+            "y": 654.4,
+            "w": 44,
+            "h": 44,
+            "right": 77,
+            "bottom": 698.4
+          },
+          "disabled": false,
+          "className": "quiet-button icon-only",
+          "borderWidth": "1px",
+          "background": "rgba(0, 0, 0, 0)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": false
+        },
+        {
+          "label": "Deny this check",
+          "ariaLabel": "Deny this check",
+          "box": {
+            "x": 33,
+            "y": 519.3,
+            "w": 158,
+            "h": 44,
+            "right": 191,
+            "bottom": 563.3
+          },
+          "disabled": false,
+          "className": "secondary-button request-width",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": "Approve this check",
+          "box": {
+            "x": 199,
+            "y": 519.3,
+            "w": 158,
+            "h": 44,
+            "right": 357,
+            "bottom": 563.3
+          },
+          "disabled": false,
+          "className": "primary-button request-width",
+          "borderWidth": "1px",
+          "background": "rgb(42, 44, 44)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        }
+      ],
+      "approvalButtons": [
+        {
+          "label": "Deny this check",
+          "ariaLabel": "Deny this check",
+          "box": {
+            "x": 33,
+            "y": 519.3,
+            "w": 158,
+            "h": 44,
+            "right": 191,
+            "bottom": 563.3
+          },
+          "disabled": false,
+          "className": "secondary-button request-width",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": "Approve this check",
+          "box": {
+            "x": 199,
+            "y": 519.3,
+            "w": 158,
+            "h": 44,
+            "right": 357,
+            "bottom": 563.3
+          },
+          "disabled": false,
+          "className": "primary-button request-width",
+          "borderWidth": "1px",
+          "background": "rgb(42, 44, 44)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        }
+      ]
+    },
+    {
+      "name": "popover-pending-390-dark",
+      "scroll": "as opened",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "popover": {
+        "x": 8,
+        "y": 8,
+        "w": 374,
+        "h": 828,
+        "right": 382,
+        "bottom": 836
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 9,
+          "y": 254.4,
+          "w": 372,
+          "h": 426.6,
+          "right": 381,
+          "bottom": 681
+        },
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "scrollHeight": 1714,
+        "clientHeight": 427,
+        "scrollTop": 1184,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 25,
+          "y": 253.9,
+          "w": 340,
+          "h": 448.2,
+          "right": 365,
+          "bottom": 702
+        },
+        "scrollWidth": 338,
+        "clientWidth": 338,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": false,
+        "tallerThanScrollContainer": true
+      },
+      "basis": {
+        "box": {
+          "x": 38,
+          "y": 266.9,
+          "w": 314,
+          "h": 366.2,
+          "right": 352,
+          "bottom": 633
+        },
+        "scrollWidth": 314,
+        "clientWidth": 314,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approve this check?",
+        "Check details"
+      ],
+      "text": "Approve this check?\n\nnode-test v1\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\n\n24 B · Approval for this exact check only\n\n{\"recipeId\":\"node-test\"}\nCheck details\nDeny this check\nApprove this check",
+      "buttons": [
+        {
+          "label": "Copy proposed arguments hash",
+          "ariaLabel": "Copy proposed arguments hash",
+          "box": {
+            "x": 38,
+            "y": 797.9,
+            "w": 44,
+            "h": 44,
+            "right": 82,
+            "bottom": 841.9
+          },
+          "disabled": false,
+          "className": "quiet-button icon-only",
+          "borderWidth": "1px",
+          "background": "rgba(0, 0, 0, 0)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": false
+        },
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 38,
+            "y": 645,
+            "w": 153,
+            "h": 44,
+            "right": 191,
+            "bottom": 689
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(34, 38, 39)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 199,
+            "y": 645,
+            "w": 153,
+            "h": 44,
+            "right": 352,
+            "bottom": 689
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        }
+      ],
+      "approvalButtons": [
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 38,
+            "y": 645,
+            "w": 153,
+            "h": 44,
+            "right": 191,
+            "bottom": 689
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(34, 38, 39)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 199,
+            "y": 645,
+            "w": 153,
+            "h": 44,
+            "right": 352,
+            "bottom": 689
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        }
+      ]
+    },
+    {
+      "name": "popover-pending-top-390-dark",
+      "scroll": "card top",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "popover": {
+        "x": 8,
+        "y": 8,
+        "w": 374,
+        "h": 828,
+        "right": 382,
+        "bottom": 836
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 9,
+          "y": 254.4,
+          "w": 372,
+          "h": 426.6,
+          "right": 381,
+          "bottom": 681
+        },
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "scrollHeight": 1714,
+        "clientHeight": 427,
+        "scrollTop": 1184,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 25,
+          "y": 253.9,
+          "w": 340,
+          "h": 448.2,
+          "right": 365,
+          "bottom": 702
+        },
+        "scrollWidth": 338,
+        "clientWidth": 338,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": false,
+        "tallerThanScrollContainer": true
+      },
+      "basis": {
+        "box": {
+          "x": 38,
+          "y": 266.9,
+          "w": 314,
+          "h": 366.2,
+          "right": 352,
+          "bottom": 633
+        },
+        "scrollWidth": 314,
+        "clientWidth": 314,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approve this check?",
+        "Check details"
+      ],
+      "text": "Approve this check?\n\nnode-test v1\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\n\n24 B · Approval for this exact check only\n\n{\"recipeId\":\"node-test\"}\nCheck details\nDeny this check\nApprove this check",
+      "buttons": [
+        {
+          "label": "Copy proposed arguments hash",
+          "ariaLabel": "Copy proposed arguments hash",
+          "box": {
+            "x": 38,
+            "y": 797.9,
+            "w": 44,
+            "h": 44,
+            "right": 82,
+            "bottom": 841.9
+          },
+          "disabled": false,
+          "className": "quiet-button icon-only",
+          "borderWidth": "1px",
+          "background": "rgba(0, 0, 0, 0)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": false
+        },
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 38,
+            "y": 645,
+            "w": 153,
+            "h": 44,
+            "right": 191,
+            "bottom": 689
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(34, 38, 39)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 199,
+            "y": 645,
+            "w": 153,
+            "h": 44,
+            "right": 352,
+            "bottom": 689
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        }
+      ],
+      "approvalButtons": [
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 38,
+            "y": 645,
+            "w": 153,
+            "h": 44,
+            "right": 191,
+            "bottom": 689
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(34, 38, 39)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 199,
+            "y": 645,
+            "w": 153,
+            "h": 44,
+            "right": 352,
+            "bottom": 689
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        }
+      ]
+    },
+    {
+      "name": "popover-pending-end-390-dark",
+      "scroll": "card end",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "popover": {
+        "x": 8,
+        "y": 8,
+        "w": 374,
+        "h": 828,
+        "right": 382,
+        "bottom": 836
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 9,
+          "y": 254.4,
+          "w": 372,
+          "h": 426.6,
+          "right": 381,
+          "bottom": 681
+        },
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "scrollHeight": 1714,
+        "clientHeight": 427,
+        "scrollTop": 1205,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 25,
+          "y": 232.9,
+          "w": 340,
+          "h": 448.2,
+          "right": 365,
+          "bottom": 681
+        },
+        "scrollWidth": 338,
+        "clientWidth": 338,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": false,
+        "tallerThanScrollContainer": true
+      },
+      "basis": {
+        "box": {
+          "x": 38,
+          "y": 245.9,
+          "w": 314,
+          "h": 366.2,
+          "right": 352,
+          "bottom": 612
+        },
+        "scrollWidth": 314,
+        "clientWidth": 314,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approve this check?",
+        "Check details"
+      ],
+      "text": "Approve this check?\n\nnode-test v1\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\n\n24 B · Approval for this exact check only\n\n{\"recipeId\":\"node-test\"}\nCheck details\nDeny this check\nApprove this check",
+      "buttons": [
+        {
+          "label": "Copy proposed arguments hash",
+          "ariaLabel": "Copy proposed arguments hash",
+          "box": {
+            "x": 38,
+            "y": 776.9,
+            "w": 44,
+            "h": 44,
+            "right": 82,
+            "bottom": 820.9
+          },
+          "disabled": false,
+          "className": "quiet-button icon-only",
+          "borderWidth": "1px",
+          "background": "rgba(0, 0, 0, 0)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": false
+        },
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 38,
+            "y": 624,
+            "w": 153,
+            "h": 44,
+            "right": 191,
+            "bottom": 668
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(34, 38, 39)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 199,
+            "y": 624,
+            "w": 153,
+            "h": 44,
+            "right": 352,
+            "bottom": 668
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        }
+      ],
+      "approvalButtons": [
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 38,
+            "y": 624,
+            "w": 153,
+            "h": 44,
+            "right": 191,
+            "bottom": 668
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(34, 38, 39)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 199,
+            "y": 624,
+            "w": 153,
+            "h": 44,
+            "right": 352,
+            "bottom": 668
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        }
+      ]
+    },
+    {
+      "name": "popover-pending-details-390-dark",
+      "scroll": "as opened",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "popover": {
+        "x": 8,
+        "y": 8,
+        "w": 374,
+        "h": 828,
+        "right": 382,
+        "bottom": 836
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 9,
+          "y": 254.4,
+          "w": 372,
+          "h": 426.6,
+          "right": 381,
+          "bottom": 681
+        },
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "scrollHeight": 1923,
+        "clientHeight": 427,
+        "scrollTop": 1205,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 25,
+          "y": 232.9,
+          "w": 340,
+          "h": 657,
+          "right": 365,
+          "bottom": 889.9
+        },
+        "scrollWidth": 338,
+        "clientWidth": 338,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": false,
+        "tallerThanScrollContainer": true
+      },
+      "basis": {
+        "box": {
+          "x": 38,
+          "y": 245.9,
+          "w": 314,
+          "h": 575,
+          "right": 352,
+          "bottom": 820.9
+        },
+        "scrollWidth": 314,
+        "clientWidth": 314,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approve this check?",
+        "Check details"
+      ],
+      "text": "Approve this check?\n\nnode-test v1\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\n\n24 B · Approval for this exact check only\n\n{\"recipeId\":\"node-test\"}\nCheck details\nPrivate candidate\ne23e4567-e89b-42d3-a456-426614174000\nWrite revision\n2\n\nAs recorded when this approval was requested.\n\nebdb0697ea80166c77f48b94b0a003a254a89530ef25b4e8a1e4d727c0bd605f\nCopy proposed arguments hash\nDeny this check\nApprove this check",
+      "buttons": [
+        {
+          "label": "Copy proposed arguments hash",
+          "ariaLabel": "Copy proposed arguments hash",
+          "box": {
+            "x": 38,
+            "y": 776.9,
+            "w": 44,
+            "h": 44,
+            "right": 82,
+            "bottom": 820.9
+          },
+          "disabled": false,
+          "className": "quiet-button icon-only",
+          "borderWidth": "1px",
+          "background": "rgba(0, 0, 0, 0)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        },
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 38,
+            "y": 832.9,
+            "w": 153,
+            "h": 44,
+            "right": 191,
+            "bottom": 876.9
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(34, 38, 39)",
+          "insideViewport": false,
+          "insideScrollContainer": false,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 199,
+            "y": 832.9,
+            "w": 153,
+            "h": 44,
+            "right": 352,
+            "bottom": 876.9
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": false,
+          "insideScrollContainer": false,
+          "insideCard": true
+        }
+      ],
+      "approvalButtons": [
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 38,
+            "y": 832.9,
+            "w": 153,
+            "h": 44,
+            "right": 191,
+            "bottom": 876.9
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(34, 38, 39)",
+          "insideViewport": false,
+          "insideScrollContainer": false,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 199,
+            "y": 832.9,
+            "w": 153,
+            "h": 44,
+            "right": 352,
+            "bottom": 876.9
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": false,
+          "insideScrollContainer": false,
+          "insideCard": true
+        }
+      ]
+    },
+    {
+      "name": "popover-pending-details-top-390-dark",
+      "scroll": "card top",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "popover": {
+        "x": 8,
+        "y": 8,
+        "w": 374,
+        "h": 828,
+        "right": 382,
+        "bottom": 836
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 9,
+          "y": 254.4,
+          "w": 372,
+          "h": 426.6,
+          "right": 381,
+          "bottom": 681
+        },
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "scrollHeight": 1923,
+        "clientHeight": 427,
+        "scrollTop": 1184,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 25,
+          "y": 253.9,
+          "w": 340,
+          "h": 657,
+          "right": 365,
+          "bottom": 910.9
+        },
+        "scrollWidth": 338,
+        "clientWidth": 338,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": false,
+        "tallerThanScrollContainer": true
+      },
+      "basis": {
+        "box": {
+          "x": 38,
+          "y": 266.9,
+          "w": 314,
+          "h": 575,
+          "right": 352,
+          "bottom": 841.9
+        },
+        "scrollWidth": 314,
+        "clientWidth": 314,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approve this check?",
+        "Check details"
+      ],
+      "text": "Approve this check?\n\nnode-test v1\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\n\n24 B · Approval for this exact check only\n\n{\"recipeId\":\"node-test\"}\nCheck details\nPrivate candidate\ne23e4567-e89b-42d3-a456-426614174000\nWrite revision\n2\n\nAs recorded when this approval was requested.\n\nebdb0697ea80166c77f48b94b0a003a254a89530ef25b4e8a1e4d727c0bd605f\nCopy proposed arguments hash\nDeny this check\nApprove this check",
+      "buttons": [
+        {
+          "label": "Copy proposed arguments hash",
+          "ariaLabel": "Copy proposed arguments hash",
+          "box": {
+            "x": 38,
+            "y": 797.9,
+            "w": 44,
+            "h": 44,
+            "right": 82,
+            "bottom": 841.9
+          },
+          "disabled": false,
+          "className": "quiet-button icon-only",
+          "borderWidth": "1px",
+          "background": "rgba(0, 0, 0, 0)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": true
+        },
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 38,
+            "y": 853.9,
+            "w": 153,
+            "h": 44,
+            "right": 191,
+            "bottom": 897.9
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(34, 38, 39)",
+          "insideViewport": false,
+          "insideScrollContainer": false,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 199,
+            "y": 853.9,
+            "w": 153,
+            "h": 44,
+            "right": 352,
+            "bottom": 897.9
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": false,
+          "insideScrollContainer": false,
+          "insideCard": true
+        }
+      ],
+      "approvalButtons": [
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 38,
+            "y": 853.9,
+            "w": 153,
+            "h": 44,
+            "right": 191,
+            "bottom": 897.9
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(34, 38, 39)",
+          "insideViewport": false,
+          "insideScrollContainer": false,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 199,
+            "y": 853.9,
+            "w": 153,
+            "h": 44,
+            "right": 352,
+            "bottom": 897.9
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": false,
+          "insideScrollContainer": false,
+          "insideCard": true
+        }
+      ]
+    },
+    {
+      "name": "popover-pending-details-end-390-dark",
+      "scroll": "card end",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "popover": {
+        "x": 8,
+        "y": 8,
+        "w": 374,
+        "h": 828,
+        "right": 382,
+        "bottom": 836
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 9,
+          "y": 254.4,
+          "w": 372,
+          "h": 426.6,
+          "right": 381,
+          "bottom": 681
+        },
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "scrollHeight": 1923,
+        "clientHeight": 427,
+        "scrollTop": 1414,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 25,
+          "y": 23.9,
+          "w": 340,
+          "h": 657,
+          "right": 365,
+          "bottom": 680.9
+        },
+        "scrollWidth": 338,
+        "clientWidth": 338,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": false,
+        "tallerThanScrollContainer": true
+      },
+      "basis": {
+        "box": {
+          "x": 38,
+          "y": 36.9,
+          "w": 314,
+          "h": 575,
+          "right": 352,
+          "bottom": 611.9
+        },
+        "scrollWidth": 314,
+        "clientWidth": 314,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approve this check?",
+        "Check details"
+      ],
+      "text": "Approve this check?\n\nnode-test v1\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\n\n24 B · Approval for this exact check only\n\n{\"recipeId\":\"node-test\"}\nCheck details\nPrivate candidate\ne23e4567-e89b-42d3-a456-426614174000\nWrite revision\n2\n\nAs recorded when this approval was requested.\n\nebdb0697ea80166c77f48b94b0a003a254a89530ef25b4e8a1e4d727c0bd605f\nCopy proposed arguments hash\nDeny this check\nApprove this check",
+      "buttons": [
+        {
+          "label": "Copy proposed arguments hash",
+          "ariaLabel": "Copy proposed arguments hash",
+          "box": {
+            "x": 38,
+            "y": 567.9,
+            "w": 44,
+            "h": 44,
+            "right": 82,
+            "bottom": 611.9
+          },
+          "disabled": false,
+          "className": "quiet-button icon-only",
+          "borderWidth": "1px",
+          "background": "rgba(0, 0, 0, 0)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        },
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 38,
+            "y": 623.9,
+            "w": 153,
+            "h": 44,
+            "right": 191,
+            "bottom": 667.9
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(34, 38, 39)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 199,
+            "y": 623.9,
+            "w": 153,
+            "h": 44,
+            "right": 352,
+            "bottom": 667.9
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        }
+      ],
+      "approvalButtons": [
+        {
+          "label": "Deny this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 38,
+            "y": 623.9,
+            "w": 153,
+            "h": 44,
+            "right": 191,
+            "bottom": 667.9
+          },
+          "disabled": false,
+          "className": "secondary-button",
+          "borderWidth": "1px",
+          "background": "rgb(34, 38, 39)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": null,
+          "box": {
+            "x": 199,
+            "y": 623.9,
+            "w": 153,
+            "h": 44,
+            "right": 352,
+            "bottom": 667.9
+          },
+          "disabled": false,
+          "className": "primary-button",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        }
+      ]
+    },
+    {
+      "name": "chat-pending-390-dark",
+      "scroll": "as opened",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "popover": null,
+      "scrollContainer": {
+        "node": "section.message-stream",
+        "box": {
+          "x": 0,
+          "y": 48,
+          "w": 390,
+          "h": 607.8,
+          "right": 390,
+          "bottom": 655.8
+        },
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 1624,
+        "clientHeight": 608,
+        "scrollTop": 1016,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "article.question-card.permission-card",
+        "box": {
+          "x": 16,
+          "y": 71.8,
+          "w": 358,
+          "h": 508.6,
+          "right": 374,
+          "bottom": 580.3
+        },
+        "scrollWidth": 356,
+        "clientWidth": 356,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": true,
+        "tallerThanScrollContainer": false
+      },
+      "basis": null,
+      "basisLineGaps": null,
+      "basisDisplay": null,
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approve this check?",
+        "node-test v1",
+        "node --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment",
+        "This check executes 2 files the model wrote, with your access to this computer:",
+        "24 B · Approval for this exact check only",
+        "Check details"
+      ],
+      "text": "Approve this check?\n\nnode-test v1\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\n\n24 B · Approval for this exact check only\n\n{\"recipeId\":\"node-test\"}\nCheck details\nDeny this check\nApprove this check",
+      "buttons": [
+        {
+          "label": "Copy proposed arguments hash",
+          "ariaLabel": "Copy proposed arguments hash",
+          "box": {
+            "x": 33,
+            "y": 654.4,
+            "w": 44,
+            "h": 44,
+            "right": 77,
+            "bottom": 698.4
+          },
+          "disabled": false,
+          "className": "quiet-button icon-only",
+          "borderWidth": "1px",
+          "background": "rgba(0, 0, 0, 0)",
+          "insideViewport": true,
+          "insideScrollContainer": false,
+          "insideCard": false
+        },
+        {
+          "label": "Deny this check",
+          "ariaLabel": "Deny this check",
+          "box": {
+            "x": 33,
+            "y": 519.3,
+            "w": 158,
+            "h": 44,
+            "right": 191,
+            "bottom": 563.3
+          },
+          "disabled": false,
+          "className": "secondary-button request-width",
+          "borderWidth": "1px",
+          "background": "rgb(34, 38, 39)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": "Approve this check",
+          "box": {
+            "x": 199,
+            "y": 519.3,
+            "w": 158,
+            "h": 44,
+            "right": 357,
+            "bottom": 563.3
+          },
+          "disabled": false,
+          "className": "primary-button request-width",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        }
+      ],
+      "approvalButtons": [
+        {
+          "label": "Deny this check",
+          "ariaLabel": "Deny this check",
+          "box": {
+            "x": 33,
+            "y": 519.3,
+            "w": 158,
+            "h": 44,
+            "right": 191,
+            "bottom": 563.3
+          },
+          "disabled": false,
+          "className": "secondary-button request-width",
+          "borderWidth": "1px",
+          "background": "rgb(34, 38, 39)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        },
+        {
+          "label": "Approve this check",
+          "ariaLabel": "Approve this check",
+          "box": {
+            "x": 199,
+            "y": 519.3,
+            "w": 158,
+            "h": 44,
+            "right": 357,
+            "bottom": 563.3
+          },
+          "disabled": false,
+          "className": "primary-button request-width",
+          "borderWidth": "1px",
+          "background": "rgb(244, 245, 246)",
+          "insideViewport": true,
+          "insideScrollContainer": true,
+          "insideCard": true
+        }
+      ]
+    },
+    {
+      "name": "popover-after-approve-1440-light",
+      "decidedCardVisible": false,
+      "streamText": "/fixture script [{\"name\":\"repo_write\",\"arguments\":{\"path\":\"src/parcel.mjs\",\"text\":\"// Split count items into pages of perPage items each.\\nexport function pageCount(count, perPage) {\\n if (!Number.isInteger(count) || count < 0) throw new RangeError(\"count must be a non-negative integer\");\\n if (!Number.isInteger(perPage) || perPage <= 0) throw new RangeError(\"perPage must be a positive integer\");\\n return Math.ceil(count / perPage);\\n}\\n\\nexport function pageOf(index, perPage) {\\n return Math.floor(index / perPage) + 1;\\n}\\n\",\"expectedSha256\":\"d2a9ace4a0d96a5203cf11a6cd3edb52aad6142642bee3fade70de9fb7146233\"}},{\"name\":\"repo_write\",\"arguments\":{\"path\":\"test/partial-last-page-boundary-regression.test.mjs\",\"text\":\"import assert from \"node:assert/strict\";\\nimport { test } from \"node:test\";\\nimport { pageCount } from \"../src/parcel.mjs\";\\n\\ntest(\"eleven items in pages of five need three pages\", () => {\\n assert.equal(pageCount(11, 5), 3);\\n});\\n\"}},{\"name\":\"check_run\",\"arguments\":{\"recipeId\":\"node-test\"}}]\n\nSource\nCopy message\nEdit as new message\nStarted 10/1/2026, 1:14:25 PM\n1:14 PM\nExecution\n3 successful tool actions\n\nSIMULATED scripted response\n\nRun started 10/1/2026, 1:14:25 PM\n1:14 PM\nCopy response\n\nCompleted"
+    },
+    {
+      "name": "popover-decided-as-opened-1440-light",
+      "decidedCardVisible": false,
+      "streamText": "/fixture script [{\"name\":\"repo_write\",\"arguments\":{\"path\":\"src/parcel.mjs\",\"text\":\"// Split count items into pages of perPage items each.\\nexport function pageCount(count, perPage) {\\n if (!Number.isInteger(count) || count < 0) throw new RangeError(\"count must be a non-negative integer\");\\n if (!Number.isInteger(perPage) || perPage <= 0) throw new RangeError(\"perPage must be a positive integer\");\\n return Math.ceil(count / perPage);\\n}\\n\\nexport function pageOf(index, perPage) {\\n return Math.floor(index / perPage) + 1;\\n}\\n\",\"expectedSha256\":\"d2a9ace4a0d96a5203cf11a6cd3edb52aad6142642bee3fade70de9fb7146233\"}},{\"name\":\"repo_write\",\"arguments\":{\"path\":\"test/partial-last-page-boundary-regression.test.mjs\",\"text\":\"import assert from \"node:assert/strict\";\\nimport { test } from \"node:test\";\\nimport { pageCount } from \"../src/parcel.mjs\";\\n\\ntest(\"eleven items in pages of five need three pages\", () => {\\n assert.equal(pageCount(11, 5), 3);\\n});\\n\"}},{\"name\":\"check_run\",\"arguments\":{\"recipeId\":\"node-test\"}}]\n\nSource\nCopy message\nEdit as new message\nStarted 10/1/2026, 1:14:25 PM\n1:14 PM\nExecution\n3 successful tool actions\n\nSIMULATED scripted response\n\nRun started 10/1/2026, 1:14:25 PM\n1:14 PM\nCopy response\n\nCompleted"
+    },
+    {
+      "name": "popover-decided-1440-light",
+      "scroll": "as opened",
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "popover": {
+        "x": 780,
+        "y": 60,
+        "w": 640,
+        "h": 780,
+        "right": 1420,
+        "bottom": 840
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 781,
+          "y": 236.6,
+          "w": 638,
+          "h": 511.1,
+          "right": 1419,
+          "bottom": 747.8
+        },
+        "scrollWidth": 638,
+        "clientWidth": 638,
+        "scrollHeight": 1262,
+        "clientHeight": 511,
+        "scrollTop": 577,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 805,
+          "y": 679.4,
+          "w": 590,
+          "h": 68,
+          "right": 1395,
+          "bottom": 747.4
+        },
+        "scrollWidth": 588,
+        "clientWidth": 588,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": true,
+        "tallerThanScrollContainer": false
+      },
+      "basis": {
+        "box": {
+          "x": 818,
+          "y": 742.4,
+          "w": 564,
+          "h": 306,
+          "right": 1382,
+          "bottom": 1048.4
+        },
+        "scrollWidth": 564,
+        "clientWidth": 564,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approval request",
+        "node-test v1 · Check approved"
+      ],
+      "text": "Approval request\nnode-test v1 · Check approved",
+      "buttons": [],
+      "approvalButtons": [],
+      "hiddenBehind": "Execution3 successful tool actions"
+    },
+    {
+      "name": "popover-decided-open-1440-light",
+      "scroll": "as opened",
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "popover": {
+        "x": 780,
+        "y": 60,
+        "w": 640,
+        "h": 780,
+        "right": 1420,
+        "bottom": 840
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 781,
+          "y": 236.6,
+          "w": 638,
+          "h": 511.1,
+          "right": 1419,
+          "bottom": 747.8
+        },
+        "scrollWidth": 638,
+        "clientWidth": 638,
+        "scrollHeight": 1576,
+        "clientHeight": 511,
+        "scrollTop": 891,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 805,
+          "y": 365.4,
+          "w": 590,
+          "h": 382,
+          "right": 1395,
+          "bottom": 747.4
+        },
+        "scrollWidth": 588,
+        "clientWidth": 588,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": true,
+        "tallerThanScrollContainer": false
+      },
+      "basis": {
+        "box": {
+          "x": 818,
+          "y": 428.4,
+          "w": 564,
+          "h": 306,
+          "right": 1382,
+          "bottom": 734.4
+        },
+        "scrollWidth": 564,
+        "clientWidth": 564,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approval request",
+        "node-test v1 · Check approved"
+      ],
+      "text": "Approval request\nnode-test v1 · Check approved\n\nApproval recorded for this exact check. Review acceptance is not recorded here.\n\n{\"recipeId\":\"node-test\"}\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\nPrivate candidate\ne23e4567-e89b-42d3-a456-426614174000\nWrite revision\n2\n\nAs recorded when this approval was requested.",
+      "buttons": [],
+      "approvalButtons": []
+    },
+    {
+      "name": "chat-decided-open-1440-light",
+      "scroll": "record in view",
+      "hiddenBehind": "Execution3 successful tool actions",
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "popover": null,
+      "scrollContainer": {
+        "node": "section.message-stream",
+        "box": {
+          "x": 256,
+          "y": 48,
+          "w": 1184,
+          "h": 707.8,
+          "right": 1440,
+          "bottom": 755.8
+        },
+        "scrollWidth": 1184,
+        "clientWidth": 1184,
+        "scrollHeight": 1264,
+        "clientHeight": 708,
+        "scrollTop": 556,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "details.resolved-permission",
+        "box": {
+          "x": 478,
+          "y": 289.8,
+          "w": 740,
+          "h": 322.4,
+          "right": 1218,
+          "bottom": 612.2
+        },
+        "scrollWidth": 740,
+        "clientWidth": 740,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": true,
+        "tallerThanScrollContainer": false
+      },
+      "basis": null,
+      "basisLineGaps": null,
+      "basisDisplay": null,
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "node-test v1Check approved",
+        "Approval recorded for this exact check. Review acceptance is not recorded here.",
+        "node --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment",
+        "This check executes 2 files the model wrote, with your access to this computer:",
+        "As recorded when this approval was requested."
+      ],
+      "text": "node-test v1\nCheck approved\n\nApproval recorded for this exact check. Review acceptance is not recorded here.\n\n{\"recipeId\":\"node-test\"}\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\nPrivate candidate\ne23e4567-e89b-42d3-a456-426614174000\nWrite revision\n2\n\nAs recorded when this approval was requested.",
+      "buttons": [],
+      "approvalButtons": []
+    },
+    {
+      "name": "popover-decided-as-opened-1440-dark",
+      "decidedCardVisible": false,
+      "streamText": "/fixture script [{\"name\":\"repo_write\",\"arguments\":{\"path\":\"src/parcel.mjs\",\"text\":\"// Split count items into pages of perPage items each.\\nexport function pageCount(count, perPage) {\\n if (!Number.isInteger(count) || count < 0) throw new RangeError(\"count must be a non-negative integer\");\\n if (!Number.isInteger(perPage) || perPage <= 0) throw new RangeError(\"perPage must be a positive integer\");\\n return Math.ceil(count / perPage);\\n}\\n\\nexport function pageOf(index, perPage) {\\n return Math.floor(index / perPage) + 1;\\n}\\n\",\"expectedSha256\":\"d2a9ace4a0d96a5203cf11a6cd3edb52aad6142642bee3fade70de9fb7146233\"}},{\"name\":\"repo_write\",\"arguments\":{\"path\":\"test/partial-last-page-boundary-regression.test.mjs\",\"text\":\"import assert from \"node:assert/strict\";\\nimport { test } from \"node:test\";\\nimport { pageCount } from \"../src/parcel.mjs\";\\n\\ntest(\"eleven items in pages of five need three pages\", () => {\\n assert.equal(pageCount(11, 5), 3);\\n});\\n\"}},{\"name\":\"check_run\",\"arguments\":{\"recipeId\":\"node-test\"}}]\n\nSource\nCopy message\nEdit as new message\nStarted 10/1/2026, 1:14:25 PM\n1:14 PM\nExecution\n3 successful tool actions\n\nSIMULATED scripted response\n\nRun started 10/1/2026, 1:14:25 PM\n1:14 PM\nCopy response\n\nCompleted"
+    },
+    {
+      "name": "popover-decided-1440-dark",
+      "scroll": "as opened",
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "popover": {
+        "x": 780,
+        "y": 60,
+        "w": 640,
+        "h": 780,
+        "right": 1420,
+        "bottom": 840
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 781,
+          "y": 236.6,
+          "w": 638,
+          "h": 511.1,
+          "right": 1419,
+          "bottom": 747.8
+        },
+        "scrollWidth": 638,
+        "clientWidth": 638,
+        "scrollHeight": 1262,
+        "clientHeight": 511,
+        "scrollTop": 577,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 805,
+          "y": 679.4,
+          "w": 590,
+          "h": 68,
+          "right": 1395,
+          "bottom": 747.4
+        },
+        "scrollWidth": 588,
+        "clientWidth": 588,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": true,
+        "tallerThanScrollContainer": false
+      },
+      "basis": {
+        "box": {
+          "x": 818,
+          "y": 742.4,
+          "w": 564,
+          "h": 306,
+          "right": 1382,
+          "bottom": 1048.4
+        },
+        "scrollWidth": 564,
+        "clientWidth": 564,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approval request",
+        "node-test v1 · Check approved"
+      ],
+      "text": "Approval request\nnode-test v1 · Check approved",
+      "buttons": [],
+      "approvalButtons": [],
+      "hiddenBehind": "Execution3 successful tool actions"
+    },
+    {
+      "name": "popover-decided-open-1440-dark",
+      "scroll": "as opened",
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "popover": {
+        "x": 780,
+        "y": 60,
+        "w": 640,
+        "h": 780,
+        "right": 1420,
+        "bottom": 840
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 781,
+          "y": 236.6,
+          "w": 638,
+          "h": 511.1,
+          "right": 1419,
+          "bottom": 747.8
+        },
+        "scrollWidth": 638,
+        "clientWidth": 638,
+        "scrollHeight": 1576,
+        "clientHeight": 511,
+        "scrollTop": 891,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 805,
+          "y": 365.4,
+          "w": 590,
+          "h": 382,
+          "right": 1395,
+          "bottom": 747.4
+        },
+        "scrollWidth": 588,
+        "clientWidth": 588,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": true,
+        "tallerThanScrollContainer": false
+      },
+      "basis": {
+        "box": {
+          "x": 818,
+          "y": 428.4,
+          "w": 564,
+          "h": 306,
+          "right": 1382,
+          "bottom": 734.4
+        },
+        "scrollWidth": 564,
+        "clientWidth": 564,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approval request",
+        "node-test v1 · Check approved"
+      ],
+      "text": "Approval request\nnode-test v1 · Check approved\n\nApproval recorded for this exact check. Review acceptance is not recorded here.\n\n{\"recipeId\":\"node-test\"}\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\nPrivate candidate\ne23e4567-e89b-42d3-a456-426614174000\nWrite revision\n2\n\nAs recorded when this approval was requested.",
+      "buttons": [],
+      "approvalButtons": []
+    },
+    {
+      "name": "chat-decided-open-1440-dark",
+      "scroll": "record in view",
+      "hiddenBehind": "Execution3 successful tool actions",
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "popover": null,
+      "scrollContainer": {
+        "node": "section.message-stream",
+        "box": {
+          "x": 256,
+          "y": 48,
+          "w": 1184,
+          "h": 707.8,
+          "right": 1440,
+          "bottom": 755.8
+        },
+        "scrollWidth": 1184,
+        "clientWidth": 1184,
+        "scrollHeight": 1264,
+        "clientHeight": 708,
+        "scrollTop": 556,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "details.resolved-permission",
+        "box": {
+          "x": 478,
+          "y": 289.8,
+          "w": 740,
+          "h": 322.4,
+          "right": 1218,
+          "bottom": 612.2
+        },
+        "scrollWidth": 740,
+        "clientWidth": 740,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": true,
+        "tallerThanScrollContainer": false
+      },
+      "basis": null,
+      "basisLineGaps": null,
+      "basisDisplay": null,
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "node-test v1Check approved",
+        "Approval recorded for this exact check. Review acceptance is not recorded here.",
+        "node --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment",
+        "This check executes 2 files the model wrote, with your access to this computer:",
+        "As recorded when this approval was requested."
+      ],
+      "text": "node-test v1\nCheck approved\n\nApproval recorded for this exact check. Review acceptance is not recorded here.\n\n{\"recipeId\":\"node-test\"}\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\nPrivate candidate\ne23e4567-e89b-42d3-a456-426614174000\nWrite revision\n2\n\nAs recorded when this approval was requested.",
+      "buttons": [],
+      "approvalButtons": []
+    },
+    {
+      "name": "popover-decided-as-opened-390-light",
+      "decidedCardVisible": false,
+      "streamText": "/fixture script [{\"name\":\"repo_write\",\"arguments\":{\"path\":\"src/parcel.mjs\",\"text\":\"// Split count items into pages of perPage items each.\\nexport function pageCount(count, perPage) {\\n if (!Number.isInteger(count) || count < 0) throw new RangeError(\"count must be a non-negative integer\");\\n if (!Number.isInteger(perPage) || perPage <= 0) throw new RangeError(\"perPage must be a positive integer\");\\n return Math.ceil(count / perPage);\\n}\\n\\nexport function pageOf(index, perPage) {\\n return Math.floor(index / perPage) + 1;\\n}\\n\",\"expectedSha256\":\"d2a9ace4a0d96a5203cf11a6cd3edb52aad6142642bee3fade70de9fb7146233\"}},{\"name\":\"repo_write\",\"arguments\":{\"path\":\"test/partial-last-page-boundary-regression.test.mjs\",\"text\":\"import assert from \"node:assert/strict\";\\nimport { test } from \"node:test\";\\nimport { pageCount } from \"../src/parcel.mjs\";\\n\\ntest(\"eleven items in pages of five need three pages\", () => {\\n assert.equal(pageCount(11, 5), 3);\\n});\\n\"}},{\"name\":\"check_run\",\"arguments\":{\"recipeId\":\"node-test\"}}]\n\nSource\nCopy message\nEdit as new message\nStarted 10/1/2026, 1:14:25 PM\n1:14 PM\nExecution\n3 successful tool actions\n\nSIMULATED scripted response\n\nRun started 10/1/2026, 1:14:25 PM\n1:14 PM\nCopy response\n\nCompleted"
+    },
+    {
+      "name": "popover-decided-390-light",
+      "scroll": "as opened",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "popover": {
+        "x": 8,
+        "y": 8,
+        "w": 374,
+        "h": 828,
+        "right": 382,
+        "bottom": 836
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 9,
+          "y": 254.4,
+          "w": 372,
+          "h": 458.6,
+          "right": 381,
+          "bottom": 713
+        },
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "scrollHeight": 1856,
+        "clientHeight": 459,
+        "scrollTop": 1216,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 25,
+          "y": 621.9,
+          "w": 340,
+          "h": 91,
+          "right": 365,
+          "bottom": 712.9
+        },
+        "scrollWidth": 338,
+        "clientWidth": 338,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": true,
+        "tallerThanScrollContainer": false
+      },
+      "basis": {
+        "box": {
+          "x": 38,
+          "y": 707.9,
+          "w": 314,
+          "h": 400.8,
+          "right": 352,
+          "bottom": 1108.7
+        },
+        "scrollWidth": 314,
+        "clientWidth": 314,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approval request",
+        "node-test v1 · Check approved"
+      ],
+      "text": "Approval request\nnode-test v1 · Check approved",
+      "buttons": [],
+      "approvalButtons": [],
+      "hiddenBehind": "Execution3 successful tool actions"
+    },
+    {
+      "name": "popover-decided-open-390-light",
+      "scroll": "as opened",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "popover": {
+        "x": 8,
+        "y": 8,
+        "w": 374,
+        "h": 828,
+        "right": 382,
+        "bottom": 836
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 9,
+          "y": 254.4,
+          "w": 372,
+          "h": 458.6,
+          "right": 381,
+          "bottom": 713
+        },
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "scrollHeight": 2265,
+        "clientHeight": 459,
+        "scrollTop": 1584,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 25,
+          "y": 253.9,
+          "w": 340,
+          "h": 499.8,
+          "right": 365,
+          "bottom": 753.7
+        },
+        "scrollWidth": 338,
+        "clientWidth": 338,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": false,
+        "tallerThanScrollContainer": true
+      },
+      "basis": {
+        "box": {
+          "x": 38,
+          "y": 339.9,
+          "w": 314,
+          "h": 400.8,
+          "right": 352,
+          "bottom": 740.7
+        },
+        "scrollWidth": 314,
+        "clientWidth": 314,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approval request",
+        "node-test v1 · Check approved"
+      ],
+      "text": "Approval request\nnode-test v1 · Check approved\n\nApproval recorded for this exact check. Review acceptance is not recorded here.\n\n{\"recipeId\":\"node-test\"}\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\nPrivate candidate\ne23e4567-e89b-42d3-a456-426614174000\nWrite revision\n2\n\nAs recorded when this approval was requested.",
+      "buttons": [],
+      "approvalButtons": []
+    },
+    {
+      "name": "popover-decided-open-top-390-light",
+      "scroll": "card top",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "popover": {
+        "x": 8,
+        "y": 8,
+        "w": 374,
+        "h": 828,
+        "right": 382,
+        "bottom": 836
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 9,
+          "y": 254.4,
+          "w": 372,
+          "h": 458.6,
+          "right": 381,
+          "bottom": 713
+        },
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "scrollHeight": 2265,
+        "clientHeight": 459,
+        "scrollTop": 1584,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 25,
+          "y": 253.9,
+          "w": 340,
+          "h": 499.8,
+          "right": 365,
+          "bottom": 753.7
+        },
+        "scrollWidth": 338,
+        "clientWidth": 338,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": false,
+        "tallerThanScrollContainer": true
+      },
+      "basis": {
+        "box": {
+          "x": 38,
+          "y": 339.9,
+          "w": 314,
+          "h": 400.8,
+          "right": 352,
+          "bottom": 740.7
+        },
+        "scrollWidth": 314,
+        "clientWidth": 314,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approval request",
+        "node-test v1 · Check approved"
+      ],
+      "text": "Approval request\nnode-test v1 · Check approved\n\nApproval recorded for this exact check. Review acceptance is not recorded here.\n\n{\"recipeId\":\"node-test\"}\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\nPrivate candidate\ne23e4567-e89b-42d3-a456-426614174000\nWrite revision\n2\n\nAs recorded when this approval was requested.",
+      "buttons": [],
+      "approvalButtons": []
+    },
+    {
+      "name": "popover-decided-open-end-390-light",
+      "scroll": "card end",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "popover": {
+        "x": 8,
+        "y": 8,
+        "w": 374,
+        "h": 828,
+        "right": 382,
+        "bottom": 836
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 9,
+          "y": 254.4,
+          "w": 372,
+          "h": 458.6,
+          "right": 381,
+          "bottom": 713
+        },
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "scrollHeight": 2265,
+        "clientHeight": 459,
+        "scrollTop": 1625,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 25,
+          "y": 212.9,
+          "w": 340,
+          "h": 499.8,
+          "right": 365,
+          "bottom": 712.7
+        },
+        "scrollWidth": 338,
+        "clientWidth": 338,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": false,
+        "tallerThanScrollContainer": true
+      },
+      "basis": {
+        "box": {
+          "x": 38,
+          "y": 298.9,
+          "w": 314,
+          "h": 400.8,
+          "right": 352,
+          "bottom": 699.7
+        },
+        "scrollWidth": 314,
+        "clientWidth": 314,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approval request",
+        "node-test v1 · Check approved"
+      ],
+      "text": "Approval request\nnode-test v1 · Check approved\n\nApproval recorded for this exact check. Review acceptance is not recorded here.\n\n{\"recipeId\":\"node-test\"}\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\nPrivate candidate\ne23e4567-e89b-42d3-a456-426614174000\nWrite revision\n2\n\nAs recorded when this approval was requested.",
+      "buttons": [],
+      "approvalButtons": []
+    },
+    {
+      "name": "chat-decided-open-390-light",
+      "scroll": "record in view",
+      "hiddenBehind": "Execution3 successful tool actions",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "popover": null,
+      "scrollContainer": {
+        "node": "section.message-stream",
+        "box": {
+          "x": 0,
+          "y": 48,
+          "w": 390,
+          "h": 607.8,
+          "right": 390,
+          "bottom": 655.8
+        },
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 1878,
+        "clientHeight": 608,
+        "scrollTop": 1192,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "details.resolved-permission",
+        "box": {
+          "x": 16,
+          "y": 137.8,
+          "w": 358,
+          "h": 429.2,
+          "right": 374,
+          "bottom": 567
+        },
+        "scrollWidth": 358,
+        "clientWidth": 358,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": true,
+        "tallerThanScrollContainer": false
+      },
+      "basis": null,
+      "basisLineGaps": null,
+      "basisDisplay": null,
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "node-test v1Check approved",
+        "Approval recorded for this exact check. Review acceptance is not recorded here.",
+        "node --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment",
+        "This check executes 2 files the model wrote, with your access to this computer:",
+        "As recorded when this approval was requested."
+      ],
+      "text": "node-test v1\nCheck approved\n\nApproval recorded for this exact check. Review acceptance is not recorded here.\n\n{\"recipeId\":\"node-test\"}\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\nPrivate candidate\ne23e4567-e89b-42d3-a456-426614174000\nWrite revision\n2\n\nAs recorded when this approval was requested.",
+      "buttons": [],
+      "approvalButtons": []
+    },
+    {
+      "name": "popover-decided-as-opened-390-dark",
+      "decidedCardVisible": false,
+      "streamText": "/fixture script [{\"name\":\"repo_write\",\"arguments\":{\"path\":\"src/parcel.mjs\",\"text\":\"// Split count items into pages of perPage items each.\\nexport function pageCount(count, perPage) {\\n if (!Number.isInteger(count) || count < 0) throw new RangeError(\"count must be a non-negative integer\");\\n if (!Number.isInteger(perPage) || perPage <= 0) throw new RangeError(\"perPage must be a positive integer\");\\n return Math.ceil(count / perPage);\\n}\\n\\nexport function pageOf(index, perPage) {\\n return Math.floor(index / perPage) + 1;\\n}\\n\",\"expectedSha256\":\"d2a9ace4a0d96a5203cf11a6cd3edb52aad6142642bee3fade70de9fb7146233\"}},{\"name\":\"repo_write\",\"arguments\":{\"path\":\"test/partial-last-page-boundary-regression.test.mjs\",\"text\":\"import assert from \"node:assert/strict\";\\nimport { test } from \"node:test\";\\nimport { pageCount } from \"../src/parcel.mjs\";\\n\\ntest(\"eleven items in pages of five need three pages\", () => {\\n assert.equal(pageCount(11, 5), 3);\\n});\\n\"}},{\"name\":\"check_run\",\"arguments\":{\"recipeId\":\"node-test\"}}]\n\nSource\nCopy message\nEdit as new message\nStarted 10/1/2026, 1:14:25 PM\n1:14 PM\nExecution\n3 successful tool actions\n\nSIMULATED scripted response\n\nRun started 10/1/2026, 1:14:25 PM\n1:14 PM\nCopy response\n\nCompleted"
+    },
+    {
+      "name": "popover-decided-390-dark",
+      "scroll": "as opened",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "popover": {
+        "x": 8,
+        "y": 8,
+        "w": 374,
+        "h": 828,
+        "right": 382,
+        "bottom": 836
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 9,
+          "y": 254.4,
+          "w": 372,
+          "h": 458.6,
+          "right": 381,
+          "bottom": 713
+        },
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "scrollHeight": 1856,
+        "clientHeight": 459,
+        "scrollTop": 1216,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 25,
+          "y": 621.9,
+          "w": 340,
+          "h": 91,
+          "right": 365,
+          "bottom": 712.9
+        },
+        "scrollWidth": 338,
+        "clientWidth": 338,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": true,
+        "tallerThanScrollContainer": false
+      },
+      "basis": {
+        "box": {
+          "x": 38,
+          "y": 707.9,
+          "w": 314,
+          "h": 400.8,
+          "right": 352,
+          "bottom": 1108.7
+        },
+        "scrollWidth": 314,
+        "clientWidth": 314,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approval request",
+        "node-test v1 · Check approved"
+      ],
+      "text": "Approval request\nnode-test v1 · Check approved",
+      "buttons": [],
+      "approvalButtons": [],
+      "hiddenBehind": "Execution3 successful tool actions"
+    },
+    {
+      "name": "popover-decided-open-390-dark",
+      "scroll": "as opened",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "popover": {
+        "x": 8,
+        "y": 8,
+        "w": 374,
+        "h": 828,
+        "right": 382,
+        "bottom": 836
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 9,
+          "y": 254.4,
+          "w": 372,
+          "h": 458.6,
+          "right": 381,
+          "bottom": 713
+        },
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "scrollHeight": 2265,
+        "clientHeight": 459,
+        "scrollTop": 1584,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 25,
+          "y": 253.9,
+          "w": 340,
+          "h": 499.8,
+          "right": 365,
+          "bottom": 753.7
+        },
+        "scrollWidth": 338,
+        "clientWidth": 338,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": false,
+        "tallerThanScrollContainer": true
+      },
+      "basis": {
+        "box": {
+          "x": 38,
+          "y": 339.9,
+          "w": 314,
+          "h": 400.8,
+          "right": 352,
+          "bottom": 740.7
+        },
+        "scrollWidth": 314,
+        "clientWidth": 314,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approval request",
+        "node-test v1 · Check approved"
+      ],
+      "text": "Approval request\nnode-test v1 · Check approved\n\nApproval recorded for this exact check. Review acceptance is not recorded here.\n\n{\"recipeId\":\"node-test\"}\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\nPrivate candidate\ne23e4567-e89b-42d3-a456-426614174000\nWrite revision\n2\n\nAs recorded when this approval was requested.",
+      "buttons": [],
+      "approvalButtons": []
+    },
+    {
+      "name": "popover-decided-open-top-390-dark",
+      "scroll": "card top",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "popover": {
+        "x": 8,
+        "y": 8,
+        "w": 374,
+        "h": 828,
+        "right": 382,
+        "bottom": 836
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 9,
+          "y": 254.4,
+          "w": 372,
+          "h": 458.6,
+          "right": 381,
+          "bottom": 713
+        },
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "scrollHeight": 2265,
+        "clientHeight": 459,
+        "scrollTop": 1584,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 25,
+          "y": 253.9,
+          "w": 340,
+          "h": 499.8,
+          "right": 365,
+          "bottom": 753.7
+        },
+        "scrollWidth": 338,
+        "clientWidth": 338,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": false,
+        "tallerThanScrollContainer": true
+      },
+      "basis": {
+        "box": {
+          "x": 38,
+          "y": 339.9,
+          "w": 314,
+          "h": 400.8,
+          "right": 352,
+          "bottom": 740.7
+        },
+        "scrollWidth": 314,
+        "clientWidth": 314,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approval request",
+        "node-test v1 · Check approved"
+      ],
+      "text": "Approval request\nnode-test v1 · Check approved\n\nApproval recorded for this exact check. Review acceptance is not recorded here.\n\n{\"recipeId\":\"node-test\"}\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\nPrivate candidate\ne23e4567-e89b-42d3-a456-426614174000\nWrite revision\n2\n\nAs recorded when this approval was requested.",
+      "buttons": [],
+      "approvalButtons": []
+    },
+    {
+      "name": "popover-decided-open-end-390-dark",
+      "scroll": "card end",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "popover": {
+        "x": 8,
+        "y": 8,
+        "w": 374,
+        "h": 828,
+        "right": 382,
+        "bottom": 836
+      },
+      "scrollContainer": {
+        "node": "div.attention-agent-stream",
+        "box": {
+          "x": 9,
+          "y": 254.4,
+          "w": 372,
+          "h": 458.6,
+          "right": 381,
+          "bottom": 713
+        },
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "scrollHeight": 2265,
+        "clientHeight": 459,
+        "scrollTop": 1625,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "section.attention-agent-message.is-permission",
+        "box": {
+          "x": 25,
+          "y": 212.9,
+          "w": 340,
+          "h": 499.8,
+          "right": 365,
+          "bottom": 712.7
+        },
+        "scrollWidth": 338,
+        "clientWidth": 338,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": false,
+        "tallerThanScrollContainer": true
+      },
+      "basis": {
+        "box": {
+          "x": 38,
+          "y": 298.9,
+          "w": 314,
+          "h": 400.8,
+          "right": 352,
+          "bottom": 699.7
+        },
+        "scrollWidth": 314,
+        "clientWidth": 314,
+        "horizontalOverflow": false
+      },
+      "basisLineGaps": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "basisDisplay": "grid",
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "Approval request",
+        "node-test v1 · Check approved"
+      ],
+      "text": "Approval request\nnode-test v1 · Check approved\n\nApproval recorded for this exact check. Review acceptance is not recorded here.\n\n{\"recipeId\":\"node-test\"}\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\nPrivate candidate\ne23e4567-e89b-42d3-a456-426614174000\nWrite revision\n2\n\nAs recorded when this approval was requested.",
+      "buttons": [],
+      "approvalButtons": []
+    },
+    {
+      "name": "chat-decided-open-390-dark",
+      "scroll": "record in view",
+      "hiddenBehind": "Execution3 successful tool actions",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "popover": null,
+      "scrollContainer": {
+        "node": "section.message-stream",
+        "box": {
+          "x": 0,
+          "y": 48,
+          "w": 390,
+          "h": 607.8,
+          "right": 390,
+          "bottom": 655.8
+        },
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 1878,
+        "clientHeight": 608,
+        "scrollTop": 1192,
+        "horizontalOverflow": false
+      },
+      "card": {
+        "node": "details.resolved-permission",
+        "box": {
+          "x": 16,
+          "y": 137.8,
+          "w": 358,
+          "h": 429.2,
+          "right": 374,
+          "bottom": 567
+        },
+        "scrollWidth": 358,
+        "clientWidth": 358,
+        "horizontalOverflow": false,
+        "fullyInsideScrollContainer": true,
+        "tallerThanScrollContainer": false
+      },
+      "basis": null,
+      "basisLineGaps": null,
+      "basisDisplay": null,
+      "widerThanCard": [],
+      "innerScrollers": [],
+      "documentHorizontalOverflow": false,
+      "lines": [
+        "node-test v1Check approved",
+        "Approval recorded for this exact check. Review acceptance is not recorded here.",
+        "node --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment",
+        "This check executes 2 files the model wrote, with your access to this computer:",
+        "As recorded when this approval was requested."
+      ],
+      "text": "node-test v1\nCheck approved\n\nApproval recorded for this exact check. Review acceptance is not recorded here.\n\n{\"recipeId\":\"node-test\"}\n\nnode --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment\n\nThis check executes 2 files the model wrote, with your access to this computer:\n\nsrc/parcel.mjs\n8561b3ab75fe\ntest/partial-last-page-boundary-regression.test.mjs\n24809d271d4d\nPrivate candidate\ne23e4567-e89b-42d3-a456-426614174000\nWrite revision\n2\n\nAs recorded when this approval was requested.",
+      "buttons": [],
+      "approvalButtons": []
+    }
+  ],
+  "errors": []
+}

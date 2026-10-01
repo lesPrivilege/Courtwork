@@ -1,0 +1,1113 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>CourtWork 文档宣言到实现审查 7e8e253</title><style>
+  :root{--ink:#162330;--muted:#556579;--accent:#174f77;--line:#d6dfe6;--soft:#f2f6f9}
+  *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:20px}body{margin:0;background:#f5f7f9;color:var(--ink);font:16px/1.78 system-ui,-apple-system,"Noto Sans CJK SC","Microsoft YaHei",sans-serif;overflow-wrap:anywhere}
+  .shell{max-width:1100px;margin:0 auto;padding:38px 34px 60px}.eyebrow{font-size:12px;letter-spacing:.12em;color:var(--muted);margin-bottom:14px;text-transform:uppercase}.paper{background:white;border:1px solid var(--line);border-radius:12px;padding:42px 48px;box-shadow:0 7px 30px #18364e05}
+  h1,h2,h3,h4{color:#111c27;line-height:1.38;scroll-margin-top:24px}h1{font-size:30px;margin:0 0 22px;letter-spacing:-.02em}h2{font-size:24px;margin:46px 0 16px}h3{font-size:20px;margin:33px 0 14px}h4{font-size:17px;margin:26px 0 10px}p{margin:12px 0}strong{font-weight:650}a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:3px}a:hover{color:#082c48}code{font:0.88em/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;background:var(--soft);padding:2px 4px;border-radius:3px;word-break:break-word}pre{white-space:pre-wrap;background:var(--soft);border:1px solid var(--line);padding:16px;border-radius:7px;overflow:auto}pre code{padding:0;background:none}ul,ol{padding-left:24px}li{margin:5px 0}
+  .toc{display:flex;flex-wrap:wrap;gap:8px 19px;background:var(--soft);border:1px solid var(--line);padding:18px 20px;border-radius:8px;margin-bottom:30px}.toc a{font-size:14px;text-decoration:none}.table-scroll{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:7px}table{border-collapse:collapse;width:100%;min-width:650px;font-size:14px;line-height:1.7}th,td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 14px;vertical-align:top;text-align:left}th{background:#e9f0f5;color:#20384c;font-weight:650}tr:last-child td{border-bottom:0}td:last-child,th:last-child{border-right:0}tr:nth-child(even) td{background:#fbfcfd}table p{margin:3px 0}td a{word-break:break-word}blockquote{margin:18px 0;padding:10px 20px;border-left:3px solid #7795a9;background:#f7f9fb}hr{border:0;border-top:1px solid var(--line);margin:30px 0}
+  .appendices{margin-top:40px}.appendices>p{color:var(--muted)}.appendix{border:1px solid var(--line);border-radius:8px;background:#fff;margin:14px 0;overflow:hidden}.appendix summary{padding:18px 22px;cursor:pointer;list-style:disclosure-closed;color:var(--ink)}.appendix[open] summary{list-style:disclosure-open;background:var(--soft);border-bottom:1px solid var(--line)}.appendix summary strong{font-size:18px}.appendix summary span{display:block;font-size:13px;color:var(--muted);margin:3px 0 0 20px}.appendix-body{padding:26px 30px}.appendix-body h1{font-size:25px}.appendix-body h2{font-size:21px}.appendix-body h3{font-size:18px}.appendix-body p,.appendix-body li{font-size:15px}.footer{margin-top:28px;font-size:12px;color:var(--muted)}
+  @media(max-width:650px){body{font-size:15px}.shell{padding:18px 12px 40px}.paper{padding:25px 19px;border-radius:8px}h1{font-size:25px}h2{font-size:21px;margin-top:34px}h3{font-size:18px}table{min-width:650px}.toc{padding:14px;gap:8px 13px}.toc a{font-size:13px}.appendix-body{padding:20px 18px}.appendix summary{padding:15px 18px}}
+  @media print{body{background:white;font-size:11pt}.shell{padding:0;max-width:none}.paper{border:0;box-shadow:none;padding:0}.toc{display:none}h2,h3,h4{break-after:avoid}table{min-width:0;font-size:9pt}.table-scroll{overflow:visible}a{color:#173c54}.appendices{break-before:page}.appendix{break-inside:auto}.appendix summary{break-after:avoid}pre{break-inside:avoid}.footer{display:none}}
+  </style></head><body><div class="shell"><div class="eyebrow">COURTWORK · FIXED COMMIT REVIEW · 2026 10 01</div><div class="paper"><nav class="toc" aria-label="报告目录"><a href="#main-2">总评</a><a href="#main-3">范围与判定标准</a><a href="#main-4">当前支持范围</a><a href="#main-5">架构实现度与声明追踪矩阵</a><a href="#main-6">发现摘要</a><a href="#main-7">优先发现</a><a href="#main-16">单独保留的设计边界</a><a href="#main-17">可施工顺序与退出条件</a><a href="#main-18">验收证据需要补齐的一点</a><a href="#main-19">未验证边界</a><a href="#appendices">完整分项证据</a></nav><main><h1 id="main-1">CourtWork 文档宣言到实现审查</h1>
+<p>固定提交：<code>7e8e2531d422dc1a5048dffcf1ae3acc6e831de7</code><br>仓库：<code>lesPrivilege/Courtwork</code><br>审查日期：2026 年 10 月 1 日<br>方法：文档驱动、固定提交、静态只读</p>
+<h2 id="main-2">总评</h2>
+<p><strong>核心语义和责任边界已有真实实现，但“可接续的工作场”尚不能按完整架构闭环接受。</strong></p>
+<p>单一 Work Core、正式决定的事务提交、版本化来源、Host 执行记录和工具批准的分离都有可追踪代码支撑。最明显的欠缺发生在边界交接：人留下的补证据要求没有接给新 Agent；同一批准动作在不同界面提供的决策依据不一致；Host 的停止、关闭和异步动作没有完全共享同一套收敛规则。</p>
+<p>这意味着当前实现并非只有一组架构名词，也不能因 build 全绿就判为架构完成。建议优先补齐已有 owner 的端到端职责，再扩大 Runtime、Kit 或后台能力。当前支持矩阵对多数未完成方向的收窄是诚实的，不宜把未来愿景全部当作现有缺陷。</p>
+<h2 id="main-3">范围与判定标准</h2>
+<p>本报告只审查该提交中已跟踪的文档、实现与测试源码。没有修改仓库，没有读取用户电脑、未跟踪文件、真实凭证或私人工作数据，没有运行构建、测试、探针、真实模型或仓库程序。用户已告知本地 build 全绿；本次不重跑，也不把它作为架构接受证据。</p>
+<p>每项按“声明 → 用户目标 → 必要不变量 → 实现路径 → 反例或缺口 → 证据边界”展开。已实现的主张、明确尚未实现的产品方向和历史验收记录分别处理。文件存在、函数命名或测试通过均不自动证明语义成立。</p>
+<ul>
+<li><strong>静态确认 confirmed-static</strong>：固定源码足以证明的结构、字段流或允许的状态路径；不等于已动态复现</li>
+<li><strong>设计判断</strong>：实现与用户目标之间的取舍或未完成闭环，需要 owner 裁决</li>
+<li><strong>证据不足</strong>：现有静态材料不足以支持肯定或否定</li>
+<li><strong>P1</strong>：优先补齐核心工作接续或生命周期不变量</li>
+<li><strong>P2</strong>：会造成明确操作语义、决策信息或状态一致性缺口</li>
+<li><strong>P3</strong>：文档发现性与维护问题，不单独推导为产品失败</li>
+</ul>
+<p>严重性表示施工优先级，不表示发生概率。本报告中的静态交错分析没有运行复现；实际运行时、操作系统和浏览器行为仍需适当授权后的独立证据。</p>
+<h2 id="main-4">当前支持范围</h2>
+<p>当前命令行启动只接线 in-process Pi 0.85.1。Local Pi process 需要显式注入，Managed Agents 需要受信工厂且仅有受限验证路径，Hermes adapter 未注册到生产 Host。角色优先配置、多 Runtime 接手、后台模型监控和通用团队编排不能按已完成能力验收。</p>
+<p>依据：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/supported-preview.md#L3-L17">当前支持表</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/runtime.mjs#L40-L81">生产接线</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/architecture.md#L30-L43">架构对剩余 Pi 耦合的说明</a></p>
+<h2 id="main-5">架构实现度与声明追踪矩阵</h2>
+<p>“有实现支持”只表示所读代码承载了该责任；“部分闭合”表示正常主链存在，但列出的转换或交接仍有缺口。没有给出虚假的通过率。</p>
+<div class="table-scroll" tabindex="0"><table>
+<thead>
+<tr>
+<th>声明与用户目标</th>
+<th>必要不变量</th>
+<th>静态实现与判断</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>工作不随会话结束而消失</td>
+<td>Core 身份、项目归属与 Session 分开</td>
+<td><strong>有实现支持</strong>：同一 WorkCoreOwner 注入 Host/扩展，Session 删除前保留工作归属；Core 的 Matter/候选/决定不随 Session 目录记录删除。见核心附录正向证据</td>
+</tr>
+<tr>
+<td>正式接受有具体依据</td>
+<td>Actor、候选、当前版本、来源、证据与义务在单事务校验</td>
+<td><strong>有实现支持</strong>：Core 决定/Artifact/active 指针/审计/幂等回执同事务提交；这证明结构承重，不证明专业质量</td>
+</tr>
+<tr>
+<td>下一参与者可从记录继续</td>
+<td>未完要求可定位，正文按需准确读取</td>
+<td><strong>部分闭合</strong>：已接受 Artifact 的 identity + 分页读取成立；request_evidence 的理由和未接受候选没有进入新 Agent 的接续接口，见 F1</td>
+</tr>
+<tr>
+<td>Context 是有来源的投影</td>
+<td>选择/省略可解释，不把摘要变成权威</td>
+<td><strong>有实现支持但覆盖有限</strong>：记录版本、selected/omitted、预算；正式义务保留，但“candidate closed”与“工作完成”的差异未充分反映，见 F1</td>
+</tr>
+<tr>
+<td>Host 负责准入与生命周期</td>
+<td>所有活动写者在关闭前被收敛；终态仲裁发生在正确提交点</td>
+<td><strong>部分闭合</strong>：Run 队列、终态保护、恢复 unknown 均存在；手动 compaction 和取消终态的两个边界仍有遗漏，见 F3/F4</td>
+</tr>
+<tr>
+<td>权限声明不自授执行权</td>
+<td>Host ceiling、当前 policy、精确调用与授权相符</td>
+<td><strong>有实现支持</strong>：统一工具 wrapper、严格效果组合、批准后复验；不外推为任意扩展或 OS 隔离</td>
+</tr>
+<tr>
+<td>取消与效果不确定性不混淆</td>
+<td>下层 unknown 事实不能在上层消失</td>
+<td><strong>部分闭合</strong>：repository/MCP 有专门效果记录；check 的 groupLingered 未进入持久结果，见 F5</td>
+</tr>
+<tr>
+<td>Review 决定绑定具体版本</td>
+<td>批准附近能看见实际动作、对象与依据</td>
+<td><strong>部分闭合</strong>：完整 Chat 对 check_run 展示具体信息；Attention 弹层遗漏了同一动作的关键说明，见 F2</td>
+</tr>
+<tr>
+<td>正式 mutation 只在 idle 时发生</td>
+<td>Human action 与 Run admission 有同一先后顺序</td>
+<td><strong>部分闭合</strong>：单次入口检查存在，但 async 检查后没有共享临界区，见 F6；Core CAS 仍提供保护</td>
+</tr>
+<tr>
+<td>UI 展示事实，不建立第二本账</td>
+<td>投影读取 owner，Preview 不改变接受状态</td>
+<td><strong>有实现支持</strong>：Core-derived review summary、按对象/版本的 Preview、配置 CAS 与作用域文案；视觉和可用性本次未验</td>
+</tr>
+<tr>
+<td>执行器可替换</td>
+<td>生命周期端口与业务语义分离，生产接线如实披露</td>
+<td><strong>当前为局部边界</strong>：Pi Port 已抽出，Host 仍有 Pi-shaped 耦合；具体架构文档主动承认，不能判为第二 Runtime 已完成</td>
+</tr>
+<tr>
+<td>文档能把新参与者带到正确来源</td>
+<td>当前状态、合同、owner、证据与历史 pin 分离</td>
+<td><strong>总体有实现支持</strong>：AGENTS→current→engineering task row 导航，PAPER 固定 adoption SHA；发布状态入口有一处旧回执偏向，见 F8</td>
+</tr>
+</tbody></table></div>
+<p>关键正向源码：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/core.py#L778-L869">Core 事务提交</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/runtime.mjs#L49-L80">单一 Core owner 与注入</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/owner.mjs#L104-L128">Context 编译</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/control-tools.mjs#L113-L141">工具执行时治理</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/README.md#L7-L25">文档任务导航</a></p>
+<h2 id="main-6">发现摘要</h2>
+<div class="table-scroll" tabindex="0"><table>
+<thead>
+<tr>
+<th>编号</th>
+<th>优先级</th>
+<th>缺口</th>
+<th>已确认的后果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>F1</td>
+<td>P1</td>
+<td>补证据决定未进入新 Agent 接续接口</td>
+<td>人需重述或复制；正式记录本身没有丢失</td>
+</tr>
+<tr>
+<td>F2</td>
+<td>P1</td>
+<td>Attention 检查批准省略动作专属依据</td>
+<td>同一批准入口之间知情程度不一致</td>
+</tr>
+<tr>
+<td>F3</td>
+<td>P2</td>
+<td>close 未取消/等待 manual compaction</td>
+<td>程序化关闭返回时旧 writer 可能未收敛</td>
+</tr>
+<tr>
+<td>F4</td>
+<td>P2</td>
+<td>取消终态在 Store 提交前决定</td>
+<td>stopping 后仍可能 completed，并影响显式接续</td>
+</tr>
+<tr>
+<td>F5</td>
+<td>P2</td>
+<td>检查未确认终止信息未持久化</td>
+<td>无法区分确认停止与未确认停止</td>
+</tr>
+<tr>
+<td>F6</td>
+<td>P2</td>
+<td>human mutation 与 Run admission 未统一排序</td>
+<td>运行中的工作基础可能被推进并失效</td>
+</tr>
+<tr>
+<td>F7</td>
+<td>P2</td>
+<td>直接 Chat 跳转失败未统一恢复</td>
+<td>屏幕目标与历史当前位置失配</td>
+</tr>
+<tr>
+<td>F8</td>
+<td>P3</td>
+<td>当前发布状态入口路由到旧回执</td>
+<td>维护者可能引用旧发布 baseline</td>
+</tr>
+</tbody></table></div>
+<p>已对 F1 的 Context/reader 链、F2 的可达性与完整批准链、F3/F4 的 Host/Store 时序、F5 的字段流、F7 的调用者和失败恢复作二次静态核对。以下所有“可能”均有源码允许路径，但没有估计实际发生率。</p>
+<h2 id="main-7">优先发现</h2>
+<h3 id="main-8">F1 P1 补证据要求保留了 但没有接给新 Agent</h3>
+<p><strong>判定：遗漏路径 confirmed-static；优先级属于架构目标判断。</strong></p>
+<p>宣言要求 Matter 保留决定和未完事项，让新参与者从当前记录继续。正常场景是：人对候选选择 request_evidence，换一个 Chat 绑定同一 Matter，只说“继续补证据”。必要不变量不是内联全部历史，而是让未解决请求留下可定位引用，并有只读入口读取理由和候选。</p>
+<p>实现把候选转成 needs_evidence，Decision 保留 reason；非 accept 不更新开放义务。新 Context 却只选 pending，普通 Work tools 只有 source、submit、artifact，没有通用 candidate 或 Decision reader。于是新 Agent 获得的正式接口不足以知道上次为何要求补证据。</p>
+<p><strong>具体后果：人必须重述或复制，或者新执行者重做一份与上次要求脱节的提案。没有证据表明记录丢失：UI 与 Core 仍可读这些决定和正文。</strong> 已接受 Artifact 的接续路径也确实存在。</p>
+<p>依据：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/README.md#L15-L35">README 接续声明</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/core.py#L808-L855">候选状态与决定写入</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/owner.mjs#L122-L128">Context 过滤</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/extensions/work-adapter.mjs#L515-L581">实际 Work tools</a></p>
+<p>施工建议：由现有 Core query / Context owner 增加未完人类决定的最小索引与 Matter-scoped exact reader，不复制第二本账。验收看新 Session 能否从正式记录找到原决定、原候选、对应来源，而不靠人重复粘贴。</p>
+<h3 id="main-9">F2 P1 Attention 的检查批准缺少完整 Chat 已展示的关键依据</h3>
+<p><strong>判定：confirmed-static；未实测 GUI。</strong></p>
+<p>check_run 合同要求批准卡显示 recipe、command、arguments，以及请求绑定版本之前模型写入的候选文件。完整 Chat 已消费这些字段和 Host 写入记录；Attention 弹层仍使用通用许可渲染，仅显示 tool/path/bytes/hash/preview，而 check_run 的 preview 只是 recipeId 参数。</p>
+<p>global Attention 可以有同一私有 repository candidate，工具暴露规则没有排除 global，因此这不是不可达死代码。用户可以在信息较少的弹层批准同一个真实检查动作。</p>
+<p><strong>具体后果：批准界面未让人看到即将执行什么以及哪些候选文件参与；批准语义没有随呈现入口保持一致。</strong> Host 仍实施精确批准、候选版本与执行前检查，本项不主张取得额外 authority 或任意执行权限。</p>
+<p>依据：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/check-recipes.md#L109-L120">批准信息合同</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/attention-agent-view.mjs#L289-L300">Attention 许可卡</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/control-tools.mjs#L131-L137">preview 形成处</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/app.mjs#L6841-L6858">完整 Chat 文件说明</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/app.mjs#L6914-L6928">完整 Chat 消费处</a></p>
+<p>施工建议：复用同一 owner-backed permission presentation/检查说明组件；在弹层无法完整呈现时引导完整审阅后再批准。验收需要同一 payload 在两处呈现的动作、对象、版本、文件与风险说明一致，而不是只测按钮能点。</p>
+<h3 id="main-10">F3 P2 程序化关闭没有收拢正在进行的手动 compaction</h3>
+<p><strong>判定：confirmed-static；实际 journal 冲突未验证。</strong></p>
+<p>程序化 close 是文档给出的受支持清理边界；CMP-01 同时要求 Run/operation 共用 writer admission 并处理 close。手动 compaction 是占用同一独占执行席位、可写 native journal 的 Host operation。其 task 放在 operations Map，configurationQueue 只等到 operation 创建后返回。RuntimeService.close 只等待 admission/configuration/material queues 并取消 Runs，没有 abort/drain operations；Pi Port 没有补充 close 实现，而外层 runtime.close 最后释放 Store 锁。</p>
+<p><strong>具体后果：对受支持的程序化 createRuntime.close 调用，关闭 Promise 返回并释放锁时，手动 compaction 仍可能未收敛。</strong> 因而“旧写者已停，可以重新打开”的单 writer 前提缺少保障。CLI 最后的进程退出可能直接终止余下工作，重启将 in-flight operation 标 unknown 本身也是合同允许行为；本项不把这两者写成数据损坏。</p>
+<p>依据：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/runtime-foundation.md#L33-L46">受支持程序化 close</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/research/RD-008-command-compaction.md#L43-L53">CMP-01 生命周期合同</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L843-L900">operation 异步 task</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L2712-L2724">关闭处理</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/pi-runtime-port.mjs#L89-L100">Pi compact 生命周期</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/runtime.mjs#L82-L95">外层关闭顺序</a></p>
+<p>施工建议：Host close 统一封闭 operation 准入，取消并等待每个 active operation 的 task 后再释放数据 owner；不由 UI 代管。验收目标是关闭返回后不再存在原 Host 的 journal writer，不能仅断言 running 字段改成了某个终态。</p>
+<h3 id="main-11">F4 P2 取消与完成的仲裁决定早于 Store 提交点</h3>
+<p><strong>判定：静态可行交错；未动态复现。</strong></p>
+<p>现行 HTTP 合同明确选择：cancel 先于 Host terminal write 被接受，Host 终态应为 cancelled，已完成的 native answer 仍保留。普通 Run 收尾先等 recordUsage。取消可以在这期间把 stopping 写入 Store 队列；但 cancelRequested 要等 stopping 持久化后才设置。执行协程可能在 stopping 尚在持久化时读到旧状态和 false flag，先算出 completed 再排队。Store 的 updateRunIfActive 只防止覆盖 terminal，stopping 仍非 terminal，因此这份预先决定的 completed 可以排在 stopping 后落地。</p>
+<p><strong>具体后果：已进入 stopping 的 Run 可能最终显示 completed，未遵守现行 HTTP 合同明确选择的取消优先于尚未提交终态的规则；原本可用 cancelled 进行 supersedes 接续的请求还可能遭到 supersede_completed 拒绝。</strong> 这不是 terminal→terminal 反复改写；现有终态不可变保护仍有效。请求发出与实际进程停止也仍是不同事实。</p>
+<p>依据：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/api-v6.md#L36-L41">当前取消仲裁合同</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/run-attempts.md#L31-L50">接续状态合同</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L3338-L3381">收尾等待与终态计算</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L3551-L3575">取消写入与晚置 flag</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/store.mjs#L979-L991">Store 发布点</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/store.mjs#L1723-L1736">Store 终态保护</a></p>
+<p>施工建议：把取消意图与最终 outcome 的裁决移入同一权威提交边界，或给完成写入必要的预期状态；保留 native outcome 作为独立证据。不要只扩大 terminal 集合把 stopping 伪装成已经停止。</p>
+<h3 id="main-12">F5 P2 未确认进程组退出的事实没有进入持久检查结果</h3>
+<p><strong>判定：confirmed-static；实际 OS 触发未验证。</strong></p>
+<p>runner 已显式返回 groupLingered，表示有界等待后无法确认整个进程组退出。check-tools 只按 cancelled/timedOut 生成结果，Store settlement 也没有承载这一事实的字段。结果已经有 settled 记录，重启的“未匹配 started”恢复也不会把它补回来。</p>
+<p><strong>具体后果：持久记录无法区分确认停止与未确认停止。</strong> 不能据此声称仍有活动进程、仍在写文件或发生安全穿透；残留 OS 状态也可能造成查询无法确认。</p>
+<p>依据：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/check-recipes.md#L194-L233">停止结果合同</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/check-runner.mjs#L134-L155">runner 不确定字段</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/check-tools.mjs#L113-L130">tool 转换遗漏</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/store.mjs#L1467-L1486">Store settlement 字段</a></p>
+<p>施工建议：明确“停止请求结果”与“终止确认事实”两个维度，贯通 runner→tool→Store→投影；由 Host 决定 unknown、诊断和后续准入的语义。</p>
+<h3 id="main-13">F6 P2 正式人类动作的 idle 检查与 Run 准入未共享临界区</h3>
+<p><strong>判定：confirmed-static 的交错窗口；未动态复现。</strong></p>
+<p>具体 Work Core 合同要求 mutations 仅在 no active Run 时发生。createRun 进入 configurationQueue；humanAction 只先检查 busy，之后跨多次 await 访问 Core 和 Registry，没有与 Run admission 同一串行边界。两个正常已认证请求可在检查后交错。</p>
+<p><strong>具体后果：运行中工作基础可能被另一页的 decide 或 replace_sources 推进，导致后续 source read、候选基础变旧，浪费执行并需重开。</strong> Core 的版本、来源、pending 和事务检查仍有效，本项不声称旧候选被错误接受或事务损坏。</p>
+<p>依据：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/docs/work-core/contract.md#L25-L42">明确 no active Run 合同</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L2661-L2688">humanAction 检查与 await</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L2704-L2709">Run 串行准入</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/core.py#L778-L807">Core 保留的保护</a></p>
+<p>施工建议：让正式 mutation 在既有 Host 准入 owner 内确定先后顺序，再检查 binding、generation 和 idle；只读查询保持独立，Core CAS 继续保留。</p>
+<h3 id="main-14">F7 P2 直接切换 Chat 失败后 可见位置与历史失配</h3>
+<p><strong>判定：行为路径 confirmed-static；未运行 GUI。</strong></p>
+<p>从 Home 成功进入 A 后，再从 Recent 直接点击 B。selectSession 在 GET B 成功前已保存 A 的 Chat 草稿、停 polling、卸载 A 的当前视图并清空 session/events/runs，将 activeSessionId 改成 B；只有成功才把 B 放入历史。失败分支仅显示错误，没有恢复旧位置，也没有按现行 navigation owner 的规则标记 unavailable 并落 Home。</p>
+<p><strong>具体后果：可见状态停在不可加载的 B，history current 却仍为 A，Back 直接越过 A 到 Home。</strong> A 与草稿没有被删除，用户仍可从 Recent 重开。现行 owner 允许不可用目标回 Home，因此本项不要求只有 rollback A 一种设计；需要统一直接导航与历史 traversal 的失败语义。</p>
+<p>依据：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/product-direction.md#L44">当前访问恢复目标</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/execution/claude-frontend-harness-2026-09-16/09-navigation-commands.md#L3-L26">当前 navigation owner 裁定</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/app.mjs#L1559-L1595">切换前卸载</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/app.mjs#L1597-L1643">成功与失败分支</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/app.mjs#L1750-L1782">Back 与现有 unavailable 处理</a></p>
+<p>施工建议：保留旧视图直到新目标读取成功，或统一走已有 unavailable/Home 裁定；可见对象与历史状态应一次性切换。旧 navigation 草案的“失败留原位”文字不作为唯一现行验收标准。</p>
+<h3 id="main-15">F8 P3 发布状态入口仍指向旧回执</h3>
+<p><strong>判定：confirmed-static；不是部署失败，也没有查询线上状态。</strong></p>
+<p>site README 把“发布状态”直接链接到 2026-09-13 final-preparation，落点的 closeout 给出旧部署 fd4012c；当前 release 索引却已明确以 2026-09-15 的 fe7f317 回执取代该 current wording。</p>
+<p><strong>具体后果：沿 site 入口工作的发布维护者容易引用旧 baseline；正确记录仍能从 release/current 找回，因此只定 P3。</strong> 历史回执本身不应改写，也不能由此推断线上仍运行旧版。</p>
+<p>依据：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/site/README.md#L3">site 当前入口</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/release/final-preparation-2026-09-13/README.md#L85-L87">旧 closeout</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/release/README.md#L11-L13">当前路由与取代关系</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/release/README.md#L47-L50">取代说明</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/release/product-node-2026-09-15/deployment.md#L5-L13">新部署回执</a></p>
+<p>施工建议：只更新当前路由指向的 owner；保留旧历史身份。</p>
+<h2 id="main-16">单独保留的设计边界</h2>
+<ol>
+<li><strong>逻辑授权不等于进程隔离。</strong> check_run 的固定 recipe、最小环境和精确批准确实存在，但执行身份仍是 Host 用户。当前具体合同已经承认“不构成 sandbox”的限制，因此这不是新发现漏洞；它仍是扩大到真实长期个人工作站场景前的架构接受门槛。见<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/check-recipes.md#L163-L190">检查环境边界</a></li>
+<li><strong>Workspace 聚合读取的授权单位需要裁决。</strong> repository 聚合读取有逐文件严格效果组合，workspace list/grep 当前更多依据调用级资源判断。现有 workspace 合同没有明确承诺完全相同的材料级语义，故不记作已成立的权限 bug；应先明确“限制一个文件”是否约束所有聚合能力，再决定复用准入机制或补说明。详细证据见权限附录</li>
+<li><strong>Runtime 可替换性仍是局部 seam。</strong> 架构主动承认 service 依赖 Pi-shaped helper/options/outcomes 等耦合。第二 Runtime、跨 Runtime Kits、通用后台 orchestration 仍须各自完整消费者和证据，不以目录或 adapter 数量接受</li>
+</ol>
+<h2 id="main-17">可施工顺序与退出条件</h2>
+<div class="table-scroll" tabindex="0"><table>
+<thead>
+<tr>
+<th>顺序</th>
+<th>现有责任 owner</th>
+<th>改变内容</th>
+<th>完成时应建立的证据</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Core query / Work Context</td>
+<td>补未完决定索引、candidate/decision exact read</td>
+<td>新 Session 在无需手工复述时找到补证据理由、原候选和来源版本；仍无自动接受</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Permission presentation / Attention UI</td>
+<td>同一动作共用完整审批呈现</td>
+<td>同一 check payload 在 Chat/Attention 的范围、对象、版本与文件信息一致；批准后仍由 Host 复验</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Host lifecycle / RuntimeStore</td>
+<td>收拢 operations；把取消仲裁落在权威提交点</td>
+<td>graceful close 不留旧 writer；所有合法取消/完成先后顺序得到一致终态且保留 native evidence</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Check / effect owner</td>
+<td>保留未确认终止事实</td>
+<td>runner 的不确定性进入持久读回和用户投影；不得被普通 cancelled/timed_out 覆盖</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Host Work API</td>
+<td>human mutation 与 Run admission 共用排序</td>
+<td>合法并发只形成“动作先”或“Run先”一种完整顺序，Core CAS 防线不削弱</td>
+</tr>
+<tr>
+<td>6</td>
+<td>UI navigation 与文档 owner</td>
+<td>修恢复落点与发布状态入口</td>
+<td>失败可回原对象；当前入口可到最新已记录发布事实，历史回执保持原 SHA</td>
+</tr>
+</tbody></table></div>
+<p>以上是建议的退出条件，不是本次已经完成或获准启动的测试任务。先修直接的合同矛盾；OS 隔离、聚合授权单位和新 Runtime 能力应按现有 owner 单独裁决，不趁此次审查扩写成新的通用工作流系统。</p>
+<h2 id="main-18">验收证据需要补齐的一点</h2>
+<p><strong>Q1 证据不足：S6 的最终受检源码身份尚不够固定。</strong> current 把本地 1886/1886 与截图指向 S6；S6 记录了 base、未提交 diff 的审查、之后修正和重新 capture，但 capture report 只含 scenes/errors，没有最终 commit、exact diff/file hashes 或拍摄时间。报告所在 commit 能固定“报告字节”，不能单独证明拍摄时的工作树与待接受实现相同。</p>
+<p>这不证明作者伪报，不推翻非作者已做的审查，也不证明产品失败。最小补证是在原 owner 记录最后实际受检 commit，或 base + exact diff/file hashes 及合流等价关系；无需仅因这一点盲目重跑完整 suite。当前状态本已保留 visual/screen-reader acceptance open，应继续保持这一边界。</p>
+<p>依据：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/verification.md#L44-L46">证据身份要求</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/research/ux-interaction-topology-20260930/s6.md#L35-L58">S6 范围与结果</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/research/ux-interaction-topology-20260930/evidence/captures-s6/report.json#L1-L166">capture 报告</a></p>
+<h2 id="main-19">未验证边界</h2>
+<ul>
+<li>没有把静态代码路径称为已复现的运行缺陷</li>
+<li>未验证当前提交的构建、测试结果、部署结果或真实模型任务质量</li>
+<li>未对真实浏览器进行产品操作、视觉验收、键盘、屏幕阅读器或触摸测试</li>
+<li>未执行操作系统进程行为、故障恢复、崩溃持久性、迁移或网络副作用实验</li>
+<li>权限部分仅核对高层合同、政策与效果归属；不构成攻击面或隔离安全验收</li>
+<li>本报告不覆盖固定提交之外的本地文件、后续提交、外部依赖实现或线上站点实时状态</li>
+</ul>
+</main></div><section class="appendices" id="appendices"><h2>完整分项证据</h2><p>展开查看每条审查线的完整声明推导、正向实现证据、具体引用与覆盖边界。主报告给出合并后的优先级；分项保留详细论证。</p><details class="appendix" id="appendix-core"><summary><strong>核心对象与工作接续</strong><span>Core 状态、事务、来源和 Context</span></summary><div class="appendix-body"><h1 id="appendix-core-1">CourtWork 宣言反推实现审查：Core、状态归属、正式事实与上下文</h1>
+<p>固定对象：<code>lesPrivilege/Courtwork@7e8e2531d422dc1a5048dffcf1ae3acc6e831de7</code><br>范围：核心对象及资源/Host/Core 的所有权，持久日志与正式事实，Work Context 与资源按需读取<br>方法：独立首轮，只读静态审查。全部仓库材料经 固定提交读取 固定 ref 获取；缓存只作文本阅读。未执行仓库代码、测试、构建、故障注入、安全探针或真实 Provider；未读取本地 checkout/untracked、用户电脑或凭据。没有用其他 审查 或历史 review findings 生成线索。现有测试只读为覆盖说明，不声称本轮通过。</p>
+<h2 id="appendix-core-2">结论</h2>
+<p>正式状态的核心承重部分已有可追踪实现：一个 Core owner、B0 SQLite 状态与审计、单事务决定/成果/义务/回执、绑定版本检查、历史 source membership、独立的 Host 执行记录，均不是只有文档命名。</p>
+<p>发现两项需处置的实质缺口：</p>
+<ol>
+<li><strong>C1 / P1（接续目标），confirmed-static：人的“要求补证据”仍在 Core 与 UI 中，但新 Session 的 Agent 接手时既看不到该未完决定，也没有对应只读入口。</strong> 已接受 Artifact 的续接成立，待补证工作不能靠现有 Work Context 自足续接。</li>
+<li><strong>C2 / P2，confirmed-static：humanAction 的 idle 检查与 Run admission 未共享串行临界区。</strong> 正常并发请求可在检查后交错，让 formal action/source replacement 落在 active Run 期间。Core CAS 等校验仍保护正式提交，不等于事务损坏或旧候选可被错误接受。</li>
+</ol>
+<p>优先级是基于文档所述用户目标的设计判断；“confirmed-static”仅指分支、字段与调用链可由该 SHA 源码确定，不代表运行复现、概率测量或真实模型结果。</p>
+<h2 id="appendix-core-3">1. 如何选择宣言与边界</h2>
+<p>先独立读取了 AGENTS、README、engineering/current、engineering/README，再沿正式 work 行读架构、Runtime canon、Core contract。遵守这些边界：</p>
+<ul>
+<li>当前实现边界由 architecture/module owner 与具体 Work Core contract 决定，不把“下一节点”“方向”当作已交付功能。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/AGENTS.md#L3-L16">AGENTS.md:3–16</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/README.md#L7-L19">engineering/README.md:7–19</a></li>
+<li><code>engineering/core-contracts.md</code> 明写设计候选、尚未运行验证，不能拿其每条直接开实现 bug。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/core-contracts.md#L1-L5">engineering/core-contracts.md:1–5</a></li>
+<li>PAPER 只固定独立 SE 9.6 doctrine，实际实现和验收在 CourtWork；本轮不越界读取另一个仓库。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/PAPER.md#L5-L19">PAPER.md:5–19</a></li>
+<li>Runtime canon 同样没有声称完整架构已实现；Work Core 不等于把原文、索引、凭据、运行日志全部搬进 Core 数据库。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/architecture-runtime-canon.md#L13-L17">engineering/architecture-runtime-canon.md:13–17</a></li>
+<li>本报告没有把通用 runtime 替换、全量 Memory Broker、Swarm、自动后台维护等尚未承诺的能力当成 bug。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/product-direction.md#L91-L97">engineering/product-direction.md:91–97</a></li>
+</ul>
+<h2 id="appendix-core-4">2. C1：要求补证据在 Agent 接续面中消失</h2>
+<p><strong>严重性：P1（工作接续核心目标）</strong><br><strong>判断层次：遗漏路径 confirmed-static；“应优先补齐”的严重性为设计判断</strong><br><strong>触发：正常 Evidence Memo Matter，候选被人 request_evidence，随后在同项目新建 Session、Continue in Matter，并要求继续该工作；用户不手工复制旧理由/正文。</strong></p>
+<h3 id="appendix-core-5">宣称 → 用户目标 → 必要不变量</h3>
+<p>README 明说 Matter 保留 candidates、decisions、unfinished items，下一 Run 按需取回相关材料；新参与者先看到工作位置，接续不依赖上一参与者记得全部内容。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/README.md#L15-L21">README.md:15–21</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/README.md#L33-L35">README.md:33–35</a></p>
+<p>用户想要的是“接着人上次要求补的证据做”，而不是重新解释一次旧判断。必要不变量不是每次内联所有历史，而是：</p>
+<ul>
+<li>未解决的人类请求在最小 Context 中至少留下可定位的摘要/状态/版本</li>
+<li>被省略正文与决定理由有当前 Matter 范围的准确只读入口</li>
+<li>不能把“candidate 已关闭”直接当作“工作已完成”</li>
+</ul>
+<p>产品语义明确把保留、召回、激活分开，但也要求未决义务、冲突和失败不因摘要变短而消失。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/product-direction.md#L56-L62">engineering/product-direction.md:56–62</a></p>
+<h3 id="appendix-core-6">代码路径与反例推导</h3>
+<ol>
+<li>人类 action 允许 <code>request_evidence</code>；Core 把 candidate.status 设为 <code>needs_evidence</code>，并写入带 reason 的 Decision。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/core.py#L168-L175">app/core/core.py:168–175</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/core.py#L808-L817">app/core/core.py:808–817</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/core.py#L844-L855">app/core/core.py:844–855</a></li>
+<li>非 accept 不修改 Matter obligations。因此该补证据意图没有被另一条开放义务自动保住，它保存在 Decision.reason 与 needs_evidence candidate 中。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/core.py#L676-L682">app/core/core.py:676–682</a></li>
+<li>新 Run 的 <code>compileWorkContext</code> 只选 <code>status === &#39;pending&#39;</code> 的 candidates。输出没有 decisions / decision reason / needs_evidence，且 provenance 将 closed candidates 列作 omitted。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/owner.mjs#L104-L128">app/core/owner.mjs:104–128</a></li>
+<li>WorkExtension.begin 直接用这个 Context，再加入 source/artifact/submit 指引与工具；普通 Memo 工具全集为 <code>se_read_source</code>、<code>se_submit_candidate</code>、<code>se_read_artifact</code>，没有读取通用 candidate 正文、Decision 或补证据请求的工具。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/extensions/work-adapter.mjs#L461-L485">app/extensions/work-adapter.mjs:461–485</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/extensions/work-adapter.mjs#L515-L581">app/extensions/work-adapter.mjs:515–581</a></li>
+<li>source reader 只能读当前 source；artifact reader 只能按已存在 Artifact ID 读成果。未接受 candidate 不是 Artifact，不能借 artifact reader 取出。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/extensions/work-adapter.mjs#L764-L778">app/extensions/work-adapter.mjs:764–778</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/bridge.py#L806-L831">app/core/bridge.py:806–831</a></li>
+<li>global Attention 的目录/治理工具不是这个场景的隐藏补救：Host 只在 global Session 注入 Attention tools，Matter 绑定要求 project Session；绑定的 Session 也不注入 subagent library context。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L2397-L2400">app/server/service.mjs:2397–2400</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L3200-L3211">app/server/service.mjs:3200–3211</a></li>
+<li>正常 UI “Continue in Matter”只提交 existingMatterId、刷新 surface/thread；没有把旧决定复制成新模型输入。新 Run 的 POST 只携带本次 input / commandId / runtime selection。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/app.mjs#L2676-L2698">app/web/app.mjs:2676–2698</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/app.mjs#L5687-L5693">app/web/app.mjs:5687–5693</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/app.mjs#L5748-L5760">app/web/app.mjs:5748–5760</a></li>
+<li>对 NDA，额外 domainContext 只有 playbook、facts、producerContract 与固定指引，也不会补回旧 Decision.reason。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/extensions/inbound-nda/index.mjs#L35-L44">app/extensions/inbound-nda/index.mjs:35–44</a></li>
+</ol>
+<p><strong>结果：</strong> candidate 从 pending 转为 needs_evidence 之后，Agent 的正式 Context 反而失去该未完项；在新 Session 无旧 native history 的正常场景下，Agent 不能按已有决定定位补证据要求。它可以重新读原始 source，但无法知道“人先前为什么要求补证据”，也无法取回普通候选正文。用户必须手工重述/复制，或者 Agent 重做并产生与上次要求脱节的新提案。这里不预测模型一定会犯错，而是确定该信息没有通过已读实现的 admitted interface 提供。</p>
+<h3 id="appendix-core-7">支持成立的证据 / 不能扩大成什么</h3>
+<ul>
+<li><strong>不是持久数据丢失。</strong> Core 全状态保留所有 candidates 和 decisions；Matter view 返回这些字段，Work projection 也携带它们。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/core.py#L729-L762">app/core/core.py:729–762</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/bridge.py#L545-L571">app/core/bridge.py:545–571</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/owner.mjs#L92-L100">app/core/owner.mjs:92–100</a></li>
+<li><strong>人仍可取回。</strong> 新绑定的正常 UI 会从 surface 获取 decisions 并查询 committed receipt，再画进消息流；候选正文仍在 Memo Review。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/app.mjs#L4982-L5030">app/web/app.mjs:4982–5030</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/extensions/evidence-memo/renderer.mjs#L84-L118">app/extensions/evidence-memo/renderer.mjs:84–118</a></li>
+<li>已接受 Artifact 的身份/摘要字段和 scoped exact-body reader确实存在，且源/合同变化只标 basis stale，不抹除历史接受。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/owner.mjs#L104-L120">app/core/owner.mjs:104–120</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/bridge.py#L806-L831">app/core/bridge.py:806–831</a></li>
+<li>合同明确当前 v2 只描述 pending metadata 与 Artifact 分页；它没有宣称通用历史查询已经实现。故精确表述是 <strong>当前低层 contract 的边界不足以支撑 README 的广义未完工作接续</strong>，不是把不存在的 API 当成不正确 API。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/docs/work-core/contract.md#L50-L58">docs/work-core/contract.md:50–58</a></li>
+<li>本轮未验证自定义第三方 MCP 能否提供等价材料；自定义能力不是默认合同的补偿，也不能据此说“全系统永远无法读回”。</li>
+</ul>
+<h3 id="appendix-core-8">最小修正方向与可验收证据</h3>
+<p>沿已有 Core query 与 Work Context owner 补齐，不新建第二份工作账本：</p>
+<ul>
+<li>Context 显式保留未完的人类决定（至少 request ID、candidate ID、action、reason/受预算保护的摘要与 exact read reference）</li>
+<li>为普通 candidate / decision 提供 Matter-scoped 只读、按版本可寻址的读取；预算不足明确拒绝或给出可分页引用</li>
+<li>新 Session 只收到“继续补证据”时，能从正式记录获取原决定、原候选、所需 source 版本；人工 UI 与 Agent 读到的事实一致</li>
+</ul>
+<p>本轮未制作、执行任何验收程序。未来核验应覆盖 request_evidence、被拒后要求修订、source-stale pending 三种接续，并保留已接受 Artifact 场景。</p>
+<h2 id="appendix-core-9">3. C2：人类正式动作与 Run 准入的 idle 门闩存在正常并发窗口</h2>
+<p><strong>严重性：P2</strong><br><strong>标签：confirmed-static；未运行并发复现</strong><br><strong>触发：两个正常已认证请求近同时到达，例如一个标签页提交 replace_sources/decide，另一个标签页开始 Run；formal action 已经过空闲检查，但其异步 Core 查询尚未返回。</strong></p>
+<h3 id="appendix-core-10">宣称 → 用户目标 → 必要不变量</h3>
+<p>具体 Work Core HTTP contract 要求人类 mutations 满足 loaded producer、current generation、no active Run，并声明服务端复验。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/docs/work-core/contract.md#L25-L27">docs/work-core/contract.md:25–27</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/docs/work-core/contract.md#L40-L42">docs/work-core/contract.md:40–42</a></p>
+<p>用户预期一次 Run 看到的工作基础不会在运行期间因另一页的正式 mutation 静默改变；新 Run 与人类动作应有确定前后顺序。只在按钮渲染时禁止操作不足以实现这一点。</p>
+<h3 id="appendix-core-11">代码路径与缺口</h3>
+<ul>
+<li>Host 已有 <code>#withConfiguration</code> promise queue；Run admission 通过它串行化。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L2307-L2311">app/server/service.mjs:2307–2311</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L2704-L2709">app/server/service.mjs:2704–2709</a></li>
+<li><code>humanAction</code> 是独立 async 方法，没有进入这条 queue。它先检查 generation 与 <code>#busy()</code>，随后 await Core getMatter，再 await Registry.humanAction，整个过程中没有再次占用或复验 active-Run 临界区。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L2661-L2688">app/server/service.mjs:2661–2688</a></li>
+<li>Registry 下游只检查 producer.loaded，然后转发，没有 Run gate。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/extension-registry.mjs#L347-L350">app/runtime/extension-registry.mjs:347–350</a></li>
+<li>WorkExtension 继续经过多次异步 snapshot/receipt/validation，再发 <code>trusted_decide</code> 或 <code>replace_sources</code>；没有统一 activeRun 条件。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/extensions/work-adapter.mjs#L906-L958">app/extensions/work-adapter.mjs:906–958</a></li>
+<li>Core <code>trusted_decide</code> 只调用可信 审查；<code>replace_sources</code> 直接进入 Core source-set transaction。这两条都不检查 app_run 活跃状态。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/bridge.py#L796-L803">app/core/bridge.py:796–803</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/bridge.py#L935-L938">app/core/bridge.py:935–938</a></li>
+<li>Run admission 另一侧先持久化 Host Run，然后执行时开始 Core Run 并冻结 work context。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L2870-L2890">app/server/service.mjs:2870–2890</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L3091-L3110">app/server/service.mjs:3091–3110</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/extensions/work-adapter.mjs#L461-L485">app/extensions/work-adapter.mjs:461–485</a></li>
+</ul>
+<p>这些 await 是常规 I/O 让出点，两个入口没有共享约束，所以“动作通过 idle 检查”与“动作正式落库”之间，Run 可以已经开始。这不是凭模型输入绕过权限的安全探针，也不需要异常数据库状态。</p>
+<h3 id="appendix-core-12">具体后果与严重性边界</h3>
+<ul>
+<li>source replacement 可在已冻结 Run 开始后递增当前 source revision；后续 <code>se_read_source</code> 会明确返回 STALE_INPUT，或候选以后因绑定过时无法接受。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/core.py#L572-L594">app/core/core.py:572–594</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/bridge.py#L783-L793">app/core/bridge.py:783–793</a></li>
+<li>decide 可推进 Matter.version，让正在运行的工作基础过时；用户看到的“运行中无正式 mutation”保证不成立，可能浪费执行并需重开。</li>
+<li>返回的 action projection 由 Registry 直接生成，也不会像 getSurface 那样再按 host active state强制 readOnly；这是同一个竞争窗口的派生展示问题，不单独计一个 finding。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L2679-L2687">app/server/service.mjs:2679–2687</a> 对比 <a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L2477-L2482">app/server/service.mjs:2477–2482</a></li>
+</ul>
+<p><strong>没有证据支持更严重指控：</strong></p>
+<ul>
+<li>Core 所有决定仍在 BEGIN IMMEDIATE 事务里检查候选 pending、Matter CAS、source/contract version，并在审计后再复验绑定。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/core.py#L778-L807">app/core/core.py:778–807</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/core.py#L656-L664">app/core/core.py:656–664</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/core.py#L819-L827">app/core/core.py:819–827</a></li>
+<li>source id/version 仍不可换字节，source replacement 原子提交；不是已接受成果被覆盖或 SQL 事务撕裂。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/core.py#L560-L597">app/core/core.py:560–597</a></li>
+<li>因此不称“旧候选能错误接受”“自动取得 human authority”或“数据损坏”；确定缺口在 Host admission 的跨操作顺序保证。</li>
+</ul>
+<h3 id="appendix-core-13">最小修正方向与证据</h3>
+<p>让正式 human mutation 与 Run admission 在现有 Host owner 内具有同一串行入口，并在该入口里检查当前 binding/generation/idle；保留读查询无需排他。下游 Core 的事务/CAS应继续保留。核验需要证明两种合法顺序（动作先、Run先）中只允许一种顺序完整成立；本轮不提供或执行并发探针。</p>
+<h2 id="appendix-core-14">4. 宣言得到实现支持的部分</h2>
+<div class="table-scroll" tabindex="0"><table>
+<thead>
+<tr>
+<th>宣称与用户目标</th>
+<th>必要不变量</th>
+<th>已读实现证据</th>
+<th>支持边界</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Host、Core、runtime各管自己的事实</td>
+<td>执行日志不能直接成为接受成果</td>
+<td>一个 WorkCoreOwner 生成 client；runtime root把同一 client 注入 registry/service；Core分别建 matter/candidate/artifact/decision/audit表。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/owner.mjs#L4-L10">app/core/owner.mjs:4–10</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/runtime.mjs#L49-L79">app/server/runtime.mjs:49–79</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/core.py#L183-L268">app/core/core.py:183–268</a></td>
+<td>结构与调用链支持；不声称任意第三方扩展被隔离</td>
+</tr>
+<tr>
+<td>人类决定与候选提出分离</td>
+<td>模型不能仅提交 actor/accept 文本就正式写状态</td>
+<td>Host拒绝输入 actor，自己传local-user；Work工具仅提出候选；私有 trusted_decide走Reviewer。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L2661-L2685">app/server/service.mjs:2661–2685</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/extensions/work-adapter.mjs#L525-L581">app/extensions/work-adapter.mjs:525–581</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/bridge.py#L796-L803">app/core/bridge.py:796–803</a></td>
+<td>架构明确 trusted in-process extension属于信任边界；不是 OS/进程沙箱承诺，见 <a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/architecture.md#L115-L121">engineering/architecture.md:115–121</a></td>
+</tr>
+<tr>
+<td>正式接受是原子事实</td>
+<td>Decision、Artifact、active pointer、义务、审计与receipt同时成功或失败</td>
+<td>Core在单事务中CAS、验证证据、保存Artifact并校验digest、更新Matter/candidate、写Decision/receipt，然后commit。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/core.py#L778-L870">app/core/core.py:778–870</a></td>
+<td>未运行crash实验；B0实际生产选择，不把B1实验event rebuild当运行产品</td>
+</tr>
+<tr>
+<td>丢回应后可确认结果</td>
+<td>request identity绑定完整内容、actor、scope，重试不重新接受</td>
+<td>request hash；先查receipt后查candidate closed；客户端transport failure保留unknown。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/core.py#L621-L633">app/core/core.py:621–633</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/core.py#L786-L799">app/core/core.py:786–799</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/client.mjs#L176-L208">app/core/client.mjs:176–208</a></td>
+<td>精确重试与查询路径支持；不扩展为所有RPC可自动重放</td>
+</tr>
+<tr>
+<td>版本与证据对应</td>
+<td>固定source版本、Matter成员资格、quote定位；接受时拒过时基础</td>
+<td>immutable source bytes检查，source_history保留membership；evidence对当前source_set及digest/quote；决定CAS/source/contract。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/core.py#L207-L215">app/core/core.py:207–215</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/core.py#L560-L597">app/core/core.py:560–597</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/core.py#L635-L664">app/core/core.py:635–664</a></td>
+<td>验证文本一致性与关系，不证明来源真实性或专业质量</td>
+</tr>
+<tr>
+<td>义务持续存在</td>
+<td>不能漏旧义务或无依据关闭；新义务不能伪装已解决</td>
+<td>existing obligation必须保留identity，closure需source evidence，blocking open阻accept，新义务以open进入。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/core.py#L676-L717">app/core/core.py:676–717</a></td>
+<td>新candidate的open obligations可随accept入库属明确设计；NDA额外拒绝未完finding <a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/extensions/inbound-nda/index.mjs#L45-L59">app/extensions/inbound-nda/index.mjs:45–59</a></td>
+</tr>
+<tr>
+<td>删Session不丢Matter</td>
+<td>durable project+extension ownership独立于执行目录</td>
+<td>delete前claim_work；Store只删除Session/run/event/questions；existingMatter绑定查Core scope。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L2411-L2425">app/server/service.mjs:2411–2425</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L2506-L2516">app/server/service.mjs:2506–2516</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/store.mjs#L1520-L1531">app/server/store.mjs:1520–1531</a></td>
+<td>正式Core继续存在，非安全擦除；未声称所有执行日志永远保留</td>
+</tr>
+<tr>
+<td>Context是投影而不是第二套权威</td>
+<td>必要义务完整、可解释selected/omitted、超预算明确失败</td>
+<td>compileWorkContext存matter obligations、版本source refs、Artifact身份，24000预算拒绝；Core Run原样冻结Context并校验provenance绑定。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/owner.mjs#L104-L128">app/core/owner.mjs:104–128</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/bridge.py#L637-L650">app/core/bridge.py:637–650</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/bridge.py#L676-L689">app/core/bridge.py:676–689</a></td>
+<td>不含C1所述未完review决定；没有任意大小上下文保证</td>
+</tr>
+<tr>
+<td>资源原文保留和按需激活分开</td>
+<td>resolution不授予权限，required pin不匹配不静默降级</td>
+<td>resolver对locator显式unsupported；inline provenance=unverified/granted=[]；runtime context仅内联instruction，其余catalog；Kit pin/required failure与budget诊断。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/source-resolver.mjs#L18-L34">app/runtime/source-resolver.mjs:18–34</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/source-resolver.mjs#L71-L91">app/runtime/source-resolver.mjs:71–91</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/control-plane.mjs#L314-L331">app/runtime/control-plane.mjs:314–331</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/kit-context.mjs#L390-L429">app/runtime/kit-context.mjs:390–429</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/kit-context.mjs#L553-L581">app/runtime/kit-context.mjs:553–581</a></td>
+<td>当前确定性组装，不声称语义检索或全量Memory Broker</td>
+</tr>
+<tr>
+<td>immutable资源与Run引用分离</td>
+<td>先保留可验字节，再提交Run引用；读回不读可变配置</td>
+<td>ArtifactHistory按digest存readback校验；Kit先save plan/context再返回binding；readKitContext校验hash、profile、runtime、budget和bytes。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/artifact-history.mjs#L99-L126">app/runtime/artifact-history.mjs:99–126</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/artifact-history.mjs#L139-L165">app/runtime/artifact-history.mjs:139–165</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/kit-run-context.mjs#L38-L91">app/runtime/kit-run-context.mjs:38–91</a></td>
+<td>Kit只在ordinary Chat/in-process Pi适用；extension-bound工作拒绝，而非已支持所有专业Kit <a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/kit-run-context.mjs#L15-L24">app/runtime/kit-run-context.mjs:15–24</a></td>
+</tr>
+</tbody></table></div>
+<h2 id="appendix-core-15">5. 持久日志与恢复的准确评价</h2>
+<ul>
+<li>产品 Core 显式以 B0 打开；启动时单进程POSIX锁、schema pair校验、逐层迁移备份、active orphan→unknown并关闭admission。它不是靠回放模型trace恢复正式State。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/bridge.py#L383-L438">app/core/bridge.py:383–438</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/bridge.py#L467-L479">app/core/bridge.py:467–479</a></li>
+<li>Core user4/app5与Host RuntimeStore22是不同schema owner。Core迁移受表结构/约束检查保护，不能把版本数字相同当成兼容。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/bridge.py#L201-L244">app/core/bridge.py:201–244</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/bridge.py#L357-L379">app/core/bridge.py:357–379</a></li>
+<li>Host RuntimeStore用队列复制working state，持久化成功后才发布memory state；事件和对应Run更新可同次mutation保存。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/store.mjs#L968-L991">app/server/store.mjs:968–991</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/store.mjs#L1706-L1720">app/server/store.mjs:1706–1720</a></li>
+<li>Pi native journal与Host store是不同事实、没有跨存储原子事务；文档对此有明确边界。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/runtime-foundation.md#L75-L83">app/docs/runtime-foundation.md:75–83</a></li>
+<li>未把没有fsync的JSON rename路径直接报“违反断电承诺”；本次读取的文档没有这样的已交付承诺，Core transport章节还明确“不作power-loss durability claim”。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/docs/work-core/contract.md#L103-L107">docs/work-core/contract.md:103–107</a></li>
+<li>支持“执行日志不是第二套正式成果”：Host事件append和Core accept无相互自动提升调用；finishRun只收敛Core Run状态和candidate refs，不执行decide。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/extensions/work-adapter.mjs#L877-L903">app/extensions/work-adapter.mjs:877–903</a>。这支持已读调用链，不能代替所有扩展代码的安全证明。</li>
+</ul>
+<h2 id="appendix-core-16">6. 未作为 bug 的观察与覆盖边界</h2>
+<ol>
+<li><strong>当前文档已有诚实收窄。</strong> 当前Core-contracts是设计候选，Kit跨runtime、完整Memory、通用runtime替换均未宣称完成。没有以愿景缺失凑bug。</li>
+<li><strong>可信扩展拿Core client是信任选择。</strong> 架构明确说明，不把“目录分层”误判为强隔离。</li>
+<li><strong>reject/request_evidence也增加Matter.version。</strong> core.py 808–847明确如此，而contract action表的“Accept alone … advances version …”易产生歧义。当前主链仍可通过fresh candidate/revision继续，尚无证据证明这是错误的决策语义；建议文档澄清，不单列bug。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/docs/work-core/contract.md#L29-L33">docs/work-core/contract.md:29–33</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/core.py#L808-L847">app/core/core.py:808–847</a></li>
+<li><strong>source与Artifact大对象/长期历史容量。</strong> bridge响应帧统一有1,000,000 byte/code-unit上限，whole snapshot能触上限；合同已声明它不是无限历史容量保证。本轮未实测容量，不能据此指称数据损毁。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/bridge.py#L115-L119">app/core/bridge.py:115–119</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/docs/work-core/contract.md#L83">docs/work-core/contract.md:83</a></li>
+<li><strong>测试不是本轮验收。</strong> 阅读的 work-continuity fixture确有“新Session+accepted Artifact+producer absent+删旧Session”路径，及两个createRun并发，但没有把这些静态fixture的存在说成执行通过，也不能替代C1补证据接续或C2 action-vs-run临界区的证据。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/tests/work-continuity.test.mjs#L7-L44">app/tests/work-continuity.test.mjs:7–44</a>；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/tests/work-continuity.test.mjs#L64-L71">app/tests/work-continuity.test.mjs:64–71</a></li>
+</ol>
+<h3 id="appendix-core-17">实际读取范围</h3>
+<p>完整或按函数连续读取：</p>
+<ul>
+<li>AGENTS、README、engineering/current、engineering/README、architecture、architecture-runtime-canon、core-contracts、product-direction、PAPER</li>
+<li>docs/work-core/README、contract、governance；docs/runtime-control/architecture；app/docs/runtime-foundation、api-v6</li>
+<li>app/core/owner.mjs、client.mjs、core.py、bridge.py、derivations.py</li>
+<li>app/extensions/work-adapter.mjs、inbound-nda/index.mjs、evidence-memo/renderer.mjs；app/domains/inbound-nda/index.mjs</li>
+<li>app/runtime/extension-registry.mjs、artifact-history.mjs、control-plane.mjs、source-resolver.mjs、kit-context.mjs、kit-run-context.mjs</li>
+<li>app/server/runtime.mjs；service.mjs的绑定/查询/人类动作/Run admission/Context/工具注入；store.mjs的持久化/事件/Session删除/Run mutation</li>
+<li>app/web/app.mjs的Matter续接、work receipts、模型Run输入构造；app/tests/work-continuity.test.mjs（仅阅读）</li>
+</ul>
+<p>没有声称覆盖所有Attention/governance动作、完整file_candidates实现、所有测试、全部UI、所有adapter或外部doctrine原文。没有单独部署/运行结果；结论固定在本SHA的静态代码与声明关系。</p>
+</div></details><details class="appendix" id="appendix-runtime"><summary><strong>执行生命周期</strong><span>取消、恢复、重试、关闭与并发</span></summary><div class="appendix-body"><h1 id="appendix-runtime-1">Runtime 生命周期宣言驱动只读审查</h1>
+<p>固定对象：<code>lesPrivilege/Courtwork@7e8e2531d422dc1a5048dffcf1ae3acc6e831de7</code><br>审查范围：Host Run / manual operation、Pi in-process port、opt-in local Pi process、managed Agents 的归属与恢复接口、async read-task 生命周期<br>证据级别：仅已跟踪源码与合同静态阅读；未运行仓库代码、build、测试、探针或真实 runtime</p>
+<h2 id="appendix-runtime-2">结论摘要</h2>
+<p>发现 2 个有具体用户后果的 confirmed-static 生命周期缺口：</p>
+<ol>
+<li><strong>R1 / P2（受支持嵌入式 close/reopen 场景）</strong>：手动 compaction 没有加入 awaited Host close 的取消/排空集合，数据锁可在原生 journal writer 尚存时释放</li>
+<li><strong>R2 / P2</strong>：终态仲裁的取消标志不在 Store 队列内裁决，存在已持久化 stopping 后仍写 completed 的交错，违背该实现选择的取消优先规则</li>
+</ol>
+<p>另有 1 项确定的 service/store 幂等差异，因公开合同的“同 ID”语义尚不够精确，放在设计裁决而非缺陷计数；1 项手动 compaction 预启动取消的证据不足项。</p>
+<p>普通 Run 的 receipt→native writer 顺序、重启不自动重放、晚权限答案拒绝、in-process Pi 的 per-Run closure 与 primary-event drain、local Pi 中未知进程结果持续封锁等，都有实质静态支持。不能把上述局部支持扩大为实时 native runtime、任意并行团队、真实 provider 合作终止、所有故障组合或整体架构接受。</p>
+<h2 id="appendix-runtime-3">1. 阅读顺序、承诺边界与方法</h2>
+<p>先独立完整阅读 AGENTS.md、根 README.md、engineering/current.md、engineering/README.md，再按 runtime 行进入 Runtime and Work、RD-001、Runtime Control index、app 文档及实现。current.md 仅用于当前支持范围和 owner/导航；没有跟读其中链接的历史代码审查 findings。读取的测试文件只作为现存断言范围，不作为执行结果，也未据其标题所提旧 review 打开旧报告。</p>
+<ul>
+<li>支持范围把普通生产 Host 固定为 in-process Pi；managed Agents 需显式注入，且只准 fake provider；local Pi process 需 opt-in；Hermes 只独立 fixture，没有 Host 注册：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/supported-preview.md#L14-L17">app/docs/supported-preview.md:14-17</a></li>
+<li>根 README 把多 runtime composition、独立 Spark profile、browser/computer/swarm 明确列为发展方向，不按未交付愿景判 bug：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/README.md#L57-L72">README.md:57-72</a></li>
+<li>Host 管 admission、Run/status、权限、receipt；Pi 管 native journal/model-tool loop；native outcome 不能自行宣布 Host Run 成功：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/runtime-foundation.md#L49-L60">app/docs/runtime-foundation.md:49-60</a></li>
+<li>方法为“宣言 → 用户目标 → 必要不变量 → 真实入口和异步路径 → 允许交错/缺口 → 结果边界”。本报告的 confirmed-static 指代码直接允许所述路径，不代表已实机复现。</li>
+</ul>
+<p>未触碰用户电脑、凭证文件、个人数据、untracked 文件、旧工作树；未改仓库。本地 runtime-cache 仅是通过授权 固定提交读取 固定 ref 获取的文本副本。</p>
+<h2 id="appendix-runtime-4">2. R1：manual compaction 未参与 close 排空，锁可先于 journal writer 释放</h2>
+<p><strong>严重性：P2，条件限定为受支持的嵌入式 Host 关闭后在同一目录重开；confirmed-static。</strong><br>不主张必然数据损坏；不把重启后 operation=unknown 单独当作 bug。</p>
+<h3 id="appendix-runtime-5">宣称与用户目标</h3>
+<ul>
+<li>产品支持 <code>createRuntime</code> 的程序化调用，<code>await runtime.close()</code> 是该示例的 finally 清理边界，说明 cancellation 会等待执行结算：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/runtime-foundation.md#L14-L18">app/docs/runtime-foundation.md:14-18</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/runtime-foundation.md#L33-L46">app/docs/runtime-foundation.md:33-46</a></li>
+<li>CMP-01 明确要求 Run 与 manual operation 共用单一 writer admission，竞争获胜后才能打开 SessionManager，并把 provider deadline/cancel/close 列为必须实现的生命周期合同：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/research/RD-008-command-compaction.md#L43-L53">engineering/research/RD-008-command-compaction.md:43-53</a></li>
+<li>当前 API 已正式提供手动 compaction，并解释它在当前 chat 自己的 journal 上生成 Pi summary：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/commands-and-compaction.md#L29-L33">app/docs/commands-and-compaction.md:29-33</a></li>
+</ul>
+<p>用户目标是“保存并关闭这个本地工作站，再安全地重开/交接”，而不是只关闭 HTTP listener。必要不变量：释放数据目录独占锁之前，所有已准入的 native journal writer 必须停止或排空；只关普通 Run admission 不足以保护另一个已启动的 manual operation。</p>
+<h3 id="appendix-runtime-6">实现路径</h3>
+<ol>
+<li><code>compactSession</code> 在 Store 创建 operation 后，把 controller 与 task 放进 <strong>this.operations</strong>，并立即返回 running receipt。独立的 <code>#executeCompaction</code> 仍在运行：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L875-L899">app/server/service.mjs:875-899</a></li>
+<li>task 调用 port.compact；Pi port 重新打开同一 native journal：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/pi-runtime-port.mjs#L85-L94">app/runtime/pi-runtime-port.mjs:85-94</a>。adapter 等待 session.compact，最终才 dispose：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/pi-session-runtime.mjs#L421-L456">app/runtime/pi-session-runtime.mjs:421-456</a></li>
+<li>configurationQueue 只等待准入 callback 的结果，不包含其启动后保存于 entry.task 的 operation：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L2307-L2311">app/server/service.mjs:2307-2311</a></li>
+<li><code>RuntimeService.close</code> 等待 admissions/configurationQueue/materialQueues，然后仅筛选非 terminal <strong>Runs</strong> 调用 cancelRun；没有遍历 this.operations，没有调用 cancelCompaction，也没有等待 operation entry.task：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L2712-L2725">app/server/service.mjs:2712-2725</a></li>
+<li>Pi port 没有 close 方法，故 <code>port.close?.()</code> 也不能补上 manual session 的排空。其公开对象可见 <a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/pi-runtime-port.mjs#L45-L97">app/runtime/pi-runtime-port.mjs:45-97</a></li>
+<li>外层 runtime.close 无论 service.close 成功或失败均进入清理 finally，最后 store.close 释放数据锁：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/runtime.mjs#L85-L96">app/server/runtime.mjs:85-96</a>；Store.close 只等已经进入 _queue 的写，没有等待未来才完成的 native task：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/store.mjs#L960-L965">app/server/store.mjs:960-965</a></li>
+<li>HTTP close 也只是转调同一个 runtime.close；已返回的 compaction POST 不再是一个待完成 HTTP handler：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/index.mjs#L324-L333">app/server/index.mjs:324-333</a></li>
+</ol>
+<h3 id="appendix-runtime-7">静态允许的场景与具体后果</h3>
+<ul>
+<li>有历史的 chat 发起手动 compaction，已返回 running receipt，外部 provider summary 仍在等待</li>
+<li>受支持的嵌入式调用者 await runtime.close；无普通 active Run，close 不取消也不等待该 summary，最终释放 lock</li>
+<li>调用者据此在相同 dataDir 建立新 Host。新 Host 可将旧 running operation 标记 unknown并重新开放 admission，这是合同允许的恢复行为：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L356-L360">app/server/service.mjs:356-360</a></li>
+<li><strong>旧 adapter 没有收到 abort，仍可随后完成 session.compact 并写原 journal；新 Host 已经可以打开相同 journal。</strong> 即使最终没有字节冲突，close 的“可安全移交单 writer 所有权”保证已缺失；旧操作的 settleOperation 还可能在 Store 关闭后失败，留下无法完整结算的生命周期</li>
+</ul>
+<p>这是活 writer 与已释放所有权之间的缺口。进程真正被终止时，旧 writer 会随进程消失；崩溃/强制退出后保留 unknown 本来就是允许的。不能因此把所有 restart_unknown 当缺陷，也不能从这里推出每次 CLI shutdown 都会损坏 journal。</p>
+<h3 id="appendix-runtime-8">支持成立的部分、覆盖缺口与建议</h3>
+<ul>
+<li>普通 Run 的 close 确实调用 cancelRun 并等待它；cancelRun 等待 abort 与 entry.task：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L3575-L3595">app/server/service.mjs:3575-3595</a></li>
+<li>manual cancel endpoint 也已有 controller.abort + await entry.task，可复用其原则：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L926-L930">app/server/service.mjs:926-930</a></li>
+<li>已跟踪 manual-compaction 测试覆盖 active-Run/second-operation 拒绝及显式 cancel；其 restart 段先 release provider gate 再 close，并期望 unknown，没有断言“close 返回前 operation session 已退出”：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/tests/manual-compaction.test.mjs#L181-L225">app/tests/manual-compaction.test.mjs:181-225</a>。这是断言覆盖说明，不是本轮测试结果</li>
+<li>建议把 manual operation 纳入 Host close：先阻止新 admission，对当前 operation 发取消意图并 await task/settlement，确认 native writer 不再存活后才释放 lock。后续获准验证应专门覆盖 awaited close 与同目录重开、summary 慢返回/取消异常，不能只看 restart 状态是否 unknown</li>
+</ul>
+<h2 id="appendix-runtime-9">3. R2：取消意图先提交，提前计算的 completed patch 仍可赢过它</h2>
+<p><strong>严重性：P2；confirmed-static 的可行异步交错。</strong><br>不影响“已 terminal 的状态不能改写”的保护；问题在 stopping 仍属非终态时的决定顺序。</p>
+<h3 id="appendix-runtime-10">宣称与用户目标</h3>
+<ul>
+<li>公开取消路径：stopping → abort → settle → cancelled；晚权限答案不能恢复已关闭的 Run：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/README.md#L250-L264">app/README.md:250-264</a></li>
+<li>现行 HTTP 合同进一步明确选择：<strong>显式 cancel 在 Host terminal write 之前被接受，就把 Run 记为 cancelled，native completed answer 仍保留为证据</strong>：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/api-v6.md#L36-L41">app/docs/api-v6.md:36-41</a>。实现注释重复同一规则：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L3371-L3380">app/server/service.mjs:3371-3380</a></li>
+<li>该规则具有产品后果：completed 不能成为 supersedes 的目标；cancelled 可以显式接续：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/run-attempts.md#L31-L50">app/docs/run-attempts.md:31-50</a></li>
+</ul>
+<p>用户需要 Stop 的已受理状态与最终 receipt 一致。必要不变量：取消/完成的胜负必须读取 Store 序列化时的当前状态或同一队列内的取消意图，不能在持久化前只读进程内 flag 决定，然后把旧决定盲写进去。</p>
+<h3 id="appendix-runtime-11">实现路径与反例交错</h3>
+<ul>
+<li>natural completion 在 finally 先 await recordUsage，然后读取当前 Run、根据 <code>entry.cancelRequested</code> <strong>在队列外计算</strong> finalStatus，再传入固定 patch：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L3335-L3343">app/server/service.mjs:3335-3343</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L3366-L3381">app/server/service.mjs:3366-3381</a></li>
+<li>cancelRun 先 await Store 的 stopping/admissionOpen=false 写，<strong>该持久化完成后</strong>才把 <code>entry.cancelRequested = true</code>：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L3551-L3575">app/server/service.mjs:3551-3575</a></li>
+<li>Store._mutate 使用 clone，await _persist 后才发布 this.state；排队期间的 reader 仍看到旧 snapshot：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/store.mjs#L979-L991">app/server/store.mjs:979-991</a></li>
+<li>updateRunIfActive 只判断当前 status 是否在 terminal 集合；stopping 不在其中，因此会应用先前计算的 completed patch：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/store.mjs#L34-L44">app/server/store.mjs:34-44</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/store.mjs#L1727-L1736">app/server/store.mjs:1727-1736</a></li>
+</ul>
+<p>不需要改源码或假造 SDK outcome，以下交错已经被上述 await/队列允许：</p>
+<ol>
+<li>native 正常完成；natural finally 正在等待 usage 写 U</li>
+<li>此时用户 Stop 到达，把 stopping 写 C 排在 U 后</li>
+<li>U 完成；C 开始其异步磁盘持久化，但尚未发布 this.state。cancelRun 尚在 await C，cancelRequested 还是 false</li>
+<li>natural finally 从 await U 恢复，看见旧 running/false，计算 finalStatus=completed，把完成写 F 排在 C 后</li>
+<li>C 持久化成功，取消意图与 stopping 已被接受；cancelRun 才设 cancelRequested=true</li>
+<li>F 进入 Store 时当前状态是 stopping；它不是 terminal，故已冻结的 completed patch 被执行</li>
+<li>结果可为 running → stopping → completed，cancelRun 最后返回 completed，且 terminal immutability 现在禁止补回 cancelled</li>
+</ol>
+<p>原生结果可以早于 Stop 完成，这不是错误；这里报的是 <strong>Host 自己选定的仲裁规则与其序列化实现不一致</strong>。不是要求撤销已经产生的结果，也不是声称取消必须回滚外部效果。</p>
+<h3 id="appendix-runtime-12">具体后果与覆盖边界</h3>
+<ul>
+<li>UI 曾显示已进入 stopping，最终却得到 completed；Stop 的受理语义因存储时序变化</li>
+<li>调用者希望用 cancelled 的 supersedes 接续时，会遇到 supersede_completed。结果正文尚可保留，但用户的停止/接续意图丢失</li>
+<li>现存断言分别覆盖“完成写先排队”及“在 usage bookkeeping 中留足 200ms让取消完成”的情况，没有覆盖“取消写正持久化时，完成协程已经提前生成 patch”这个窗口：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/tests/run-terminal-arbitration.test.mjs#L13-L39">app/tests/run-terminal-arbitration.test.mjs:13-39</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/tests/run-terminal-arbitration.test.mjs#L62-L83">app/tests/run-terminal-arbitration.test.mjs:62-83</a>。本轮未执行它们</li>
+<li>建议在一个 Store mutation 内根据当前 stopping/admission/cancel marker 选 finalStatus，并把 partial text 与最终 status 同原子提交；不能仅把 terminal-check 放入队列、把决定仍留在队列外。需要保留“先前已经 terminal 的结果不被 late cancel 改写”</li>
+</ul>
+<h2 id="appendix-runtime-13">4. 有实质支持的实现，不因两个缺口否定全部架构</h2>
+<h3 id="appendix-runtime-14">S1. Run receipt、native writer 和单 active lane 的顺序</h3>
+<p>宣言：重复请求返原 receipt/原绑定，新 Run 才绑定新配置；同 command 的并发不能开两个 native writer：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/README.md#L242-L248">app/README.md:242-248</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/docs/runtime-control/INDEX.md#L45-L49">docs/runtime-control/INDEX.md:45-49</a>。</p>
+<p>实现链：service 先查原 receipt，再做当前配置/能力判定；Store 内重新 commandReceipt、lineage、singleActiveRun；只有 created.idempotent=false 才安装 active entry 并执行 native open。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L2760-L2772">app/server/service.mjs:2760-2772</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/store.mjs#L720-L732">app/server/store.mjs:720-732</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/store.mjs#L1603-L1646">app/server/store.mjs:1603-1646</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L2912-L2939">app/server/service.mjs:2912-2939</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L3072-L3081">app/server/service.mjs:3072-3081</a>。</p>
+<p><strong>静态支持结论</strong>：普通 Run 重发没有第二次 prompt/工具效果的代码路径；native journal writer 在唯一 admission 之后创建。Store 全局 active gate 也意味着 README 的跨 runtime 并行构想尚不是当前支持，不能反过来把全局串行视为实现 bug。</p>
+<h3 id="appendix-runtime-15">S2. 重启是保留 unknown/旧 receipt，不自动重放原 prompt</h3>
+<p>宣言：重启中断 Run 为 unknown，pending questions 全部 expired_restart；相同 commandId 读回 unknown；下次新 Run 重新打开原 JSONL：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/README.md#L265-L279">app/README.md:265-279</a>。</p>
+<p>实现：initialize 对 active Runs 关闭 admission并写 unknown，随后 expireQuestionsForRestart；Pi port 以 nativeRef.path reopen；原 receipt lookup 在 provider/extension 当前可用性检查之前。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L356-L382">app/server/service.mjs:356-382</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/pi-runtime-port.mjs#L59-L65">app/runtime/pi-runtime-port.mjs:59-65</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L2760-L2772">app/server/service.mjs:2760-2772</a>。</p>
+<p><strong>静态支持结论</strong>：恢复并不伪造旧 Run completed，也不会因换模型/凭证而自动重发旧 command；与 <code>recover:false</code> 的 in-process Pi capability 一致。这里只证明代码路径，不证明磁盘崩溃原子性或真实 provider 完整终止。</p>
+<h3 id="appendix-runtime-16">S3. 晚权限答案与已取消 Run 不重新开闸</h3>
+<p>宣言：晚 reply 返回409，没有静默批准；取消后待审批的工具也拒绝继续：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/README.md#L261-L264">app/README.md:261-264</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/docs/runtime-control/architecture.md#L13-L17">docs/runtime-control/architecture.md:13-17</a>。</p>
+<p>实现：service 比较 question.runId、terminal/admission、pending与live waiter；Store resolveQuestion 在同一 queued mutation 再检查 admission/status；governTools 在 await permission 之后重验 signal/isOpen。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L3509-L3547">app/server/service.mjs:3509-3547</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/store.mjs#L1806-L1826">app/server/store.mjs:1806-1826</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/control-tools.mjs#L121-L141">app/runtime/control-tools.mjs:121-141</a>。</p>
+<p><strong>静态支持结论</strong>：跨 Run 的 question ID 或取消期间晚 allow 没有复活工具的直接路径；approval不是一次永久授予。审批前后双重 gate 与 Store 内复核均是实质措施。</p>
+<h3 id="appendix-runtime-17">S4. Host primary event 投影与 Pi per-Run disposal</h3>
+<p>宣言：Host observation 不等同 native emitter同步完成；primary persistence失败不得成为 completed，per-Run AgentSession在idle后dispose：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/runtime-foundation.md#L75-L83">app/docs/runtime-foundation.md:75-83</a>。</p>
+<p>实现：createSessionRun 持有 pending promises，失败置 projectionError并abort，drain 在工具前/终态前检查，finally unsubscribe/dispose/drain；sticky stopped 位阻止后续 provider 请求：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/pi-session-runtime.mjs#L518-L574">app/runtime/pi-session-runtime.mjs:518-574</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/pi-session-runtime.mjs#L653-L698">app/runtime/pi-session-runtime.mjs:653-698</a>。</p>
+<p><strong>静态支持结论</strong>：不是只依赖 SDK emitter 的一次回调“看起来完成”；Host确实等待普通Run主要投影。informational notice依旧best effort，跨Store/JSONL没有事务，合同已披露。该保障未覆盖 R1 的独立 manual operation。</p>
+<h3 id="appendix-runtime-18">S5. Async read tasks 的独立身份、晚回结果与不自动消费</h3>
+<p>宣言：intent在dispatch前、丢ACK后unknown且不重发、晚结果不能覆写timeout；task成功不等于model已消费，更不等于Core接受：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/async-tasks.md#L40-L58">app/docs/async-tasks.md:40-58</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/async-tasks.md#L68-L88">app/docs/async-tasks.md:68-88</a>。</p>
+<p>实现：launch记录task后只在非replay dispatch；dispatchCount在IO前持久化；IO使用独立AbortController和Promise.race；observe验证taskId/source digest/terminal不回退；consume产生独立delivery；Run完成前unresolved依赖可使它unknown。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/async-tasks.mjs#L112-L195">app/server/async-tasks.mjs:112-195</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/async-tasks.mjs#L232-L286">app/server/async-tasks.mjs:232-286</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/store.mjs#L1752-L1766">app/server/store.mjs:1752-1766</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L3312-L3315">app/server/service.mjs:3312-3315</a>。</p>
+<p><strong>静态支持结论</strong>：late adapter promise不直接调用Store callback，race输掉后不会凭原launch自动盖掉结果；后续explicit query另有身份验证。其“合作式remote cancel、可信in-process adapter、无OS sandbox”限制不能被本结论抹去。默认没有注册adapters。</p>
+<h3 id="appendix-runtime-19">S6. Local Pi process：process close、native completion、提供来源、读过来源、正式接受分开</h3>
+<p>宣言：仅显式localPiWorker+owned deterministic route，无live credentials/通用runtime选择；process/native completion并非正式接受；中断dispatch不能凭PID/exit清掉unknown：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/spark-agent.md#L76-L84">app/docs/spark-agent.md:76-84</a>。</p>
+<p>实现：</p>
+<ul>
+<li>获准packet先进入ArtifactHistory并保留dispatch receipt，再spawn；publication前再次校验scope/source版本：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/local-pi-host.mjs#L24-L79">app/runtime/local-pi-host.mjs:24-79</a></li>
+<li>transcript要求native session、message/turn/terminal一致；完成还要求完整结果、exit0且无signal/fault：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/local-pi-process.mjs#L52-L101">app/runtime/local-pi-process.mjs:52-101</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/local-pi-process.mjs#L148-L172">app/runtime/local-pi-process.mjs:148-172</a></li>
+<li>Store校验Run/assignment/attempt唯一归属、typed事件次序、无runtime source-read伪造、Host terminal不可改写：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/local-pi-state.mjs#L122-L143">app/runtime/local-pi-state.mjs:122-143</a></li>
+<li>unknown记录持续使localPiRunUnresolved为true；新local admission和reconcile/retry守卫保留fence：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/local-pi-state.mjs#L20-L25">app/runtime/local-pi-state.mjs:20-25</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/store.mjs#L1629-L1633">app/server/store.mjs:1629-1633</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/harness/subagents.mjs#L249-L265">app/harness/subagents.mjs:249-265</a></li>
+</ul>
+<p><strong>静态支持结论</strong>：不存在“程序exit0就当正式完成/读过全部source”的简单短路；恢复功能刻意有限。没有把不支持的exact-root recovery列为bug，也未执行任何native process或安全探针。</p>
+<h3 id="appendix-runtime-20">S7. Managed Agents / Hermes 的身份与取消证据边界</h3>
+<p>managed gateway只把当前rootTurn的text/terminal交给Run；function call先claim，再保留result，再delivery；stop ACK不是cancel terminal。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/agents-host-gateway.mjs#L192-L247">app/runtime/agents-host-gateway.mjs:192-247</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/agents-host-gateway.mjs#L252-L287">app/runtime/agents-host-gateway.mjs:252-287</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/agents-host-gateway.mjs#L311-L338">app/runtime/agents-host-gateway.mjs:311-338</a>。Host非fake provider gate保持关闭：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L2822-L2827">app/server/service.mjs:2822-2827</a>。</p>
+<p>Hermes合同明确standalone、status-only恢复、只凭cancelled terminal认定cancel；没有产品Host支持承诺：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/hermes-api-runs.md#L3-L7">app/docs/hermes-api-runs.md:3-7</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/hermes-api-runs.md#L52-L84">app/docs/hermes-api-runs.md:52-84</a>。</p>
+<p><strong>静态支持结论</strong>：观察、效果、消费、正式接受保持分层。未逐一审计全部transport/parser，也未触碰被拒绝的native Hermes执行；不能给live conformance结论。</p>
+<h2 id="appendix-runtime-21">5. 设计裁决与证据不足，不混入缺陷计数</h2>
+<h3 id="appendix-runtime-22">D-R1：manual compaction同 requestId、不同 focus 的静态行为与 Store 意图校验不一致</h3>
+<ul>
+<li>service在读到相同requestId后直接返旧operation，不比较focus：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L851-L858">app/server/service.mjs:851-858</a></li>
+<li>Store.createOperation却计算kind/sessionId/focus的requestHash，并为不同body设计IDEMPOTENCY_CONFLICT；service已把该错误映射到409，但这条重试路径提前返回，根本到不了Store比较：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/store.mjs#L1557-L1568">app/server/store.mjs:1557-1568</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L875-L884">app/server/service.mjs:875-884</a></li>
+<li>用户后果：带不同focus重用ID时拿到200/旧focus的receipt，新focus不会执行，亦没有冲突提示</li>
+<li><strong>确定性</strong>：行为confirmed-static；<strong>是否作为缺陷计入为设计判断</strong>。公开使用合同仅说同requestId重放原记录，没有像普通Run合同那样明确“不同focus必409”：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/commands-and-compaction.md#L29-L33">app/docs/commands-and-compaction.md:29-33</a></li>
+<li>建议owner选择并同步唯一语义。若requestHash是正式intent identity，应在early receipt路径比较同一hash；若同ID无条件返回旧receipt是刻意设计，需解释Store为何保留不同body冲突并保证caller看见的focus是旧值，避免两条入口语义不同</li>
+</ul>
+<h3 id="appendix-runtime-23">U-R1：manual compaction 在 setup 期间取消，是否仍能启动新 summary</h3>
+<ul>
+<li><code>compactSessionJournal</code> await createAgentSession后才注册signal；若signal已经aborted，只调用abortCompaction，随后仍无条件调用session.compact：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/pi-session-runtime.mjs#L424-L439">app/runtime/pi-session-runtime.mjs:424-439</a></li>
+<li>普通Run为类似 pre-prompt compaction窗口专门实现sticky stopped位及provider入口gate：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/pi-session-runtime.mjs#L518-L547">app/runtime/pi-session-runtime.mjs:518-547</a></li>
+<li><strong>证据不足</strong>：本轮没有读取/执行外部安装SDK，不能断言Pi 0.85.1的abortCompaction对“尚未开始的下一次compact”是否持久生效，因此不把“会继续付费请求/必写summary”写成已确认bug</li>
+<li>后续如有新的有限验证授权，应只验证“已abort的manual operation不会开始provider请求/写journal”这个合同边界。现授权下未尝试验证，也不请求绕过原有探针拒绝</li>
+</ul>
+<h2 id="appendix-runtime-24">6. 验证与交付边界</h2>
+<ul>
+<li>本轮没有任何动态验证，也没有新增测试、运行probe、运行模型、发起支付或外部变更</li>
+<li>阅读测试只说明其断言覆盖，不宣称某条已通过或架构已接受</li>
+<li>R1是已支持的程序化生命周期缺口，不是native Hermes或未来runtime替换愿景的问题</li>
+<li>R2是Host cancel/finish的队列仲裁问题，不是要求取消回滚效果，也不否定terminal immutability已有实现</li>
+<li>未发现不等于不存在：未完整审计全部SDK内部、transport所有错误分支、Core语义、UI重连/按钮可达性、OS进程隔离。应由对应owner和后续明确授权证据完成，不由本报告补写“绿灯”</li>
+</ul>
+</div></details><details class="appendix" id="appendix-permissions"><summary><strong>权限与副作用</strong><span>授权、正式接受和效果记录的静态合同</span></summary><div class="appendix-body"><h1 id="appendix-permissions-1">Courtwork 权限、批准与副作用合同：独立首轮静态审查</h1>
+<h2 id="appendix-permissions-2">范围与证据等级</h2>
+<ul>
+<li>固定来源：<code>lesPrivilege/Courtwork@7e8e2531d422dc1a5048dffcf1ae3acc6e831de7</code> 的已跟踪文件</li>
+<li>先读 <code>AGENTS.md</code>、根 <code>README.md</code>、<code>engineering/current.md</code>、<code>engineering/README.md</code>，再依模块地图逐步进入 Runtime Control、permission CAS、repository/check、Work Core、disclosure 与 coordination 合同及实际实现</li>
+<li>未打开旧 审查 报告、未采用其他 审查 的问题列表作为首轮入口；<code>current.md</code> 及合同自身附带的历史摘要/链接不算新的实证</li>
+<li>只读 固定提交读取 的固定 SHA 内容。未运行仓库代码、build、测试、Host、网络/竞态/安全探针；未查看凭证、用户私人数据、本地 untracked 或用户电脑；未改仓库</li>
+<li>本文的 <strong>confirmed-static</strong> 只表示固定源码可以直接证明的字段/分支/所有权关系，不表示已在 OS、HTTP 或实际 Runtime 中复现</li>
+<li>不把“绿色构建”“已有测试函数”“synthetic fixture”升级为架构接受或真实能力证明。这与 <a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/verification.md#L7-L15"><code>engineering/verification.md:7–15</code></a> 的证据分层一致；其复现要求在本次只读授权下未执行</li>
+</ul>
+<h2 id="appendix-permissions-3">结论</h2>
+<p>权限主链并非只有宣言：Host 有配置与 Run 准入 owner，工具有统一执行边界，工具批准与 Core 正式接受有不同入口，重要副作用也有其专属回执。最明确的新增静态缺口是 <strong>检查进程退出未获确认的事实，在 runner 到 Host 记录之间被丢弃</strong>。</p>
+<p>同时存在两项需要明确处置的架构边界：</p>
+<ol>
+<li><code>check_run</code> 没有执行身份隔离；当前合同已明确承认，不能包装成新发现的安全漏洞，也不能拿批准卡代替隔离验收</li>
+<li>workspace 聚合读取与 repository 聚合读取的逐文件政策语义不一致；当前合同并未明确承诺前者有后者同等语义，需先裁决，不能直接报成已复现权限绕过</li>
+</ol>
+<p>没有把未接入的 runtime、未来多用户 ACL、任意 shell、通用 extension sandbox、自动治理等愿景当成本次 bug。</p>
+<hr>
+<h2 id="appendix-permissions-4">F-PERM-01 · 检查进程“未确认组退出”的证据丢失</h2>
+<p><strong>级别：P2 / 中，终止与效果记录语义</strong><br><strong>结论：confirmed-static；实际 OS 触发条件未验证</strong></p>
+<h3 id="appendix-permissions-5">宣称 → 用户目标 → 必要不变量</h3>
+<ul>
+<li>Host 拥有执行效果与恢复仲裁：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/architecture.md#L23-L28"><code>engineering/architecture.md:23–28</code></a></li>
+<li>取消请求不等于已确认终止；未确定结果不能被描述为成功或取消：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/architecture.md#L30-L32"><code>engineering/architecture.md:30–32</code></a></li>
+<li>检查合同明确写出：停止后要确认整个进程组退出；无法确认时 runner 返回 <code>groupLingered:true</code>：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/check-recipes.md#L194-L204"><code>app/docs/check-recipes.md:194–204</code></a></li>
+<li><code>check.settled</code> 应保留独立于普通 tool 结果的终止事实，重启时保留 unknown、不重放：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/check-recipes.md#L206-L233"><code>app/docs/check-recipes.md:206–233</code></a></li>
+</ul>
+<p>用户目标是停止或超时后能从持久记录知道“已确认停止”还是“终止仍未获确认”，以便决定后续检查/人工处理。最低不变量是：下层已经观察到的终止不确定性，不能在上层转换中静默消失。</p>
+<h3 id="appendix-permissions-6">实现路径与静态反例</h3>
+<ol>
+<li>runner 在停止路径中调用 <code>reapGroup</code>；它有有界确认过程，并返回确认成功与否：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/check-runner.mjs#L14-L29"><code>app/runtime/check-runner.mjs:14–29</code></a></li>
+<li><code>child.close</code> 后，runner 将未确认结果显式编码成 <code>groupLingered:true</code>：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/check-runner.mjs#L134-L155"><code>app/runtime/check-runner.mjs:134–155</code></a></li>
+<li><code>check-tools</code> 只按 <code>cancelled</code> / <code>timedOut</code> 选 <code>cancelled</code> / <code>timed_out</code> / <code>completed</code>，把选定字段交给 <code>recordSettled</code>，也只把那些字段返回为工具摘要；<code>groupLingered</code> 没有进入两者：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/check-tools.mjs#L113-L130"><code>app/runtime/check-tools.mjs:113–130</code></a></li>
+<li>Host 直接将回调送进 Store，没有另一条不确定性处理路径：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L3184-L3198"><code>app/server/service.mjs:3184–3198</code></a></li>
+<li>Store 的 settlement 参数和事件字段也没有承载该事实：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/store.mjs#L1467-L1486"><code>app/server/store.mjs:1467–1486</code></a></li>
+<li>重启恢复只处理“有 started、没有 settled”的调用。上述调用已经得到确定标签的 settled，重启不会恢复被丢失的事实：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/store.mjs#L924-L940"><code>app/server/store.mjs:924–940</code></a></li>
+</ol>
+<p>因此，只要 runner 走到其明确支持的 <code>groupGone === false</code> 分支，上层持久结果就与“组退出已确认”的同类结果无法区分。这是代码可证的数据损失，无须将其描述成一个已运行的反例。</p>
+<h3 id="appendix-permissions-7">具体后果与触发场景</h3>
+<ul>
+<li>触发场景：取消或超时后，runner 的有界查询不能确认进程组已不存在</li>
+<li>确认后果：丢失“未确认进程组退出”这一证据，持久结果不能区分确定停止与未确认停止</li>
+<li><strong>不声称</strong> 该状态必然代表仍有活动进程，更不声称仍在执行写入或发生安全穿透；OS 残留状态也可能影响查询，实际环境尚未验证</li>
+<li><code>failure:null</code>、稳定取消 exit tuple 与 unknown-stop evidence 是不同维度；统一取消结果本身不能成为丢弃不确定证据的理由</li>
+</ul>
+<h3 id="appendix-permissions-8">支持实现成立的证据</h3>
+<ul>
+<li>正常停止路径确实有进程组级终止和有界确认，不能写成“完全没有清理”：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/check-runner.mjs#L108-L120"><code>app/runtime/check-runner.mjs:108–120</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/check-runner.mjs#L134-L145"><code>app/runtime/check-runner.mjs:134–145</code></a></li>
+<li>check admission / candidate revision 在 Store 与 spawn 前再次检查，不能写成“批准后不复验”：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/check-tools.mjs#L60-L100"><code>app/runtime/check-tools.mjs:60–100</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/store.mjs#L1436-L1464"><code>app/server/store.mjs:1436–1464</code></a></li>
+<li>未匹配 started 的重启恢复确实记录 unknown，并不重跑：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/store.mjs#L924-L940"><code>app/server/store.mjs:924–940</code></a></li>
+<li>静态测试入口中有普通 timeout/cancel 清理断言与持久取消结果断言：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/tests/check-recipes.test.mjs#L136-L172"><code>app/tests/check-recipes.test.mjs:136–172</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/tests/check-recipes.test.mjs#L544-L589"><code>app/tests/check-recipes.test.mjs:544–589</code></a>。本次未执行；这些所读用例没有证明上述不确定字段能端到端保留</li>
+</ul>
+<h3 id="appendix-permissions-9">最小施工方向</h3>
+<p>由 Host / check owner 定义“请求结果”和“终止确认事实”的数据合同：runner 的未确认结果必须保留到 Store 与用户可读投影，并由 Host 明确裁决是否需要 unknown / 单独诊断及后续准入限制。不要只改 renderer 文案，也不要只在 runner 内保留一个无人消费的布尔值。</p>
+<p>后续验收应先用受控的非攻击性返回值覆盖 runner→tool→Store→重启读回的静态分支，再在单独授权下验证真实 OS 行为；本次未创建或运行这些检查。</p>
+<hr>
+<h2 id="appendix-permissions-10">B-PERM-02 · <code>check_run</code> 的逻辑授权不构成执行身份隔离</h2>
+<p><strong>级别：P1 / 高，对超出可信合成环境的架构接受构成门槛</strong><br><strong>结论：设计判断 + confirmed-static 的现状；属于当前合同明示残差，不计为新增 bug</strong></p>
+<h3 id="appendix-permissions-11">宣称 → 用户目标 → 必要不变量</h3>
+<ul>
+<li>模型可以产出候选，正式接受属于人；代码执行若对模型开放，应证明执行身份到不了正式写能力或凭证：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/architecture.md#L117-L121"><code>engineering/architecture.md:117–121</code></a></li>
+<li>当前支持矩阵允许模型请求固定 Host 检查，必须精确批准，且 exit 0 不是正式接受：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/supported-preview.md#L15-L17"><code>app/docs/supported-preview.md:15–17</code></a></li>
+<li>具体检查合同明确说明“非 sandbox”“Host 用户权限”“合成数据环境边界”，并明确指出架构隔离要求尚未满足：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/check-recipes.md#L163-L190"><code>app/docs/check-recipes.md:163–190</code></a></li>
+</ul>
+<p>用户目标是允许修改/检查工作材料，同时保留正式决定与 Host 私有数据的独立控制。必要不变量应落在执行身份或等价强制边界，而不只在命令名称、工作目录或审批 UI 上。</p>
+<h3 id="appendix-permissions-12">实现与缺口</h3>
+<ul>
+<li><code>check_run</code> 的 recipe ID 只能解析为固定描述符；模型没有 command/argv/env 参数：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/check-tools.mjs#L68-L100"><code>app/runtime/check-tools.mjs:68–100</code></a></li>
+<li>所有非 read_only 模式下都必须 ask；profile/policy 无法把这个 Host ceiling 降成 allow：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/control-plane.mjs#L31-L58"><code>app/runtime/control-plane.mjs:31–58</code></a></li>
+<li>runner 传递最小环境并使用固定 spawn 形态，但没有独立 OS 身份/文件系统隔离：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/check-runner.mjs#L43-L64"><code>app/runtime/check-runner.mjs:43–64</code></a></li>
+<li>候选写入和 recipe 执行确实组合在同一个已支持开发工作流中：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/repository-candidate-tools.mjs#L157-L190"><code>app/runtime/repository-candidate-tools.mjs:157–190</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/check-tools.mjs#L87-L100"><code>app/runtime/check-tools.mjs:87–100</code></a></li>
+</ul>
+<p>静态可确认的是：这里有可靠的“是否允许此次调用”控制，但没有把被执行程序移出 Host OS 权限范围。最小环境能限制环境变量继承，不能自动构成文件权限隔离。本文不读取任何 Host 私有文件，也不提供穿透步骤。</p>
+<h3 id="appendix-permissions-13">具体后果、边界与裁决方向</h3>
+<ul>
+<li>当前合同允许的可信、无私人数据、无共享写目录的合成环境，可以作为受限工程入口继续存在</li>
+<li>在含真实工作数据/正式状态/凭证的长期个人工作站场景，不能据此宣称“模型执行与正式状态之间已有强制隔离”</li>
+<li>这不是“文档隐瞒”：具体合同已经坦诚承认限制。关键问题是该限制有没有被保持为真实能力发布/接受门槛</li>
+<li>建议由现有 Host/RD-009 owner 选择：继续明确受限实验边界，或交付独立执行身份与最小数据通道，再相应扩展支持矩阵。批准卡、固定 recipe、脱离 shell 与最小环境仍应保留，但不独自关闭隔离义务</li>
+</ul>
+<hr>
+<h2 id="appendix-permissions-14">D-PERM-03 · Workspace 聚合读取的授权单位尚未与逐文件规则统一</h2>
+<p><strong>级别：P2 / 中，需 owner 裁决的权限语义</strong><br><strong>结论：设计判断；代码差异 confirmed-static，但不足以按当前明确承诺判定 bug</strong></p>
+<h3 id="appendix-permissions-15">宣称与用户目标</h3>
+<ul>
+<li>每次 Run 的材料和工具应处于授权范围：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/README.md#L19-L27"><code>README.md:19–27</code></a></li>
+<li>Runtime Control 以 action/resource 规则执行，preview 只是建议，executor 重新判断真实调用：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/docs/runtime-control/architecture.md#L11-L15"><code>docs/runtime-control/architecture.md:11–15</code></a></li>
+<li>repository 合同进一步明确聚合读取必须考虑每个文件的聚合 action 和单文件 read action 的最严格效果；不能披露被 deny/ask 的文件：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/repository-binding.md#L66-L80"><code>app/docs/repository-binding.md:66–80</code></a></li>
+</ul>
+<p>用户希望“某材料不向模型披露”在直接读与聚合搜索中具有可理解且一致的含义。这里必须先明确规则约束的是“调用命名的资源”，还是“任何最终披露的叶子文件”。</p>
+<h3 id="appendix-permissions-16">实现差异</h3>
+<ul>
+<li>通用 wrapper 根据一次调用的资源字符串作一次 policy 判断：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/control-tools.mjs#L105-L141"><code>app/runtime/control-tools.mjs:105–141</code></a></li>
+<li>repository candidate diff 显式逐文件合成 <code>repo_diff</code> 与 <code>candidate_read</code> 的严格效果：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/repository-candidate-tools.mjs#L193-L210"><code>app/runtime/repository-candidate-tools.mjs:193–210</code></a></li>
+<li>workspace grep 构造时只接收 workspaceDir；worker 输入没有逐文件政策或准入结果：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/workspace-tools.mjs#L289-L295"><code>app/runtime/workspace-tools.mjs:289–295</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/workspace-tools.mjs#L321-L352"><code>app/runtime/workspace-tools.mjs:321–352</code></a></li>
+<li>worker 遍历、读取和输出匹配，只应用类型/大小/数量等边界：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/grep-worker.mjs#L10-L44"><code>app/runtime/grep-worker.mjs:10–44</code></a></li>
+<li>workspace list 同样没有逐文件策略输入：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/workspace-tools.mjs#L139-L176"><code>app/runtime/workspace-tools.mjs:139–176</code></a></li>
+</ul>
+<h3 id="appendix-permissions-17">为什么不直接报 bug</h3>
+<p>repository 合同明确限定了其逐文件聚合语义；所读 workspace 合同没有同等明确承诺。action/resource 系统也可能有意把单文件工具与目录聚合工具视为不同能力。因此，不把“某单文件规则自动约束所有读取能力”当作已经得到确认的产品不变量，不给出攻击性调用示例。</p>
+<h3 id="appendix-permissions-18">有实际后果的裁决点</h3>
+<p>用户若把配置理解为材料级披露规则，而实现只保障调用级授权，直接读取与聚合读取可能呈现不同授权结果；这会影响对“限制此材料”的信任。</p>
+<p>建议先由现有 Runtime Control owner 选定并写明授权单位：如果采用材料级限制，让 workspace 聚合读取复用已存在的逐文件准入机制；如果采用工具调用级政策，UI/合同必须清楚解释哪些聚合能力需要单独约束。不能仅因 repository 已有该语义而自动宣称 workspace 也有。</p>
+<hr>
+<h2 id="appendix-permissions-19">实现成立的证据：权限与接受并未被混成一个布尔值</h2>
+<p>以下“成立”均限于所读源码的静态结构，不代表运行验收。</p>
+<h3 id="appendix-permissions-20">S1 · 权限 grant 的 owner 是 Host，而不是 Skill/Profile 内容</h3>
+<p><strong>合同</strong>：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/README.md#L70"><code>README.md:70</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/docs/runtime-control/architecture.md#L11-L23"><code>docs/runtime-control/architecture.md:11–23</code></a></p>
+<p><strong>必要不变量</strong>：外层 ceiling 不能被窄 scope/profile 放宽；内容声明不能自授执行权限；安装、曝光与允许执行不同。</p>
+<p><strong>代码链</strong>：</p>
+<ul>
+<li>ceiling 权重从 allow→ask→deny，只采用更严格效果；无 host grant 的 MCP profile 不能越过 ask 默认：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/control-plane.mjs#L31-L58"><code>app/runtime/control-plane.mjs:31–58</code></a></li>
+<li>profile 只过滤 resource IDs 并增加限制策略：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/control-plane.mjs#L252-L279"><code>app/runtime/control-plane.mjs:252–279</code></a></li>
+<li>最终模型工具经过 exposed 过滤和执行时 policy/admission 检查，不依赖“模型自觉不调用”：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/control-tools.mjs#L113-L141"><code>app/runtime/control-tools.mjs:113–141</code></a></li>
+<li>所读生产 in-process Pi 入口实际把 workspace、repository、check、domain、Attention、coordination、MCP 和 context tools 送进该 wrapper：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L3247-L3275"><code>app/server/service.mjs:3247–3275</code></a></li>
+</ul>
+<p><strong>覆盖边界</strong>：不据此声称任意 imported JavaScript 被隔离；当前合同明示 trusted extension 在 Host 内。未全面复核备用 runtime 分支，当前生产支持矩阵也不宣称那些 runtime 已全面接入。</p>
+<h3 id="appendix-permissions-21">S2 · 配置快照与生效时点有 owner</h3>
+<p><strong>合同</strong>：配置冻结、变更在下一 Run 生效、原有绑定不被重写：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/docs/runtime-control/architecture.md#L15-L17"><code>docs/runtime-control/architecture.md:15–17</code></a></p>
+<p><strong>代码链</strong>：</p>
+<ul>
+<li>配置变更在同一服务队列，busy 时拒绝，并校验目标 scope 属于当前 Session：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L594-L605"><code>app/server/service.mjs:594–605</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L2307-L2311"><code>app/server/service.mjs:2307–2311</code></a></li>
+<li>permission mode 变更也进入该 queue，Store 在原子变更里再次检查 active Run：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L1591-L1602"><code>app/server/service.mjs:1591–1602</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/store.mjs#L1494-L1500"><code>app/server/store.mjs:1494–1500</code></a></li>
+<li>binding 是 clone 后保存的 resources/composition/policies/content：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/control-plane.mjs#L304-L307"><code>app/runtime/control-plane.mjs:304–307</code></a></li>
+<li>新 Run 在 Store 的写入中记录 <code>runtime.bound</code>：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/store.mjs#L1670-L1677"><code>app/server/store.mjs:1670–1677</code></a></li>
+</ul>
+<p><strong>覆盖边界</strong>：这是当前单 Host / 单 active Run 的治理，不是多用户配置服务，也不保证 native OS 进程被隔离。</p>
+<h3 id="appendix-permissions-22">S3 · ask_user、tool approval、Core acceptance 有不同入口</h3>
+<p><strong>合同</strong>：自由文本问答不授权写；工具允许不意味着正式成果接受：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/api-v6.md#L49-L51"><code>app/docs/api-v6.md:49–51</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/architecture.md#L23-L28"><code>engineering/architecture.md:23–28</code></a></p>
+<p><strong>代码链</strong>：</p>
+<ul>
+<li><code>answerQuestion</code> 对 ask_user 与 permission 接受不同 payload；permission 只接受 allow/deny 及可选 CAS：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L3509-L3548"><code>app/server/service.mjs:3509–3548</code></a></li>
+<li>wrapper 拷贝实际参数，并把本次 toolCallId、内容 hash、大小与 context 交给 permission；批准后再次检查 Run 是否仍开放：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/control-tools.mjs#L121-L141"><code>app/runtime/control-tools.mjs:121–141</code></a></li>
+<li>Store 在同一个串行写内校验 question ownership/status、Run admission、可选 payload expectations，并追加 resolved 事件：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/store.mjs#L1806-L1826"><code>app/server/store.mjs:1806–1826</code></a></li>
+<li><code>expectedContentSha256</code> / <code>expectedToolCallId</code> 是合同刻意规定的可选兼容字段，不应把其非强制性当成缺失全局 CAS：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/permission-cas.md#L9-L15"><code>app/docs/permission-cas.md:9–15</code></a></li>
+</ul>
+<p><strong>覆盖边界</strong>：审批 payload 与正式 Decision 不互换；本文未浏览批准卡，不评价其视觉完整性。</p>
+<h3 id="appendix-permissions-23">S4 · 正式接受由 Human API → Work adapter → Core transaction 负责</h3>
+<p><strong>合同</strong>：actor 是 Host-owned；Accept 绑定具体 candidate/base/source，原子写 Artifact/Decision/audit/receipt：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/docs/work-core/contract.md#L23-L42"><code>docs/work-core/contract.md:23–42</code></a></p>
+<p><strong>代码链</strong>：</p>
+<ul>
+<li>Host 拒绝请求自带 actor，校验 Session binding、producer generation、busy 状态，再传入 <code>local-user</code>：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L2661-L2687"><code>app/server/service.mjs:2661–2687</code></a></li>
+<li>work adapter 要求 local-user，限制 decide payload，派生 Matter ID，运行 domain validateDecision：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/extensions/work-adapter.mjs#L906-L915"><code>app/extensions/work-adapter.mjs:906–915</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/extensions/work-adapter.mjs#L945-L958"><code>app/extensions/work-adapter.mjs:945–958</code></a></li>
+<li>私有 bridge 不从模型 JSON 取 actor，由 trusted 审查 调用：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/bridge.py#L796-L803"><code>app/core/bridge.py:796–803</code></a></li>
+<li>Core 在事务中校验 scope、幂等 identity、pending 状态、base/source/contract 版本、evidence 与义务：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/core.py#L778-L807"><code>app/core/core.py:778–807</code></a></li>
+<li>Artifact/候选状态/Matter/Decision/audit/receipt 同事务提交：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/core.py#L819-L869"><code>app/core/core.py:819–869</code></a></li>
+</ul>
+<p><strong>覆盖边界</strong>：这是固定本地人类与可信 Host 进程的能力边界，不是抵御同进程恶意 extension 的安全边界。<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/architecture.md#L117-L121"><code>engineering/architecture.md:117–121</code></a> 已明示这一点，因此不把 trusted code 可以访问 Core client 报成当前宣称多租户隔离失败。</p>
+<h3 id="appendix-permissions-24">S5 · Matter 披露授权与形式接受相互独立</h3>
+<p><strong>合同</strong>：对象 grant 默认无；人类为特定 adapter/purpose/fields/current content 授权；每次读按当前 grant 检查；policy receipt 不授予接受/工具执行权：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/docs/work-core/governance.md#L9-L19"><code>docs/work-core/governance.md:9–19</code></a></p>
+<p><strong>代码链</strong>：</p>
+<ul>
+<li>Host 把真实 Session/Run、adapter、项目与 admission 捕获进只读 adapter：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L2582-L2591"><code>app/server/service.mjs:2582–2591</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/extensions/governance-adapter.mjs#L1-L15"><code>app/extensions/governance-adapter.mjs:1–15</code></a></li>
+<li>Core 当前 grant 检查 adapter/purpose/expiry，scope 由 durable Matter owner 校验：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/governance.py#L71-L82"><code>app/core/governance.py:71–82</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/governance.py#L135-L174"><code>app/core/governance.py:135–174</code></a></li>
+<li>读取在 SQLite read snapshot 内保持 permitted view/version 一致，policy 查询只有 local-user：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/governance.py#L319-L377"><code>app/core/governance.py:319–377</code></a></li>
+<li>mutation 必须 local-user，校验 CAS/请求 identity，grant 状态、事件和请求回执在同事务提交；旧 receipt replay 不恢复 grant：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/core/governance.py#L380-L419"><code>app/core/governance.py:380–419</code></a></li>
+</ul>
+<p><strong>覆盖边界</strong>：当前内容 grant 明确允许未来 current content，并非固定 source-version grant；这是现有合同选择，不是代码擅自扩大权限。已披露字节无法召回亦已明确披露。</p>
+<h3 id="appendix-permissions-25">S6 · Repository 写效果不是由“用户点了允许”伪造出来</h3>
+<p><strong>合同</strong>：prepared 先于实际文件替换，结果分 confirmed/failed/unknown，unknown 不重放：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/api-v6.md#L188-L206"><code>app/docs/api-v6.md:188–206</code></a></p>
+<p><strong>代码链</strong>：</p>
+<ul>
+<li>write tool 与批准 context 绑定 candidate/source identity、revision、expected hash；receipt 才推进本地 writeRevision：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/repository-candidate-tools.mjs#L162-L189"><code>app/runtime/repository-candidate-tools.mjs:162–189</code></a></li>
+<li>service 写入前重复校验 Run、mode、candidate/source/revision、目标 prior hash：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L1466-L1521"><code>app/server/service.mjs:1466–1521</code></a></li>
+<li>approved bytes 先保留，prepared effect 先落 Store，再调用真实 filesystem owner；确认结果与不确定错误分开：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L1523-L1574"><code>app/server/service.mjs:1523–1574</code></a></li>
+<li>prepared 在重启时成为 unknown，不推测已成功：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/store.mjs#L895-L922"><code>app/server/store.mjs:895–922</code></a></li>
+</ul>
+<p><strong>覆盖边界</strong>：没有 effect-resolution endpoint 是合同已明确声明的范围，而不是本文新发现；本次也没有进行文件系统攻击/竞态验证。</p>
+<h3 id="appendix-permissions-26">S7 · MCP 与本地消息都保留效果归属</h3>
+<p><strong>MCP 合同/代码</strong>：</p>
+<ul>
+<li>dispatch intent 必须先落库，缺失可靠结果须保留 effect uncertainty，不自动重发：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/docs/runtime-control/api.md#L192-L202"><code>docs/runtime-control/api.md:192–202</code></a></li>
+<li>MCP manager 在调用前等待 dispatch receipt，对 unavailable/business-error/evidence-unavailable 分别标记未知：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/mcp-manager.mjs#L113-L145"><code>app/runtime/mcp-manager.mjs:113–145</code></a></li>
+<li>Host 设置内存与持久 admission fence，保留 dispatch/result 的相关 identity：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L3252-L3270"><code>app/server/service.mjs:3252–3270</code></a></li>
+</ul>
+<p><strong>本地消息合同/代码</strong>：</p>
+<ul>
+<li>消息只是 communication，不创建 Run、不接受候选、不转移所有权：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/coordination.md#L66-L94"><code>app/docs/coordination.md:66–94</code></a></li>
+<li>Host ceiling 在 read_only 下 deny、否则 ask：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/control-plane.mjs#L31-L37"><code>app/runtime/control-plane.mjs:31–37</code></a></li>
+<li>actor/Run/call 由 Host 注入，enqueue 校验真实 membership/scope/admission、同 identity 同内容，再落 queued；delivery 是第二次显式 settlement：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/harness/tools.mjs#L17-L20"><code>app/harness/tools.mjs:17–20</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/harness/coordination.mjs#L64-L105"><code>app/harness/coordination.mjs:64–105</code></a></li>
+</ul>
+<p><strong>覆盖边界</strong>：本地 outbox 的恢复不是外部网络 exactly-once。读取第三方协议和业务结果也不意味着其内容已被人类正式接受。</p>
+<hr>
+<h2 id="appendix-permissions-27">静态测试覆盖地图（未运行）</h2>
+<div class="table-scroll" tabindex="0"><table>
+<thead>
+<tr>
+<th>被检查的合同</th>
+<th>所读测试入口</th>
+<th>证据类型与限制</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Policy 各 scope 最严格效果、profile 无自授权</td>
+<td><a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/tests/control-plane.test.mjs#L59-L69"><code>app/tests/control-plane.test.mjs:59–69</code></a></td>
+<td>纯 policy 函数断言；不是 live runtime 或 OS 隔离</td>
+</tr>
+<tr>
+<td>实际 Host path denial 与 exposed≠allowed</td>
+<td><a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/tests/control-plane.test.mjs#L107-L118"><code>app/tests/control-plane.test.mjs:107–118</code></a></td>
+<td>Host/HTTP synthetic 用例定义；本次未执行</td>
+</tr>
+<tr>
+<td>批准等待期间参数拷贝</td>
+<td><a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/tests/control-plane.test.mjs#L120-L130"><code>app/tests/control-plane.test.mjs:120–130</code></a></td>
+<td>wrapper 单元，用 stand-in executor</td>
+</tr>
+<tr>
+<td>ask/deny/read_only/精确 approved hash</td>
+<td><a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/tests/permission.test.mjs#L10-L38"><code>app/tests/permission.test.mjs:10–38</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/tests/permission.test.mjs#L79-L133"><code>app/tests/permission.test.mjs:79–133</code></a></td>
+<td>synthetic Host 用例定义；没有真实用户批准卡检查</td>
+</tr>
+<tr>
+<td>可选 CAS 与单次 question resolution</td>
+<td><a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/tests/permission-cas.test.mjs#L20-L60"><code>app/tests/permission-cas.test.mjs:20–60</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/tests/permission-cas.test.mjs#L95-L119"><code>app/tests/permission-cas.test.mjs:95–119</code></a></td>
+<td>Host/Store 集成用例定义；本次不做竞态运行</td>
+</tr>
+<tr>
+<td>check 普通停止、Host settlement、重启 unknown</td>
+<td><a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/tests/check-recipes.test.mjs#L136-L172"><code>app/tests/check-recipes.test.mjs:136–172</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/tests/check-recipes.test.mjs#L544-L655"><code>app/tests/check-recipes.test.mjs:544–655</code></a></td>
+<td>包含 runner/Host/Store 不同层；不能证明 F-PERM-01 的字段透传</td>
+</tr>
+<tr>
+<td>Core 版本/权限/回执/历史</td>
+<td><a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/tests/work-core.test.mjs#L26-L65"><code>app/tests/work-core.test.mjs:26–65</code></a></td>
+<td>Core worker 集成入口；本次未执行，不外推 GUI 或专业质量</td>
+</tr>
+</tbody></table></div>
+<h2 id="appendix-permissions-28">覆盖与未覆盖</h2>
+<p>已覆盖：生产 in-process Pi 的工具装配边界、Host policy/profile/scope、permission question 与 optional CAS、repository write effect 归属、check 的 approval/start/settle 路径、Core 正式决定、Matter disclosure、MCP intent/结果不确定性、本地 communication authority。</p>
+<p>未覆盖：真实运行/OS 进程状态、端到端 GUI/可访问性、备用 runtime 全链路、任意第三方扩展、专业判断质量、跨设备/多用户、安全沙箱、完整文件系统竞态或网络安全性。</p>
+<h2 id="appendix-permissions-29">建议处置顺序</h2>
+<ol>
+<li><strong>修合同与实现的直接矛盾</strong>：由 check/Host owner 保存 F-PERM-01 的未确认终止证据，补齐静态分支到持久读回的一致结果，再决定真实 OS 验收</li>
+<li><strong>保持现有能力门槛诚实</strong>：B-PERM-02 不可用“已审批”“固定 recipe”“build 绿”关闭；明确可信合成使用范围与未来隔离验收的分界</li>
+<li><strong>先裁决语义再施工</strong>：D-PERM-03 先明确材料级与调用级政策，再决定复用逐文件 admission 或改文档/UI，避免凭一个隐含假设补另一套授权 owner</li>
+<li><strong>保留已成立的责任结构</strong>：不要把 tool approval、check success、disclosure receipt、message delivery 或 Candidate submission 合并到 Core acceptance；现有代码已在关键路径上做了有价值的分离</li>
+</ol>
+</div></details><details class="appendix" id="appendix-product"><summary><strong>产品交互与信息架构</strong><span>Chat、Preview、Review、Spark 与 Attention</span></summary><div class="appendix-body"><h1 id="appendix-product-1">Courtwork 文档宣言反推实现：产品交互与信息架构独立首轮</h1>
+<ul>
+<li>唯一基线：<code>lesPrivilege/Courtwork@7e8e2531d422dc1a5048dffcf1ae3acc6e831de7</code></li>
+<li>方法：先读 AGENTS → README → current → engineering/README，再读产品方向、UX Grammar、frontend contract、visual/spatial grammar、相关 owner 合同，随后沿实际静态 UI/Host 路径反推</li>
+<li>独立性：本轮未读其他 审查 报告，也未跟读历史 review；current 中的历史摘要未用作选题证据</li>
+<li>证据等级：<strong>confirmed-static</strong> 表示在固定源码中可证明的路径，<strong>不是执行复现</strong>；设计判断明确另列；没有浏览器截图、屏幕实测、测试执行或 build 结果</li>
+<li>范围：固定提交读取 固定 SHA 的跟踪文档/源码；没有运行仓库代码、探针、build 或测试，没有访问用户应用/电脑、未跟踪文件或任何凭证</li>
+</ul>
+<h2 id="appendix-product-2">总结</h2>
+<p>“Chat 表达/执行、Spark 有界准备、Attention 跟进、Matter 正式工作”的分工已不只是文案：对象身份、查询、状态投影、typed action、版本绑定、部分中断恢复都有对应实现。特别是普通 Chat 不需 Matter、Preview 版本身份、Core Review 与执行成功分离、配置 draft/effective/bound 分离，在抽查路径中有明确代码支撑。</p>
+<p>但现在仍不能把这等同于全产品可接续性接受。本轮发现两个具体静态缺口：</p>
+<ol>
+<li><strong>P1 / confirmed-static：Attention 弹层允许批准 check_run，却没有显示该操作专属的执行范围、候选版本和模型写入文件依据；同一请求在完整 Chat 中有这些信息</strong></li>
+<li><strong>P2 / confirmed-static：从 Recent 直接切到另一 Chat 若读取失败，原 Chat 先被卸载，目标没有进入历史，Back 因而越过原 Chat，而不是恢复它</strong></li>
+</ol>
+<p>此外，Review 未提交理由跨 Session 丢失、Attention “需你处理”计数进入全局助手而非队列，属于需要产品范围裁决的交互设计问题，不能在本轮直接当成新增 bug。Matter 无绑定 Session 时无法从 Source maintenance 打开，是支持矩阵已声明的边界，<strong>不报缺陷</strong>。</p>
+<h2 id="appendix-product-3">1. 声明分层：本轮用什么标准，而没有用什么标准</h2>
+<h3 id="appendix-product-4">已声明的稳定语义</h3>
+<ul>
+<li>工作保留来源、候选、决定与未完事项；用户回来能找出下一步：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/README.md#L15-L35"><code>README.md:15–35</code></a></li>
+<li>项目组织、Chat、Preview、Review、Attention、配置各自承担不同职责；返回恢复位置/草稿/视图，浏览不撤销业务变化：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/product-direction.md#L31-L54"><code>engineering/product-direction.md:31–54</code></a></li>
+<li>必需决定依据/权限范围放在动作附近；运行状态来自 owner；语义与作用域不可因界面不同而改写：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/design/ux-grammar.md#L25-L36"><code>engineering/design/ux-grammar.md:25–36</code></a></li>
+<li>UI 只投影事实；approval、confirmation、elicitation 保留各自动作合同，不能因同是按钮而合并：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/design/agent-interface-2026-09-10/frontend-contract.md#L17-L36"><code>engineering/design/agent-interface-2026-09-10/frontend-contract.md:17–36</code></a></li>
+<li>action/decision 面必须保留 exact pending/unknown/confirmed、授权范围与恢复信息：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/design/visual-spatial-grammar.md#L9-L17"><code>engineering/design/visual-spatial-grammar.md:9–17</code></a></li>
+</ul>
+<h3 id="appendix-product-5">不是当前验收标准的愿景</h3>
+<p>README 明确把 role-first Settings 结构、独立 Spark 执行配置、Hermes/Praxis 组合和第二 Runtime 列为 target/direction；不能以未实现这些内容报告 bug：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/README.md#L53-L72"><code>README.md:53–72</code></a>。当前正式支持的是 in-process Pi、固定 NDA 消费者、有界 Spark、显式 Attention 会话，共享 single-active-Run；不是后台持续模型、任意脚本/浏览器或通用 swarm：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/supported-preview.md#L5-L31"><code>app/docs/supported-preview.md:5–31</code></a>。</p>
+<p>Visual/spatial 规范规定如何接受布局，并没有声称全站已接受。此次没有计算尺寸、原生键盘/读屏、390px/200% zoom 或实际视觉证据，所以不作“舒朗”“可用性合格”“无障碍通过”结论。</p>
+<h2 id="appendix-product-6">2. 缺口一：Attention 的 check_run 审批漏掉专属依据</h2>
+<p><strong>等级：P1；证据：confirmed-static；未运行/未复现</strong></p>
+<h3 id="appendix-product-7">宣称 → 用户目标</h3>
+<p>check_run 合同规定审批显示 recipe、command、arguments，且列出模型在候选中写入的文件及 hash，绑定到申请时的 write revision：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/check-recipes.md#L109-L143"><code>app/docs/check-recipes.md:109–143</code></a>。UX-02 与 action/decision 语法要求必要范围与依据留在决定附近，而非让人猜一次通用批准的实际后果。</p>
+<p>用户目标是：在 Attention 中继续某个已有全局会话时，准确判断“这个检查会执行什么、针对哪个候选版本、哪些模型写入内容会被执行”，再作 allow/deny。</p>
+<h3 id="appendix-product-8">必要不变量</h3>
+<p>同一个 Host permission payload 无论在完整 Chat 还是 Attention 弹层中呈现，都必须保留它已有的、会改变人的授权判断的字段。共享 path/hash/preview envelope 不等于共享文件写入语义；显示批准按钮的面不能悄悄省略动作专属依据。</p>
+<h3 id="appendix-product-9">可达代码路径</h3>
+<ol>
+<li>Attention 弹层有 <strong>Open conversation</strong>，转到其真实 Session：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/attention-agent-view.mjs#L48-L50"><code>app/web/attention-agent-view.mjs:48–50</code></a>；宿主接线调用普通 selectSession：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/app.mjs#L8059"><code>app/web/app.mjs:8059</code></a>。</li>
+<li>完整 Chat 的 Work location 对所有实际 Session 显示，未排除 global：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/app.mjs#L6454-L6467"><code>app/web/app.mjs:6454–6467</code></a>。连接目录及 Start private candidate 使用同一 card：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/workspace-card.mjs#L392-L436"><code>app/web/workspace-card.mjs:392–436</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/workspace-card.mjs#L452-L487"><code>app/web/workspace-card.mjs:452–487</code></a>。</li>
+<li>Store 的 repository binding/candidate 准入要求实际 Session、revision、active binding、idle Run 等，没有 global 排除：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/store.mjs#L1330-L1361"><code>app/server/store.mjs:1330–1361</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/store.mjs#L1120-L1139"><code>app/server/store.mjs:1120–1139</code></a>。</li>
+<li>Runtime 的候选工具暴露看 active candidate；global 只影响 scope chain，不移除 check_run：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/control-plane.mjs#L191-L201"><code>app/runtime/control-plane.mjs:191–201</code></a>。Host 给 Run 构造 check tools：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L3184-L3198"><code>app/server/service.mjs:3184–3198</code></a>。</li>
+</ol>
+<p>这说明问题不是一个只能伪造 payload 才能到达的 dormant renderer。普通显式连接/准备后，用户可返回 Attention 弹层读取同一 global Session 的真实授权请求；本轮只沿代码确认可达条件，没有进行连接或执行。</p>
+<h3 id="appendix-product-10">实现 → 反例</h3>
+<ul>
+<li>check_run 的 model args 只有 recipeId：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/check-tools.mjs#L68-L80"><code>app/runtime/check-tools.mjs:68–80</code></a>。</li>
+<li>governTools 把 model args 序列化为 preview；recipe command、argv、candidateId、candidateWriteRevision、timeout 等在独立 permissionContext 中：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/control-tools.mjs#L131-L137"><code>app/runtime/control-tools.mjs:131–137</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/check-tools.mjs#L52-L58"><code>app/runtime/check-tools.mjs:52–58</code></a>。</li>
+<li>Host prompt 也只有通用“Permission requested for 工具名”：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L3274"><code>app/server/service.mjs:3274</code></a>。</li>
+<li>Attention 在 canAnswer/validPermission 成立时只拼接 tool、path、bytes、hash、preview，然后给 <strong>Approve this action</strong>；没有调用 permissionPresentation、approvalCandidate 或 candidateAuthoredFiles：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/attention-agent-view.mjs#L289-L300"><code>app/web/attention-agent-view.mjs:289–300</code></a>。历史批准记录也仍用这份缩水展示：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/attention-agent-view.mjs#L310-L317"><code>app/web/attention-agent-view.mjs:310–317</code></a>。</li>
+<li>相比之下，完整 Chat 的 shared projection 已认识 check_run 并生成 command/argv、private candidate、限制、候选身份：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/thread-projection.mjs#L316-L342"><code>app/web/thread-projection.mjs:316–342</code></a>；Chat card 还明确显示模型写入文件与计算机访问后果：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/app.mjs#L6841-L6858"><code>app/web/app.mjs:6841–6858</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/app.mjs#L6921-L6943"><code>app/web/app.mjs:6921–6943</code></a>。</li>
+</ul>
+<p><strong>触发场景：</strong> 已准备 private candidate 的 global Attention Session 请求检查；用户从 Attention 弹层而非完整 Chat 审批。弹层可只显示“check_run · *”及 recipeId JSON，却已经允许发 allow。批准后的历史也缺少同样的专属说明。</p>
+<p><strong>具体后果：</strong> 同一授权的知情程度随入口变化，用户无法在可批准的面直接核对合同要求的实际执行依据。Host 的 exact approval/CAS 校验仍在；此发现<strong>不表示绕过权限、已经执行了任意代码或已经泄露数据</strong>，而是授权交互的信息缺失。</p>
+<p><strong>处置建议：</strong> 把 Chat 的动作专属 permission projection/解释复用到 Attention；要么完整呈现，再给批准按钮，要么在信息不可呈现时只给“在完整会话检查”，不要同时提供缩水审批。后续验收可用合成、非执行的 permission event fixture 对比两处 DOM 与可访问名称；实际执行不属于本轮授权。</p>
+<h2 id="appendix-product-11">3. 缺口二：直接导航失败让屏幕与历史不再指向同一位置</h2>
+<p><strong>等级：P2；证据：confirmed-static；未运行/未复现</strong></p>
+<h3 id="appendix-product-12">宣称 → 用户目标 → 不变量</h3>
+<p>产品方向要求返回/前进恢复访问位置和草稿：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/product-direction.md#L44"><code>engineering/product-direction.md:44</code></a>。导航合同更具体：成功进入不同位置才 push，<strong>跳转失败留在原位置并保留草稿</strong>：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/design/shell-control-plane-2026-09-12/navigation.md#L13-L21"><code>engineering/design/shell-control-plane-2026-09-12/navigation.md:13–21</code></a>。</p>
+<p>用户从当前 A 点击 Recent 中 B，若 B 被删除或读取暂时失败，应仍留在可恢复的 A，或者进入明确且一致的不可用位置。历史 current 与屏幕当前对象不能一边还是 A、一边已经是失败的 B。</p>
+<h3 id="appendix-product-13">代码路径与反例</h3>
+<ul>
+<li>Recent 的按钮直接调用 selectSession(B)：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/app.mjs#L1959-L1963"><code>app/web/app.mjs:1959–1963</code></a>。</li>
+<li>selectSession 在 GET B 前先保存 A 的 Chat 草稿、停止 polling、dispose A 的 surface；随后 activeSessionId 改 B、session/events/runs 清空、renderAll：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/app.mjs#L1559-L1595"><code>app/web/app.mjs:1559–1595</code></a>。</li>
+<li>只有 GET B 成功且 applySessionDetail 成立，才 arriveLocation(B)：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/app.mjs#L1597-L1624"><code>app/web/app.mjs:1597–1624</code></a>。</li>
+<li>GET B 失败的 catch 只记录 sessionLoadError、toast、session=null、renderAll；没有恢复 A，也没有把失败 B 纳入 history：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/app.mjs#L1632-L1643"><code>app/web/app.mjs:1632–1643</code></a>。</li>
+<li>Back 直接 history.back，再读取该 entry：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/app.mjs#L1750-L1765"><code>app/web/app.mjs:1750–1765</code></a>。history.back 是 index--：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/location-history.mjs#L64-L68"><code>app/web/location-history.mjs:64–68</code></a>。</li>
+</ul>
+<p><strong>静态场景推导：</strong> 已成功 Home → A，history current 为 A；点击 Recent 的 B；GET B 返回错误。屏幕已卸载 A、activeSessionId 为 B、session=null，但 history current 仍为 A。此时 Back 指向 Home，无法一步回到刚离开的 A。</p>
+<p><strong>具体后果：</strong> 读失败变成额外的工作中断和不一致的返回行为。A 的已保存 Chat 草稿不因此删除，用户仍可从 Recent 手动重开 A；严重性因此为 P2，而非持久数据破坏。</p>
+<p><strong>正向边界：</strong> traverseHistory 本身有 unavailable → Home 并保留历史指针的专门分支（<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/app.mjs#L1773-L1782"><code>app/web/app.mjs:1773–1782</code></a>），成功导航也有 epoch fences 和 reading anchor 恢复（<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/app.mjs#L1764-L1771"><code>app/web/app.mjs:1764–1771</code></a>）。缺口限定在普通直接 selectSession 的失败分支，不能概括为“整个返回系统未实现”。</p>
+<p><strong>处置建议：</strong> 失败前保留旧视图，成功后再提交导航，或显式恢复旧 location/surface；让直接导航和历史 traversal 共用同一个失败语义。导航文档第3行仍标“未实现”，而本基线已有实际 Shell history，说明状态文字也需回原 owner 核对，但不影响上述代码路径本身。</p>
+<p><strong>二次静态复核澄清：</strong> 旧 navigation.md 的“失败留在原位置”不是本发现要逐字落实的已验收义务。现行 <a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/execution/claude-frontend-harness-2026-09-16/09-navigation-commands.md#L3-L26">09-navigation-commands.md:3–26</a> 已裁定 reader refusal 应把该项标 unavailable、视图落 Home、项留在轨迹供继续 Back。上述 direct selectSession 失败分支也没有执行这套现行语义，仅 traverseHistory 执行了它。因此 P2 confirmed-static 的准确口径是“直接导航失败导致视图/历史失配，且未走现行不可用地点恢复路径”；修复应优先统一到现行 owner 裁定，不要求一律 rollback 留 A。合同支撑以现行 owner 和 product-direction.md:44 为准，旧稿只保留历史背景。</p>
+<h2 id="appendix-product-14">4. 支撑宣言成立的实现证据</h2>
+<p>以下是有界静态支持，不是全流程接受。</p>
+<h3 id="appendix-product-15">4.1 普通 Chat、项目、Matter 与 Attention 身份确有分离</h3>
+<ul>
+<li><strong>声明/目标：</strong> 无项目先交谈、项目组织不等于文件授权，普通 Chat 不需 Matter：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/projectless-chat.md#L1-L16"><code>app/docs/projectless-chat.md:1–16</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/product-direction.md#L35-L48"><code>engineering/product-direction.md:35–48</code></a>。</li>
+<li><strong>不变量/代码：</strong> 普通创建 API 只产生 project 或 unassigned；专用 Attention 创建 global，默认 ask：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/service.mjs#L1231-L1271"><code>app/server/service.mjs:1231–1271</code></a>。Recent 排除 global：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/app.mjs#L1680-L1686"><code>app/web/app.mjs:1680–1686</code></a>。Matter UI 仅 project 且未绑定时出现：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/app.mjs#L2654-L2674"><code>app/web/app.mjs:2654–2674</code></a>。Runtime scope chain 将 user/agent:attention/session 与 user/workspace/session 分开：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/runtime/control-plane.mjs#L191-L194"><code>app/runtime/control-plane.mjs:191–194</code></a>。</li>
+<li><strong>结论：</strong> 不是把所有 projectId=null 对象视作 Attention，也不是先强制建 Matter。未检查全部跨作用域访问规则；本项仅支持 IA/身份接线一致性。</li>
+</ul>
+<h3 id="appendix-product-16">4.2 Preview 确切版本与关闭语义</h3>
+<ul>
+<li><strong>声明/目标：</strong> 打开确切版本，关闭回原对象，不撤销业务：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/product-direction.md#L37-L44"><code>engineering/product-direction.md:37–44</code></a>。</li>
+<li><strong>不变量/代码：</strong> previewTabKey 包含 Session 与 Run/file hash/Core candidate/bundle/retained-source revision，两个版本不会只因 path 相同而并成一个 tab：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/preview-tabs.mjs#L21-L35"><code>app/web/preview-tabs.mjs:21–35</code></a>。tabs 按 Session 分组：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/preview-tabs.mjs#L37-L80"><code>app/web/preview-tabs.mjs:37–80</code></a>。关闭只移除 tab/select neighbour；宿主 closeSurface 只处理 pane/read/focus：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/preview-tabs.mjs#L85-L99"><code>app/web/preview-tabs.mjs:85–99</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/app.mjs#L4190-L4209"><code>app/web/app.mjs:4190–4209</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/app.mjs#L4267-L4287"><code>app/web/app.mjs:4267–4287</code></a>。</li>
+<li><strong>支持边界：</strong> 声明的对象版本身份与 view-only close 有源码支撑；恢复滚动/focus 有明确 owner 实现，但未测实际浏览器行为或每一种文档 renderer。</li>
+</ul>
+<h3 id="appendix-product-17">4.3 Review 没把完成的 Run 自动升为正式决定</h3>
+<ul>
+<li><strong>声明/目标：</strong> 依据、实际变化、检查与正式接受分源：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/product-direction.md#L38"><code>engineering/product-direction.md:38</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/work-review-summary.md#L3-L13"><code>app/docs/work-review-summary.md:3–13</code></a>。</li>
+<li><strong>代码：</strong> Work summary 从 /review-summary 读取，验证 Session/extension/Matter，refresh 先撤旧计数，失败呈现 unavailable 不显示零：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/work-review-summary.mjs#L9-L30"><code>app/web/work-review-summary.mjs:9–30</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/work-review-summary.mjs#L79-L102"><code>app/web/work-review-summary.mjs:79–102</code></a>。</li>
+<li><strong>正式动作：</strong> workPacket 保留来源、决定、candidate versions 与 humanActions；candidateActions 只认声明 schema/action/candidate constants：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/surface-modules.mjs#L372-L405"><code>app/web/surface-modules.mjs:372–405</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/surface-modules.mjs#L418-L443"><code>app/web/surface-modules.mjs:418–443</code></a>。NDA 决定要求理由，并使用 descriptor 的 candidateId/baseVersion 发原 typed dispatch：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/extensions/inbound-nda/renderer.mjs#L140-L180"><code>app/extensions/inbound-nda/renderer.mjs:140–180</code></a>。没有使用 Run.completed 来决定 accept。</li>
+<li><strong>恢复：</strong> NDA renderer 在同一 mount 的刷新中保留理由与展开状态，lost acknowledgement 保留 request identity：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/extensions/inbound-nda/renderer.mjs#L73-L81"><code>app/extensions/inbound-nda/renderer.mjs:73–81</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/extensions/inbound-nda/renderer.mjs#L158-L183"><code>app/extensions/inbound-nda/renderer.mjs:158–183</code></a>。</li>
+<li><strong>边界：</strong> 这里证明了 UI 归属与 payload 构造；不证明所有 domain/Core 状态转换或文件接纳正确。</li>
+</ul>
+<h3 id="appendix-product-18">4.4 Attention item 不等于通知 read，也不等于外部批准</h3>
+<ul>
+<li><strong>声明/目标：</strong> 打开/阅读不完成工作；Attention 不建第二份工作账：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/product-direction.md#L39-L52"><code>engineering/product-direction.md:39–52</code></a>。</li>
+<li><strong>代码：</strong> 读取走 registry/inspect；actionSurface 只从 toAttentionActionDescriptors 产生按钮：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/attention-view.mjs#L389-L445"><code>app/web/attention-view.mjs:389–445</code></a>。resolve 附带“仅记录此 item、外部不批准不改变”的局部后果文案：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/attention-view.mjs#L46-L51"><code>app/web/attention-view.mjs:46–51</code></a>。提交有 attention_id/request_id/expected_revision，未知网络结果查询原 request 并提供 unchanged retry：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/attention-view.mjs#L595-L623"><code>app/web/attention-view.mjs:595–623</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/attention-view.mjs#L653-L671"><code>app/web/attention-view.mjs:653–671</code></a>。阅读路径 select 没有 acknowledge/resolve：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/attention-view.mjs#L746-L768"><code>app/web/attention-view.mjs:746–768</code></a>。</li>
+<li><strong>边界：</strong> 特指 Core item 处置面，不能借此替 Attention conversational approval 面豁免缺口一。</li>
+</ul>
+<h3 id="appendix-product-19">4.5 Spark 是有边界的准备角色，来源“保留/读过/采纳”不混同</h3>
+<ul>
+<li><strong>声明/目标：</strong> retained exact versions、有界 findings、read/adopt 与正式 Review 分离：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/spark-agent.md#L7-L43"><code>app/docs/spark-agent.md:7–43</code></a>。</li>
+<li><strong>UI 接线：</strong> 创建从真实 catalog 取 ref；上限100可见、16选中，显示 retained historical/current/unchecked 区别；说明使用当前 model：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/subagent-view.mjs#L27-L69"><code>app/web/subagent-view.mjs:27–69</code></a>。结果/来源/notes 独立读取，assignment 与执行/消费记录可展开；unknown 时不显示普通 retry：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/subagent-view.mjs#L72-L110"><code>app/web/subagent-view.mjs:72–110</code></a>。</li>
+<li><strong>Source maintenance：</strong> DTO 严格区分 observed 与 unavailable/null、同 snapshot，不把未知当0：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/spark-projection.mjs#L107-L152"><code>app/web/spark-projection.mjs:107–152</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/spark-projection.mjs#L180-L221"><code>app/web/spark-projection.mjs:180–221</code></a>。样例为只读，不调用 Matter 导航：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/spark-view.mjs#L166-L171"><code>app/web/spark-view.mjs:166–171</code></a>。</li>
+<li><strong>未声称：</strong> 未独立验证 dispatcher、真实模型 findings 的准确性、持久读回执与预算执行；独立 Spark model、外部 web exploration、并行/递归均明确不在当前支持面。</li>
+</ul>
+<h3 id="appendix-product-20">4.6 Agent / Kit / Runtime / Model 的配置事实被分层，而不是统称“Agent 已配置”</h3>
+<ul>
+<li><strong>声明/目标：</strong> 配置、启用、授权、本次绑定与实际使用分别表达：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/product-direction.md#L40"><code>engineering/product-direction.md:40</code></a>；模型/effort 一层工作面、全局默认必须说清 scope：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/design/ux-grammar.md#L36"><code>engineering/design/ux-grammar.md:36</code></a>。</li>
+<li><strong>代码：</strong> chooser 有一层 flat list 与独立 effort；实际 PUT /provider-config 带 expectedVersion：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/model-chooser.mjs#L143-L174"><code>app/web/model-chooser.mjs:143–174</code></a>。scope 文本固定显示在 header 下：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/model-effort.mjs#L143-L164"><code>app/web/model-effort.mjs:143–164</code></a>。</li>
+<li><strong>Agent choice：</strong> draft、saved/effective、bound 由不同读取给出；Run 名称只能在 id/hash 匹配时借当前 metadata，历史不可被现配置冒充：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/agent-choice.mjs#L8-L22"><code>app/web/agent-choice.mjs:8–22</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/agent-choice.mjs#L77-L100"><code>app/web/agent-choice.mjs:77–100</code></a>。controller 在未应用、未知、不可用时关闭 Send；lost reply 读回核对而不是乐观成功：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/agent-choice.mjs#L167-L195"><code>app/web/agent-choice.mjs:167–195</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/agent-choice.mjs#L283-L314"><code>app/web/agent-choice.mjs:283–314</code></a>。chooser 将 Kit compatibility 说成 not checked、模型说成 All chats · future runs：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/agent-chooser-view.mjs#L75-L88"><code>app/web/agent-chooser-view.mjs:75–88</code></a>。</li>
+<li><strong>边界：</strong> 这支持配置状态可理解的机制，不等于短介绍即可上手的用户研究已完成；Settings 新 IA 仍属 README target。</li>
+</ul>
+<h2 id="appendix-product-21">5. 设计判断、已声明限制与没有升级为缺陷的候选</h2>
+<h3 id="appendix-product-22">D1：Review 未提交草稿跨 Session 不保留，需先裁定承诺范围</h3>
+<p><strong>设计判断；静态机制已确认；建议 P2 级产品裁决，不计 confirmed-static bug 数。</strong></p>
+<p>NDA reason/revision/expanded Maps 仅在 renderer mount 内：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/extensions/inbound-nda/renderer.mjs#L73-L81"><code>app/extensions/inbound-nda/renderer.mjs:73–81</code></a>。切 Session 会 dispose renderer：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/app.mjs#L1559-L1568"><code>app/web/app.mjs:1559–1568</code></a>；新 mount 重新创建空 Maps。persistCurrentDraft 保存的只是 Chat draftCache：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/app.mjs#L1367-L1385"><code>app/web/app.mjs:1367–1385</code></a>。因此，在 Matter A 为候选写一段尚未发送的 Review 理由，去 Chat B 查材料再回来，这段理由没有跨 mount 保存机制。</p>
+<p>产品方向“回来继续”容易让人期待它保留，但具体 FE-NAV 合同把草稿 owner 写成 Session/composer（<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/design/shell-control-plane-2026-09-12/navigation.md#L18"><code>engineering/design/shell-control-plane-2026-09-12/navigation.md:18</code></a>），NDA 当前只明确承诺 projection update 保留，而非跨 Session/reload。应决定是否把 Review 理由纳入可接续 draft，或者明确其生命周期；本轮不擅自扩大已有支持承诺。</p>
+<h3 id="appendix-product-23">D2：带项目计数的 Attention 入口先进入全局助手</h3>
+<p><strong>设计判断；不报 bug。</strong></p>
+<p>Shell count 是当前项目的 needs_you，而非全局队列或所有等待 Run：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/shell-signals.mjs#L9-L18"><code>app/web/shell-signals.mjs:9–18</code></a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/shell-signals.mjs#L74-L84"><code>app/web/shell-signals.mjs:74–84</code></a>。主 Attention 按钮打开 agent（<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/app.mjs#L7508"><code>app/web/app.mjs:7508</code></a>），再由弹层 Attention items 进入 item queue（<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/attention-agent-view.mjs#L39-L46"><code>app/web/attention-agent-view.mjs:39–46</code></a>）。</p>
+<p>这种组织保留 global role 与 Core items 的职责分离，且不会自动已读；代价是“看到需我处理→打开那批决定”要经过助手上下文。它是入口语义/距离的取舍，应由产品 owner 裁定，不属于静态权限错误，也不能凭源码断言用户一定困惑。</p>
+<h3 id="appendix-product-24">N1：Source maintenance 无绑定 Chat 时不打开 Matter，已被支持矩阵限定</h3>
+<p>openMatterSurface 只查项目内 bound Session，没有则提示不新建（<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/app.mjs#L2020-L2049"><code>app/web/app.mjs:2020–2049</code></a>）。它让 Matter 不自动等于 Session，也避免一次阅读制造会话或重新绑定。虽然通用“以工作对象为中心”叙事还有可拓展空间，但 <a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/supported-preview.md#L27"><code>app/docs/supported-preview.md:27</code></a> 已明确 only when a Work Session is already bound，因此不报“不能直接打开孤立 Matter”的 bug。</p>
+<h3 id="appendix-product-25">N2：created 状态没纳入 Attention active()，本基线未证明可触发</h3>
+<p>Attention controller 的 active 排除 created（<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/attention-conversation.mjs#L8"><code>app/web/attention-conversation.mjs:8</code></a>），完整 Chat 包含它（<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/web/app.mjs#L570-L573"><code>app/web/app.mjs:570–573</code></a>）。继续追入 Store 后发现当前 createRun 直接创建 running 并写 run.status=running（<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/store.mjs#L1663-L1675"><code>app/server/store.mjs:1663–1675</code></a>）。没有用到“代码文本不同”就报行为 bug；除非后续 owner 支持可返回 created 的当前路径，本项证据不足。</p>
+<h2 id="appendix-product-26">6. 覆盖边界与后续接受要求</h2>
+<h3 id="appendix-product-27">读过的主要证据</h3>
+<ul>
+<li>入口/规范：AGENTS、README、engineering/current、engineering/README、product-direction、ux-grammar、frontend-contract、visual-spatial-grammar、precedents、navigation</li>
+<li>合同：supported-preview、projectless-chat、attention-agent、spark-agent、work-review-summary、work-summary-api、repository-binding、check-recipes、Core Attention</li>
+<li>UI：app 的 Session/navigation/Preview/permission/Review-summary/接线段；location-history、preview-tabs、chat-page/actions、attention-view/agent-view/conversation、shell-signals、Spark view/projection/subagent-view、agent-choice/chooser、provider-config/model chooser/effort、workspace card、surface-modules、NDA renderer</li>
+<li>配套静态核对：service 的 Session/global、repository、Run 构造与工具装配；Store 的 repository binding/candidate/Run 准入；control-plane/tool permission envelope；check-tool descriptor</li>
+</ul>
+<p>未逐行审计所有 Host/Core/adapter、所有 CSS 或整库 tests。cache 中有完整文件并不表示每个分支已审阅。</p>
+<h3 id="appendix-product-28">后续接受所需，而非本轮已完成</h3>
+<ol>
+<li>缺口一：用同一合成 check_run permission event 验证 Chat 与 Attention 显示同一动作、命令、候选版本、写入文件与后果；未检查执行应保持未执行</li>
+<li>缺口二：以普通、失败、迟到响应和再次点击覆盖 Home→A→B/Back；确认位置、草稿、focus、Preview reading 一致</li>
+<li>由 owner 决定 D1/D2 的支持范围与产品动作，不把本报告另建成独立 roadmap</li>
+<li>真正视觉/键盘/读屏/zoom 与跨面完成闭环需单独授权证据；此报告不替代其接受，也不以已有绿 build 为接受</li>
+</ol>
+<p><strong>最终判断：</strong> 当前产品信息架构已有可辨的事实 owner 和真实纵向路径；“所有入口都保留足够决定依据”和“失败也保持接续位置”还存在本轮可具体定位的落差。应精准修复这两处并复核，而不是以宣言尚未全量落地为由否定全部架构，或以大面积代码存在与绿 build 代替产品接受。</p>
+</div></details><details class="appendix" id="appendix-docs"><summary><strong>文档与验收证据</strong><span>渐进入口、来源版本、发布状态与证据闭环</span></summary><div class="appendix-body"><h1 id="appendix-docs-1">CourtWork 文档入口 来源边界与验收证据审查</h1>
+<p>审查基线：<code>lesPrivilege/Courtwork@7e8e2531d422dc1a5048dffcf1ae3acc6e831de7</code><br>审查性质：独立首轮，只读静态审查<br>结论：主入口可以把新参与者带到当前责任人、能力范围、版本 owner 与证据；未发现 P0/P1/P2 文档缺陷。发现一处低严重性发布状态导航回旧回执的问题。S6 最新检查/截图的固定源码身份仍不足以独立重验；这是一项证据缺口，不是产品运行失败或虚假验收结论。</p>
+<h2 id="appendix-docs-2">范围与方法</h2>
+<p>按要求首先完整阅读 AGENTS.md、README.md、engineering/current.md、engineering/README.md，再依其任务路由读取 PAPER、governance、verification、architecture、支持表、发布 owner、来源生成器和若干具体证据包。源码与目录元数据均通过 固定提交读取 在该固定 SHA 获取。缓存 55 个获准文件；较长 owner 历史只下钻当前指向的小节。没有读取本轮其他 审查 报告，也没有以仓库历史 review 的结论代替新证据。</p>
+<p>静态辅助检查只处理本轮已经获取的文本和固定树路径：855 个相对 Markdown 文件链接目标均在固定树中存在；对已获取目标的 29 个 fragment 作静态匹配，未发现缺失。另有 13 个 fragment 未检查目标正文。此结果不是仓库官方 link checker 的运行结果，也不覆盖外部网站在线状态、GitHub 特殊渲染或全仓所有链接。完整递归树返回 <code>truncated=false</code>，10,940 个路径。</p>
+<p>未执行仓库代码、build、tests、浏览器、探针或安装；未读取用户电脑、凭证、私人数据或本地 untracked。没有访问 SE 仓库或历史 SHA 的文件正文，因此旧 SHA 可达性、SE 原文条款是否准确以及历史日志真实性不在结论内。</p>
+<p>标签含义：</p>
+<ul>
+<li><strong>confirmed-static</strong>：固定 SHA 内的文字、链接或代码路径直接成立；不声称运行复现</li>
+<li><strong>设计判断</strong>：对风险/导航是否足够的审查判断</li>
+<li><strong>证据不足</strong>：现有材料不能支撑更强结论，不等于实现为假</li>
+</ul>
+<h2 id="appendix-docs-3">D-DOC-01 发布状态入口仍导向被替代的发布回执</h2>
+<p><strong>严重性：P3 / 低；confirmed-static。</strong> 这是现行导航与版本归属的缺陷，不是物理断链，不是部署失败，也不是产品架构不成立。</p>
+<h3 id="appendix-docs-4">宣称与用户目标</h3>
+<p><a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/site/README.md#L3">site/README.md:3</a> 把“发布状态”链接到 <code>engineering/release/final-preparation-2026-09-13/README.md</code>。新发布维护者从根 README 的 site 入口进来，合理目标是确定最后一次已记录的实际部署，以及新素材是否已经发布，而不是把本地 build 或旧回执当作当前线上来源。</p>
+<p>必要不变量：被标作“发布状态”的默认入口应路由到当前事实 owner，或者落点应明确指向取代它的发布记录。历史回执可以保持原字节，但不能成为无标注的当前状态出口。这与 <a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/docs/repository-layout.md#L38-L44">docs/repository-layout.md:38–44</a> 的 current/owner 路由规则一致。</p>
+<h3 id="appendix-docs-5">实现路径与反例</h3>
+<ol>
+<li>site 入口实际落点顶部只给出一份“main 自足接续节点”，并称原发布 SHA 与证据保留历史身份：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/release/final-preparation-2026-09-13/README.md#L3-L5">final-preparation README:3–5</a></li>
+<li>该落点的最终 Publication closeout 记录 <code>fd4012c</code> / Pages run <code>34780489668</code>：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/release/final-preparation-2026-09-13/README.md#L85-L87">同文件:85–87</a></li>
+<li>相比之下，当前 release 索引已明确将“latest publication receipt”指向 2026-09-15，并把 final-preparation 的 current wording 标作被其取代：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/release/README.md#L11-L13">engineering/release/README.md:11–13</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/release/README.md#L47-L50">同文件:47–50</a></li>
+<li>2026-09-15 实际部署回执记录公开源 <code>fe7f317b9e14d3ceb1692e1e565b6b8ac71baffe</code>、另一 Actions run、线上字节一致性及独立的媒体/安装/基础回放 pins：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/release/product-node-2026-09-15/deployment.md#L5-L13">deployment.md:5–13</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/release/product-node-2026-09-15/deployment.md#L32-L38">deployment.md:32–38</a></li>
+</ol>
+<h3 id="appendix-docs-6">后果、限制与修正建议</h3>
+<p>触发场景：发布维护者只沿 site README 的“发布状态”读取，会得到旧部署身份，错判哪次源码/文稿已经线上生效，或在下一次发布记录中引用旧 baseline。正确答案仍能从 engineering/release 或 current 找回，故降为 P3。</p>
+<p>建议只将 site README 的当前状态链接改到 release 当前路由/最新部署 owner；旧 final-preparation 回执继续保留。无需重写历史证据、重拍媒体、运行产品测试，也无需因此否定其旧部署事实。未查询线上站点，不能从此发现推出“线上仍是 fd4012c”。</p>
+<h2 id="appendix-docs-7">Q-DOC-01 S6 新证据有范围说明 但缺少最终受检源码身份</h2>
+<p><strong>分类：证据不足；不列产品 bug，不宣称作者伪报，不推翻 non-author review。</strong><br>相关规则的静态事实： <a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/verification.md#L44-L46">verification.md:44–46</a> 要求 evidence 保留 source/input versions、实际路径、author/non-author scope；旧证据重用需说明源码相关性。</p>
+<h3 id="appendix-docs-8">宣称到证据链</h3>
+<ul>
+<li>目标：后来的 审查 能判定“1886/1886、20 scenes、非作者 review”针对的就是待接受的最终 S6 候选</li>
+<li>文档入口：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/current.md#L11-L16">current.md:11–16</a> 将本地 check:product 结果连到 S6；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/current.md#L37-L40">current.md:37–40</a> 同时保留 visual/screen-reader acceptance open</li>
+<li>S6 给出 base <code>1004fe1</code>、分支、writer/审查、固定场景和环境；明确 审查 看的是 uncommitted diff，并写“review fixes 后”1886/1886 及重新 capture：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/research/ux-interaction-topology-20260930/s6.md#L3-L20">s6.md:3–20</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/research/ux-interaction-topology-20260930/s6.md#L35-L58">s6.md:35–58</a></li>
+<li><a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/research/ux-interaction-topology-20260930/evidence/captures-s6/report.json#L1-L166">captures-s6/report.json</a> 只有 <code>scenes</code> 与 <code>errors</code> 顶层字段，确有 20 scene / empty errors，但没有 source SHA、dirty patch/file hashes 或 capture 时间</li>
+<li>生成器也确实只创建这两类字段；共同 harness 直接 import 当前 checkout 的 server，没有给 report 写 source identity：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/research/ux-interaction-topology-20260930/evidence/capture-s6.mjs#L33-L34">capture-s6.mjs:33–34</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/research/ux-interaction-topology-20260930/evidence/capture-s6.mjs#L75-L93">capture-s6.mjs:75–93</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/research/ux-interaction-topology-20260930/evidence/harness.mjs#L10-L20">harness.mjs:10–20</a></li>
+</ul>
+<p>必要不变量是“最终被测/被 review 的内容可固定定位”，不必强制每次重跑 suite。base SHA 只识别变更前状态；固定报告所在 commit 只证明报告字节保存，单独不能证明截图拍摄时的未提交源码就是这一 commit 的实现。</p>
+<p>现有材料支持作者陈述的有界检查范围和可复用场景，不能独立将每份 capture 与最终 S6 source 建立同一性。最小补证是由该 owner 在原记录补充最后实际检查的 commit，或 base + exact diff/file hashes 与合流等价关系，并把 non-author 审查范围绑到该对象。当前页面已经说验收未关闭，因此不应再把这项缺口升格成“自我验收”或“产品不工作”。</p>
+<h2 id="appendix-docs-9">支持宣言成立的静态证据</h2>
+<h3 id="appendix-docs-10">A 入口能区分当前状态 合同与历史</h3>
+<p><strong>confirmed-static；文档发现性成立，非全部产品接受。</strong></p>
+<p>宣称是新参与者按需找到事实 owner，而不是从日期日志重建规则。用户目标是安全续工。必要不变量是入口清楚、原 owner 有链接、历史与现行效力分离。</p>
+<ul>
+<li><a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/AGENTS.md#L3">AGENTS.md:3</a> → current → engineering task row；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/README.md#L5-L20">engineering/README.md:5–20</a> 按“改产品、改 UI、runtime、正式 work、claim、发布”等实际任务给 stop condition</li>
+<li><a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/current.md#L3-L5">current.md:3–5</a> 将自己定义为 snapshot；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/current.md#L20-L34">current.md:20–34</a> 给具体 lane owner 与作者不能自接受；open/dormant/standing boundaries 分开</li>
+<li><a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/architecture.md#L53-L70">architecture.md:53–70</a> 将 runtime、Core、repository candidate、source-resolver 等代码 owner 映射到具体合同，非只给架构图</li>
+<li><a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/docs/README.md#L3-L5">docs/README.md:3–5</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/docs/README.md#L37-L50">docs/README.md:37–50</a> 明确 contract/history/superseded，旧 handoff 不当当前启动说明</li>
+<li>855 个已取文本的相对链接目标存在，是可达路径支持；不由此推出每个目标内容正确。唯一现行入口回旧发布结论见 D-DOC-01</li>
+</ul>
+<h3 id="appendix-docs-11">B PAPER 采纳版本与其他开发线边界清楚</h3>
+<p><strong>confirmed-static；未外查 SE 原文，不做 SE 条款正确性断言。</strong></p>
+<p>用户目标是用同一已裁定语义基线评审当前实现，避免把最新论文、Frozen legacy、另分支作者证据直接继承为当前能力。</p>
+<ul>
+<li><a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/PAPER.md#L5-L15">PAPER.md:5–15</a> 完整 pin SE 9.6 / <code>d78fd312955c1f594e59cbdcbb0d3074ac355940</code>，Canonical/Practice/Index 三个 fixed SHA URL；9.3 作为历史；“最新阅读入口”单独可漂移</li>
+<li><a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/decisions.md#L172-L185">DEC-012:172–185</a> 有 adoption ruling、影响合同与检查问题；补注明确采用版本不自动继承验收。“现有实现一致”被限定为列出的局部机制，没有伪装所有反例已完</li>
+<li><a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/README.md#L25-L27">engineering/README.md:25–27</a> 规定实现/合同/接受留在 CourtWork，论文反馈依赖 pinned 工程结果</li>
+<li><a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/ecosystem/legacy-recall-index.md#L3-L21">legacy-recall-index.md:3–21</a> 完整固定 <code>f9ade85...</code>，标签 <code>reference not authority</code>，不执行旧代码、不读旧个人未跟踪内容、不继承 ADOPT/product-live；每一旧来源均带适用边界</li>
+<li><a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/current.md#L39">current.md:39</a> 明确 Hermes native author 分支结果未经 review/adoption、权限拒绝仍有效</li>
+<li>历史 release 回执提到 SE 9.8，却明确 CourtWork 固定采用仍是 9.6：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/release/final-preparation-2026-09-13/README.md#L83">final-preparation README:83</a>。因此“最新论文比采纳版新”不是本轮 bug</li>
+</ul>
+<h3 id="appendix-docs-12">C 当前支持与愿景不是无差别宣称</h3>
+<p><strong>confirmed-static；抽样验证生产接线，不覆盖全部 capability 实现。</strong></p>
+<ul>
+<li>README 在 next milestone / development direction 下列 Orchestra、替换 runtime、跨 runtime bounded delegation，并明确 target structure 非 current support matrix；实用范围通过 <a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/README.md#L3-L10">app/README.md:3–10</a> 导向支持表</li>
+<li><a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/supported-preview.md#L14-L17">supported-preview.md:14–17</a> 把 Attention 单 active run、无后台模型监控、非任意 JS/desktop/swarm 安装、in-process Pi、可信 factory 才有 managed fixture、Local Pi opt-in 与 Hermes standalone 明确区分；<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/docs/supported-preview.md#L29-L33">同文件:29–33</a> 明确 public story 含未来方向</li>
+<li>实现链：<code>app/package.json</code> 的 start 到 index → CLI → startServer → createRuntime。CLI 没有注入 alternate/local worker：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/package.json#L9-L10">package.json:9–10</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/index.mjs#L343-L345">index.mjs:343–345</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/cli.mjs#L24-L42">cli.mjs:24–42</a></li>
+<li>组合根默认 <code>createPiRuntimePort</code>、<code>managedRuntimePort=null</code>、<code>localPiWorker=false</code>；只有可信注入分支把 managed port 加入 configured ports：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/server/runtime.mjs#L40-L80">runtime.mjs:40–80</a>。Pi 三包固定 0.85.1：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/package.json#L19-L25">package.json:19–25</a></li>
+<li>架构还直接承认剩余 Pi coupling、runtime 替换不是单 adapter 工作、可信 extension 在 Host trust boundary 内：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/architecture.md#L30-L36">architecture.md:30–36</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/architecture.md#L115-L125">architecture.md:115–125</a></li>
+</ul>
+<p>因此本 stream 不将尚未承诺支持的 general swarm、native runtime UI、第二 runtime 完整替换、任意 extension 等记成缺陷；也不把这次组合根抽样推出所有权限、终态与隔离已成立。</p>
+<h3 id="appendix-docs-13">D green build 与架构 实际能力 人的接受分别记账</h3>
+<p><strong>confirmed-static；方法与默认检查范围相符。</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/verification.md#L5-L15">verification.md:5–15</a> 区分 source runs、synthetic path、real Agent task、human acceptance；绿测只支撑执行过的断言</li>
+<li>默认 product-check 实际只是 bounded synthetic suite、deterministic smoke、doc links 三项串行命令：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/app/scripts/product-check.mjs#L6-L22">product-check.mjs:6–22</a>。没有 architecture/human acceptance 隐式晋级逻辑</li>
+<li>link check 默认不查 fragments；该局限可从参数选择与返回逻辑看见：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/tools/check-doc-links.mjs#L16-L18">check-doc-links.mjs:16–18</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/tools/check-doc-links.mjs#L63-L77">check-doc-links.mjs:63–77</a>。这是工具公开范围，不因未启 strict anchors 就报 bug；它也说明绿 link check 不能证明语义路由无误</li>
+<li><a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/.github/pull_request_template.md#L19-L32">.github/pull_request_template.md:19–32</a> 要求 claim/evidence、not_run、current pointers、author/non-author scope；不把 checklist 本身当接受</li>
+<li>current 明示 remote CI 未记录、visual/screen-reader 与整体 release 仍 open。本文没有把本地 1886/1886 当远端 CI 或架构验收</li>
+</ul>
+<h3 id="appendix-docs-14">E 公开素材有多个来源身份 并有防误混的代码</h3>
+<p><strong>confirmed-static；没有运行 build 或验证历史对象可达性。</strong></p>
+<p>用户目标是能分辨当前代码、安装源码、截图、回放与页面内容摘要，而不是让一个 sha 冒充所有来源。</p>
+<ul>
+<li><a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/site/README.md#L18-L28">site/README.md:18–28</a> 定义 evidence snapshot、site digest、generated output、截图/README/部署不同步的条件</li>
+<li>replay 是 <code>9e5384f...</code>：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/site/release.json#L2-L3">site/release.json:2–3</a>；独立 screenshot 是 <code>fd96f96...</code> 且写 synthetic、不主张独立视觉验收：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/site/media/main/manifest.json#L2-L29">media/main/manifest.json:2–29</a>；安装 source-preview 同样固定旧 fd96f96：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/site/src/source-preview.json#L1-L4">source-preview.json:1–4</a>。这些旧 pin 本身不是 stale bug</li>
+<li>productBytes 只按 full SHA + allowed relative path 从 Git 读；captureDrift 用实际文件内容比对声明 tree：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/site/scripts/release.mjs#L24-L56">release.mjs:24–56</a></li>
+<li>build 将 source-preview 固定输入 hashes、截图身份与回放身份分别写入 manifest；root README 不匹配生成器时拒绝构建，只有显式 --write-readme 才覆盖：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/site/build.mjs#L154-L185">build.mjs:154–185</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/site/build.mjs#L188-L209">build.mjs:188–209</a></li>
+<li>独立静态抽出 readme.mjs 的纯字符串并解转义后，与该 SHA 的 README.md 完全相等；英中 README 的本地命令、Paper 9.6、runtime 限制与当前/方向分段抽样一致。未运行生成器</li>
+<li>Pages workflow 的 push 只触发 build；deploy job 明确只有 workflow_dispatch：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/.github/workflows/pages.yml#L9-L27">pages.yml:9–27</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/.github/workflows/pages.yml#L79-L90">pages.yml:79–90</a>。支持“main integration 不等于 deployment”的文档边界</li>
+</ul>
+<h3 id="appendix-docs-15">F 抽样验收包没有把作者结果或真实模型运行泛化为全产品接受</h3>
+<p><strong>confirmed-static 的记录结构；历史执行真实性与当前回归有效性未验证。</strong></p>
+<ul>
+<li>K3 final receipt 给 source、packet、integrated SHA，区分旧作者 1565/1565、修复后局部检查、non-author source-only review、parent rerun；同时保留 E1 UI、real-model 等未验：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/execution/claude-frontend-harness-2026-09-16/evidence/kit-run-final-20260923/README.md#L3-L23">K3 README:3–23</a></li>
+<li>real-provider lease-queue 明确固定产品/source/candidate，区分模型声称与 Host checks；明确不覆盖 Work Core formal acceptance、crash/cancel 等：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/execution/claude-frontend-harness-2026-09-16/evidence/lease-queue-dogfood-20260927/README.md#L3-L11">lease-queue README:3–11</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/execution/claude-frontend-harness-2026-09-16/evidence/lease-queue-dogfood-20260927/README.md#L15-L27">同文件:15–27</a></li>
+<li>production-closure 把 operator UI review 与 end-user 本人/模型自接受分开，保留 assisted 首次失败、后续 unassisted、graceful restart、无 source-staleness race 演示等限界：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/execution/claude-frontend-harness-2026-09-16/evidence/production-closure-20260927/README.md#L3-L18">production-closure README:3–18</a></li>
+<li>原 public-readiness owner 将这些结果写回 G1/G2/G3 “bounded evidence”，仍留 fresh clone/config、timed video、whole-product acceptance 等 obligation：<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/execution/2026-09-08-main-round/public-readiness.md#L43-L47">public-readiness.md:43–47</a>、<a target="_blank" rel="noopener noreferrer" href="https://github.com/lesPrivilege/Courtwork/blob/7e8e2531d422dc1a5048dffcf1ae3acc6e831de7/engineering/execution/claude-frontend-harness-2026-09-16/evidence/production-closure-20260927/README.md#L28-L40">production-closure README:28–40</a></li>
+</ul>
+<p>这些包的边界写法是正面证据。但本轮仅读其记录，没有重跑日志，也没有遍历所有历史证据；不能据此给当前 SHA 的整个 Work Core、Runtime 或安全边界重新签署接受。</p>
+<h2 id="appendix-docs-16">不成立的缺陷提议</h2>
+<ul>
+<li>没把 SE 最新版自动采纳：有明确 adoption protocol，属于有意版本隔离</li>
+<li>old screenshots/source-preview 不等于当前 main：已保留身份、独立 owner，不能要求把历史 bytes 重标</li>
+<li>1886 通过而 visual/whole release open：这是诚实的不同证据类型，不是“状态矛盾”</li>
+<li>作者 receipt 被索引收录：不等于 independent acceptance；索引/receipt 明确提供 effect 和 not_run</li>
+<li>文档数量多、历史 owner 文件长、仍有中文、出现旧端口/路径：无具体失败后果，不列 bug</li>
+<li>source-controlled historical logs提及未跟踪保全或私有原件：这里只读取获准当前记录，未访问其外部对象；其不可访问性不自动阻断日常工作，因为有公开摘要和范围说明</li>
+</ul>
+<h2 id="appendix-docs-17">汇总与父任务可用结论</h2>
+<ol>
+<li>主文档路线和 authority 分界可用，PAPER、legacy、愿景/当前支持并未在入口处混为一谈</li>
+<li>D-DOC-01 是一处具体但低影响的发布状态导航错误，修正应仅移动当前链接</li>
+<li>Q-DOC-01 保留为 S6 固定源码身份补证项；未证明 UI/test 结果为假，不能将它包装成产品 P1/P2</li>
+<li>任何最终架构接受仍应依据其他 stream 对实代码的反例/不变量证据和原 owner 的裁决；本轮文档结构良好、链接可达或 build 已绿均不是替代物</li>
+</ol>
+</div></details></section><div class="footer">仅固定提交的静态审查 · 所有仓库引用均固定到 7e8e2531d422dc1a5048dffcf1ae3acc6e831de7 · 不包含仓库源码副本</div></div></body></html>

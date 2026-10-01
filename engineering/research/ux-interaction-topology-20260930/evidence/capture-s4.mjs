@@ -9,7 +9,6 @@
 //   node engineering/research/ux-interaction-topology-20260930/evidence/capture-s4.mjs [--data-dir <dir>]
 //
 // Author evidence, not visual or accessibility acceptance.
-import { writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { openHarness, sleep } from "./harness.mjs";
@@ -143,6 +142,6 @@ try {
 }
 void answerRun;
 
-await writeFile(path.join(OUT_DIR, "report.json"), `${JSON.stringify(report, null, 2)}\n`);
+await h.writeReport(report);
 console.log(JSON.stringify({ scenes: report.scenes.length, errors: report.errors }, null, 2));
 await h.close();

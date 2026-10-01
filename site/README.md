@@ -1,6 +1,6 @@
 # CourtWork 发布面
 
-本目录包含 CourtWork Pages 的叙事、产品导览、Chat、Features、Experts、Eval、安装与运行入口，以及固定来源的离线标本。当前组合媒体见[2026-09-14截图回执](../evidence/publication-release-20260914/README.md)，发布状态见[最终筹备回执](../engineering/release/final-preparation-2026-09-13/README.md)；本地构建与线上部署分别记录。
+本目录包含 CourtWork Pages 的叙事、产品导览、Chat、Features、Experts、Eval、安装与运行入口，以及固定来源的离线标本。当前组合媒体见[2026-09-14截图回执](../evidence/publication-release-20260914/README.md)，发布状态见[发布索引](../engineering/release/README.md#use-now)（最近一次部署回执为[2026-09-15](../engineering/release/product-node-2026-09-15/deployment.md)）；本地构建与线上部署分别记录。
 
 ```sh
 node site/build.mjs

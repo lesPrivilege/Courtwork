@@ -9,13 +9,12 @@
 //   node engineering/research/ux-interaction-topology-20260930/evidence/capture.mjs [--data-dir <dir>]
 //
 // Author evidence, not visual or accessibility acceptance.
-import { writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { openHarness, sleep } from "./harness.mjs";
 
 const OUT_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), "captures");
-const { origin: ORIGIN, call, until, cdp, evaluate, waitFor, click, open, closeAll, variant, shot, layout, popoverBox, close } = await openHarness({ outDir: OUT_DIR });
+const { origin: ORIGIN, call, until, cdp, evaluate, waitFor, click, open, closeAll, variant, shot, layout, popoverBox, writeReport, close } = await openHarness({ outDir: OUT_DIR });
 
 // Seed through the app's own API.
 const projectId = (await call("/projects", { method: "POST", body: JSON.stringify({ name: "租约审阅 Harborview" }) })).project.id;
@@ -142,6 +141,6 @@ for (const [width, height] of [[1440, 900], [390, 844]]) {
   }
 }
 
-await writeFile(path.join(OUT_DIR, "report.json"), `${JSON.stringify(report, null, 2)}\n`);
+await writeReport(report);
 console.log(JSON.stringify({ scenes: report.scenes.length, errors: report.errors }, null, 2));
 await close();

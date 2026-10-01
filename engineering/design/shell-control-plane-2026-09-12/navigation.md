@@ -1,6 +1,6 @@
 # FE-NAV-01…03 · Navigation history
 
-状态：已裁前端合同，未实现。先消费[现有Settings/overlay先例](../agent-interface-2026-09-10/precedents.md)，不把Settings hash支持泛称为完整deep link。
+状态：已裁前端合同。Shell 历史此后已实现，现行裁定与实现记录见 [09-navigation-commands](../../execution/claude-frontend-harness-2026-09-16/09-navigation-commands.md)；直接跳转失败回到轨迹当前位置、轨迹项不可用则落 Home，见 [2026-10-01 审查处置 F7](../../reviews/declaration-to-implementation-2026-10-01/README.md#dispositions)（本行 2026-10-01 更正，正文未改）。先消费[现有Settings/overlay先例](../agent-interface-2026-09-10/precedents.md)，不把Settings hash支持泛称为完整deep link。
 
 ## 历史单位
 

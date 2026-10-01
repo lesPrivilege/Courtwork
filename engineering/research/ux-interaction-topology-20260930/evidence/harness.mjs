@@ -3,16 +3,38 @@
 // only through the app's own API, and headless Chrome over CDP (after
 // engineering/design/chat-controls-2026-09-10/inventory/captures/capture.mjs).
 // The local fake provider only; no model call is made.
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
+import { createHash } from "node:crypto";
 import { mkdtemp, mkdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { startServer } from "../../../../app/server/index.mjs";
 
 const CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 export const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export async function openHarness({ outDir, prefix = "cw-ux-topology-capture-" }) {
+// Which product source a capture ran against: the commit, the tree of `app/`
+// at that commit, and, when `app/` has uncommitted changes, their paths and
+// the hash of the exact diff. A report without this cannot be tied to the
+// source it claims to show (engineering/verification.md, delivery evidence).
+export function sourceIdentity() {
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../..");
+  const git = (...args) => execFileSync("git", args, { cwd: root, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+  const uncommitted = git("status", "--porcelain", "--", "app").split("\n").filter(Boolean).map((line) => line.slice(3));
+  return {
+    commit: git("rev-parse", "HEAD").trim(),
+    productTree: git("rev-parse", "HEAD:app").trim(),
+    uncommittedProductPaths: uncommitted,
+    ...(uncommitted.length ? { uncommittedProductDiffSha256: createHash("sha256").update(git("diff", "HEAD", "--", "app")).digest("hex") } : {}),
+  };
+}
+
+export async function openHarness({ outDir: defaultOutDir, prefix = "cw-ux-topology-capture-" }) {
+  // `--out-dir <dir>` captures somewhere else, e.g. to compare a re-run with the kept captures.
+  const argOut = process.argv.indexOf("--out-dir");
+  const outDir = argOut > 0 ? path.resolve(process.argv[argOut + 1]) : defaultOutDir;
+  const source = sourceIdentity();
   const argDir = process.argv.indexOf("--data-dir");
   const work = argDir > 0 ? process.argv[argDir + 1] : await mkdtemp(path.join(tmpdir(), prefix));
   await mkdir(outDir, { recursive: true });
@@ -93,6 +115,8 @@ export async function openHarness({ outDir, prefix = "cw-ux-topology-capture-" }
     },
     // A control's box, and whether its visible label is cut (the rendered text is wider than its box).
     layout: (selector) => evaluate(`(() => { const n = document.querySelector(${JSON.stringify(selector)}); if (!n) return null; const r = n.getBoundingClientRect(); const label = n.querySelector('.button-label'); return { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height), visible: r.width > 0 && getComputedStyle(n).display !== 'none', label: label && getComputedStyle(label).display !== 'none' ? label.textContent : null, cut: label ? label.scrollWidth > label.clientWidth || label.getBoundingClientRect().width + 0.5 < (() => { const range = document.createRange(); range.selectNodeContents(label); return range.getBoundingClientRect().width; })() : null }; })()`),
+    // The report beside the captures, with the source it ran against.
+    writeReport: (report) => writeFile(path.join(outDir, "report.json"), `${JSON.stringify({ source, capturedAt: new Date().toISOString(), ...report }, null, 2)}\n`),
     popoverBox: () => evaluate(`(() => { const n = document.querySelector(':popover-open'); if (!n) return null; const r = n.getBoundingClientRect(); return { id: n.id, x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height) }; })()`),
     async close() {
       socket.close();

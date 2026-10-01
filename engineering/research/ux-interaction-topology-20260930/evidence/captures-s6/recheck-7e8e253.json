@@ -1,0 +1,182 @@
+{
+  "purpose": "Ties the kept S6 captures to a fixed source: the capture was run again at the commit below and compared with the kept files. The kept files and report.json are unchanged.",
+  "source": {
+    "commit": "7e8e2531d422dc1a5048dffcf1ae3acc6e831de7",
+    "productTree": "c008dfed37a2fe8ea03cfccf000b524721982521",
+    "uncommittedProductPaths": []
+  },
+  "recapturedAt": "2026-10-01T04:48:14.368Z",
+  "keptCapturesCommit": "7e8e2531d422dc1a5048dffcf1ae3acc6e831de7",
+  "reportScenesEqual": true,
+  "reportErrors": {
+    "kept": [],
+    "recapture": []
+  },
+  "identicalFiles": 6,
+  "differingFiles": 14,
+  "differencesSeen": "Five of the fourteen differing files were inspected side by side (chat-failed-1440-light, models-1440-light, remove-key-1440-light, remove-key-390-light, context-390-dark); the other nine were compared by pixel count only. Seen: the message clock times, the random port of the local fake provider wherever the connection is named, a focus ring left on \"Back to app\" in models-1440-light, and a shift of about one CSS pixel in the context popover text in context-390-dark. No label, control or arrangement differs.",
+  "files": [
+    {
+      "file": "chat-failed-1440-dark.png",
+      "keptSha256": "94797f47a84747c20432a58663f17089e9536ddec03421a1da5c8342f4351f3e",
+      "recaptureSha256": "53c3d8359d51fea04472267b0fd52ccd7caf8e7f0f2a32c02fc380cd85a14938",
+      "identical": false,
+      "sameSize": true,
+      "differingPixels": 2154,
+      "differingShare": 0.00166
+    },
+    {
+      "file": "chat-failed-1440-light.png",
+      "keptSha256": "c6ced29285dbcbff34c7c7e4a0fedf6107c84a8477804337f5a4680737289adc",
+      "recaptureSha256": "0f6d1c896a9d03f41ab6276af523e3492e9b12fd6b8036a55e46330dd5f9b1ee",
+      "identical": false,
+      "sameSize": true,
+      "differingPixels": 2155,
+      "differingShare": 0.00166
+    },
+    {
+      "file": "chat-failed-390-dark.png",
+      "keptSha256": "0c4daa172f2b1164738c5a104e5803fd9f16403c685fe1681482b48a48176590",
+      "recaptureSha256": "5c94901f6b5b70bd4aa6c9dc38c73e86ba19520c11b3b1bfb0361bf1521ead0b",
+      "identical": false,
+      "sameSize": true,
+      "differingPixels": 7223,
+      "differingShare": 0.00549
+    },
+    {
+      "file": "chat-failed-390-light.png",
+      "keptSha256": "7e44bd33329bbe571b743c2ed3cc5ca9e2b15f1a788164e1bde81f22b0657043",
+      "recaptureSha256": "c4514b51457a43cdc207ad0844de1b4614451b29f4f7e76515e217d50e5a0167",
+      "identical": false,
+      "sameSize": true,
+      "differingPixels": 7226,
+      "differingShare": 0.00549
+    },
+    {
+      "file": "context-1440-dark.png",
+      "keptSha256": "f7b3fc140697096057aa8c997469776b346dfe5b4e1cef05b748641b567db4b0",
+      "recaptureSha256": "ddf5af6c48ffb3decdb5536268cf886e6689b2fd873a68738e2d22b793a2de91",
+      "identical": false,
+      "sameSize": true,
+      "differingPixels": 3523,
+      "differingShare": 0.00272
+    },
+    {
+      "file": "context-1440-light.png",
+      "keptSha256": "b2db6b339f66ef951cda0f65c19b26ae479d2831345abe2f71fc10e3ea82ec33",
+      "recaptureSha256": "b6d9f78187b584b8a67a4f6370c7d51eb799e6161b021850a248fefb83f040e5",
+      "identical": false,
+      "sameSize": true,
+      "differingPixels": 1657,
+      "differingShare": 0.00128
+    },
+    {
+      "file": "context-390-dark.png",
+      "keptSha256": "98496805db74d341887390ac439a79db4f12f8737b8c301f6bfb4bf52aaf948f",
+      "recaptureSha256": "99dcea6899576230738179be52a6eea244151147bfed5b8a9021b2809eaa69c4",
+      "identical": false,
+      "sameSize": true,
+      "differingPixels": 10878,
+      "differingShare": 0.00826
+    },
+    {
+      "file": "context-390-light.png",
+      "keptSha256": "4022477a6893d27b1760848370ee1475f411a9c8e1a8450e042c87ed591b2266",
+      "recaptureSha256": "18c9ded3b50a78f2c1410d8636f547b21db677f7473470cd5537f01c815bf7d1",
+      "identical": false,
+      "sameSize": true,
+      "differingPixels": 5411,
+      "differingShare": 0.00411
+    },
+    {
+      "file": "models-1440-dark.png",
+      "keptSha256": "b634c6d96e74cf7fd635fb7e2e6ba038b4824ad5fd3a1c0c1c7e96b81f1be4c8",
+      "recaptureSha256": "a9e0e876628db79373a4060c427c4367492814b38da67a121bc9c7641810818f",
+      "identical": false,
+      "sameSize": true,
+      "differingPixels": 285,
+      "differingShare": 0.00022
+    },
+    {
+      "file": "models-1440-light.png",
+      "keptSha256": "be66cba0ae8c04d573eef5c3d2e3d3ccb6534f202579334068706c771e95707f",
+      "recaptureSha256": "f32be26e26d417b7ffa52ee420f8a0fd147409d1ca2a545a32461dc783ada101",
+      "identical": false,
+      "sameSize": true,
+      "differingPixels": 44862,
+      "differingShare": 0.03462
+    },
+    {
+      "file": "models-390-dark.png",
+      "keptSha256": "249782be70d787f01986d4bafbb0c2cf3b463164b4e58dfd114176197ba4f22c",
+      "recaptureSha256": "249782be70d787f01986d4bafbb0c2cf3b463164b4e58dfd114176197ba4f22c",
+      "identical": true
+    },
+    {
+      "file": "models-390-light.png",
+      "keptSha256": "c1f7c863ac5f18978bbab05c0eacda5f7c298ee1cf698f4ab484a0c6e92d17c8",
+      "recaptureSha256": "c1f7c863ac5f18978bbab05c0eacda5f7c298ee1cf698f4ab484a0c6e92d17c8",
+      "identical": true
+    },
+    {
+      "file": "remove-key-1440-dark.png",
+      "keptSha256": "bb3e04a9189672d2b507e8512d0291127918db1e8091d62131145efd606ee404",
+      "recaptureSha256": "dd72f2be10b23e5d27d15528035062b04172a6816283cf860c373eed588bd4c8",
+      "identical": false,
+      "sameSize": true,
+      "differingPixels": 3318,
+      "differingShare": 0.00256
+    },
+    {
+      "file": "remove-key-1440-light.png",
+      "keptSha256": "bccd9539cda102a77bc2340113ab402a8d62b93fef2aa1dc84d7103f63dafc56",
+      "recaptureSha256": "71ff66a06c1949f75bd5b1fdb70ee48ba541a3e412cb6eec2767740bedd385b5",
+      "identical": false,
+      "sameSize": true,
+      "differingPixels": 3356,
+      "differingShare": 0.00259
+    },
+    {
+      "file": "remove-key-390-dark.png",
+      "keptSha256": "d84119d418ba1f6cd217fcfc5d879eb55b19134d91cce2c9cd041390423bd6c5",
+      "recaptureSha256": "986cd9856391153e12aa1343b6985a442f1ab069d8b0a93faa50a11f9b5cde9d",
+      "identical": false,
+      "sameSize": true,
+      "differingPixels": 5652,
+      "differingShare": 0.00429
+    },
+    {
+      "file": "remove-key-390-light.png",
+      "keptSha256": "ccff17265838c7699410729f5913238846a46e6aa5e8de53c71f5f9d9d2a5abb",
+      "recaptureSha256": "aee252fa251f39dfdd6bdf4992e7793f2701ebc250625a99136a38f00fac59c4",
+      "identical": false,
+      "sameSize": true,
+      "differingPixels": 5652,
+      "differingShare": 0.00429
+    },
+    {
+      "file": "runtimes-1440-dark.png",
+      "keptSha256": "e8d1223e6096117017d3f59969e9d8df782d0def9d59a80cc36d0ba02b96561c",
+      "recaptureSha256": "e8d1223e6096117017d3f59969e9d8df782d0def9d59a80cc36d0ba02b96561c",
+      "identical": true
+    },
+    {
+      "file": "runtimes-1440-light.png",
+      "keptSha256": "058288142b0daeb1d2b2f7ccdc653612843de92909a77ebe18c9bea967ba2e21",
+      "recaptureSha256": "058288142b0daeb1d2b2f7ccdc653612843de92909a77ebe18c9bea967ba2e21",
+      "identical": true
+    },
+    {
+      "file": "runtimes-390-dark.png",
+      "keptSha256": "225875a25ae043e3c93d10a2e2e456c2b54bfce6ac309555899103dbd172a318",
+      "recaptureSha256": "225875a25ae043e3c93d10a2e2e456c2b54bfce6ac309555899103dbd172a318",
+      "identical": true
+    },
+    {
+      "file": "runtimes-390-light.png",
+      "keptSha256": "7bb362e38753b3721f20fcdb3ebb42087e34943bf5574583f720b6f42944ff5d",
+      "recaptureSha256": "7bb362e38753b3721f20fcdb3ebb42087e34943bf5574583f720b6f42944ff5d",
+      "identical": true
+    }
+  ]
+}
